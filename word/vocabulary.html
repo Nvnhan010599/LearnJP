@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học Từ Vựng Tiếng Nhật</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+    <div class="container">
+        <header>
+             <a href="../index.html" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+                &larr; Quay lại trang chủ
+            </a>
+            <div class="header-top">
+                <h1>📚 Học Từ Vựng Tiếng Nhật</h1>
+                <button id="theme-toggle" title="Chuyển đổi giao diện">🌙</button>
+            </div>
+            <p>Tải lên file Excel hoặc JSON để bắt đầu học</p>
+        </header>
+        
+        <div class="main-controls">
+            <input type="file" id="excelFile" accept=".xlsx" class="file-input">
+            <label for="excelFile" class="file-label">📂 Chọn file Excel...</label>
+        </div>
+
+        <div class="lesson-controls">
+            <select id="lessonSelect" onchange="onLessonChange()" disabled>
+                <option value="">-- Chọn bài học --</option>
+            </select>
+            
+            <select id="quizMode" onchange="onQuizModeChange()">
+                <option value="multipleChoice">Trắc nghiệm</option>
+                <option value="input">Nhập nghĩa</option>
+            </select>
+            
+            <select id="direction" onchange="onDirectionChange()">
+                <option value="jpToVn">Nhật ➔ Việt</option>
+                <option value="vnToJp">Việt ➔ Nhật</option>
+            </select>
+        </div>
+
+        <div id="stats">
+            <h3 id="statsTitle">📊 Thống kê</h3>
+            <div id="backButtonContainer"></div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Tổng cộng</span>
+                    <span id="totalWords" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Đã thuộc</span>
+                    <span id="learnedWords" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Đang học</span>
+                    <span id="learningWords" class="stat-value">0</span>
+                </div>
+                 <div class="stat-item">
+                    <span class="stat-label">Chưa học</span>
+                    <span id="newWords" class="stat-value">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="cardContainer">
+             <p class="placeholder-text">Vui lòng chọn một bài học để bắt đầu.</p>
+        </div>
+
+        <footer>
+             <button onclick="exportData()" class="footer-btn">📤 Xuất dữ liệu</button>
+             <input type="file" id="importFile" accept=".json" hidden>
+             <button onclick="document.getElementById('importFile').click()" class="footer-btn">📥 Nhập dữ liệu</button>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

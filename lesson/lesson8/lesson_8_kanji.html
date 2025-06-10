@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 8 - Kanji</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .japanese-text, h1, h2, h3, .main-tab { font-family: 'Noto Sans JP', sans-serif; }
+        rt { color: #c0392b; font-weight: 500; }
+        .main-tab.active { color: #2563eb; border-color: #2563eb; background-color: #eff6ff; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="text-center mb-6 relative">
+            <a href="../curriculum.html" class="absolute top-0 left-0 text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+                &larr; Quay lại trang chủ
+            </a>
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-700 japanese-text">
+                Bài 8: Cho và Nhận
+            </h1>
+        </header>
+
+        <!-- Main Navigation Tabs -->
+        <div class="mb-8 border-b-2 border-gray-200 sticky top-0 bg-white z-10">
+            <nav class="flex -mb-px" aria-label="Tabs">
+                 <a href="lesson_8_kanji.html" class="main-tab active text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Kanji
+                </a>
+                <a href="lesson_8_grammar.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Ngữ pháp
+                </a>
+                <a href="lesson_8_kaiwa.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Hội thoại
+                </a>
+                <a href="lesson_8_practice.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Bài tập
+                </a>
+            </nav>
+        </div>
+
+        <main>
+            <!-- Kanji Section -->
+            <div id="kanji-section" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 日 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">日</span> NHẬT</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> ひ, -び, -か</p><p><span class="font-bold text-blue-700">On:</span> ニチ, ジツ</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ (Kun):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>母<rt>はは</rt></ruby>の<ruby>日<rt>ひ</rt></ruby>, <ruby>月曜日<rt>げつようび</rt></ruby>, <ruby>日曜日<rt>にちようび</rt></ruby>, <ruby>何曜日<rt>なんようび</rt></ruby>, <ruby>二日<rt>ふつか</rt></ruby></p><p class="font-bold mt-3 mb-1">Ví dụ (On):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>日本<rt>にほん</rt></ruby>, <ruby>日本語<rt>にほんご</rt></ruby>, <ruby>毎日<rt>まいにち</rt></ruby>, <ruby>日記<rt>にっき</rt></ruby>, <ruby>平日<rt>へいじつ</rt></ruby></p></div></div>
+                    <!-- 月 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">月</span> NGUYỆT</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> つき</p><p><span class="font-bold text-blue-700">On:</span> ゲツ, ガツ</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ (Kun):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>月<rt>つき</rt></ruby></p><p class="font-bold mt-3 mb-1">Ví dụ (On):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>月曜日<rt>げつようび</rt></ruby>, <ruby>今月<rt>こんげつ</rt></ruby>, <ruby>来月<rt>らいげつ</rt></ruby>, ~<ruby>月<rt>がつ</rt></ruby></p></div></div>
+                    <!-- 火 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">火</span> HỎA</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> ひ</p><p><span class="font-bold text-blue-700">On:</span> カ</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ (Kun):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>火<rt>ひ</rt></ruby>, <ruby>花火<rt>はなび</rt></ruby></p><p class="font-bold mt-3 mb-1">Ví dụ (On):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>火曜日<rt>かようび</rt></ruby>, <ruby>火事<rt>かじ</rt></ruby></p></div></div>
+                    <!-- 水 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">水</span> THỦY</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> みず</p><p><span class="font-bold text-blue-700">On:</span> スイ</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ (Kun):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>水<rt>みず</rt></ruby></p><p class="font-bold mt-3 mb-1">Ví dụ (On):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>水曜日<rt>すいようび</rt></ruby>, <ruby>水道<rt>すいどう</rt></ruby>, <ruby>水泳<rt>すいえい</rt></ruby></p></div></div>
+                    <!-- 木 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">木</span> MỘC</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> き</p><p><span class="font-bold text-blue-700">On:</span> モク, ボク</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ (Kun):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>木<rt>き</rt></ruby></p><p class="font-bold mt-3 mb-1">Ví dụ (On):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>木曜日<rt>もくようび</rt></ruby></p></div></div>
+                    <!-- 金 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">金</span> KIM</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> かね</p><p><span class="font-bold text-blue-700">On:</span> キン</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ (Kun):</p><p class="japanese-text bg-gray-50 p-2 rounded">お<ruby>金<rt>かね</rt></ruby></p><p class="font-bold mt-3 mb-1">Ví dụ (On):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>金曜日<rt>きんようび</rt></ruby>, <ruby>貯金<rt>ちょきん</rt></ruby>します, <ruby>罰金<rt>ばっきん</rt></ruby></p></div></div>
+                    <!-- 土 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">土</span> THỔ</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> つち</p><p><span class="font-bold text-blue-700">On:</span> ド, ト</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mt-3 mb-1">Ví dụ (On):</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>土曜日<rt>どようび</rt></ruby>, お<ruby>土産<rt>みやげ</rt></ruby></p></div></div>
+                </div>
+            </div>
+        </main>
+        <footer class="text-center mt-12 py-4 border-t">
+            <p class="text-gray-500">Tạo bởi nvnhan, Dung Mori và Gemini</p>
+        </footer>
+    </div>
+</body>
+</html>

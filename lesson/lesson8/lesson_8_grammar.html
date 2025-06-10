@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 8 - Ngữ pháp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .japanese-text, h1, h2, h3, h4, .main-tab, .kaiwa-tab { font-family: 'Noto Sans JP', sans-serif; }
+        rt { color: #c0392b; font-weight: 500; }
+        .main-tab.active { color: #2563eb; border-color: #2563eb; background-color: #eff6ff; }
+        .verb-pill { cursor: grab; } .verb-pill:active { cursor: grabbing; }
+        .verb-pill.correct { background-color: #10b981; color: white; cursor: not-allowed; }
+        .verb-pill.incorrect { background-color: #ef4444; color: white; cursor: not-allowed; }
+        .verb-pill rt { color: #1f2937; font-size: 0.7em; }
+        .dropzone.drag-over { border-style: solid; background-color: #e0e7ff; }
+        .grammar-content { display: none; overflow: hidden; }
+        .grammar-toggle .arrow-icon { transition: transform 0.3s ease-in-out; }
+        .grammar-toggle.expanded .arrow-icon { transform: rotate(180deg); }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="text-center mb-6 relative">
+            <a href="../curriculum.html" class="absolute top-0 left-0 text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+                &larr; Quay lại trang chủ
+            </a>
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-700 japanese-text">
+                Bài 8: Cho và Nhận
+            </h1>
+        </header>
+
+        <!-- Main Navigation Tabs -->
+        <div class="mb-8 border-b-2 border-gray-200 sticky top-0 bg-white z-10">
+             <nav class="flex -mb-px" aria-label="Tabs">
+                 <a href="lesson_8_kanji.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Kanji
+                </a>
+                <a href="lesson_8_grammar.html" class="main-tab active text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Ngữ pháp
+                </a>
+                <a href="lesson_8_kaiwa.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Hội thoại
+                </a>
+                <a href="lesson_8_practice.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Bài tập
+                </a>
+            </nav>
+        </div>
+
+        <main>
+            <div id="grammar-section" class="space-y-4">
+                <!-- Grammar Point 1 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-blue-600 japanese-text">① Nで Vます</h2>
+                        <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Làm V bằng N (N là công cụ, phương tiện, ngôn ngữ). Dùng khi nói thực hiện hành động bằng phương tiện, công cụ, ngôn ngữ.</p>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-md">
+                                <h4 class="font-bold mb-2 text-gray-700">Câu hỏi:</h4>
+                                <p class="japanese-text">なにで Vますか。(Làm V bằng gì?)</p>
+                                <p class="japanese-text">なに<ruby>語<rt>ご</rt></ruby>で Vますか。(Làm V bằng ngôn ngữ gì?)</p>
+                            </div>
+                            <div class="p-4 bg-blue-50 rounded-md">
+                                 <h4 class="font-bold mb-2 text-blue-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                                <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                    <li>はさみで<ruby>紙<rt>かみ</rt></ruby>を<ruby>切<rt>き</rt></ruby>ります。</li>
+                                    <li>インターネットで<ruby>新聞<rt>しんぶん</rt></ruby>を<ruby>読<rt>よ</rt></ruby>みます。</li>
+                                    <li>ミーさんは<ruby>中国語<rt>ちゅうごくご</rt></ruby>でレポートを<ruby>書<rt>か</rt></ruby>きます。</li>
+                                    <li>なにでご<ruby>飯<rt>はん</rt></ruby>を<ruby>食<rt>た</rt></ruby>べますか。→ はしで<ruby>食<rt>た</rt></ruby>べます。</li>
+                                    <li>なに<ruby>語<rt>ご</rt></ruby>で<ruby>電話<rt>でんわ</rt></ruby>をかけますか。→ <ruby>英語<rt>えいご</rt></ruby>で<ruby>電話<rt>でんわ</rt></ruby>をかけます。</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-indigo-50 rounded-md">
+                                <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                                <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                    <li>なにで<ruby>漢字<rt>かんじ</rt></ruby>を<ruby>書<rt>か</rt></ruby>きますか。</li>
+                                    <li>なにでプレゼントを<ruby>送<rt>おく</rt></ruby>りますか。</li>
+                                    <li>なにで<ruby>日本語<rt>にほんご</rt></ruby>を<ruby>勉強<rt>べんきょう</rt></ruby>しますか。</li>
+                                    <li>なに<ruby>語<rt>ご</rt></ruby>で<ruby>手紙<rt>てがみ</rt></ruby>を<ruby>書<rt>か</rt></ruby>きますか。</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Grammar Point 2 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-green-600 japanese-text">② (Từ/Câu)は ~<ruby>語<rt>ご</rt></ruby>で<ruby>何<rt>なん</rt></ruby>ですか。</h2>
+                        <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="grammar-content mt-4">
+                         <p class="italic text-gray-600 mb-4">"Từ/Câu" trong tiếng ~ là gì? Dùng khi muốn nói 1 từ/cụm từ, 1 đồ vật nào đó trong tiếng nước khác.</p>
+                         <div class="space-y-4">
+                            <div class="p-4 bg-green-50 rounded-md">
+                                <h4 class="font-bold mb-2 text-green-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                                <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                    <li>「ありがとう」はベトナム<ruby>語<rt>ご</rt></ruby>で<ruby>何<rt>なん</rt></ruby>ですか。→「ありがとう」はベトナム<ruby>語<rt>ご</rt></ruby>で“cảm ơn”です。</li>
+                                    <li>“Tết”は<ruby>日本語<rt>にほんご</rt></ruby>で<ruby>何<rt>なん</rt></ruby>ですか。→ お<ruby>正月<rt>しょうがつ</rt></ruby>です。</li>
+                                    <li>これは<ruby>英語<rt>えいご</rt></ruby>で<ruby>何<rt>なん</rt></ruby>ですか。→ それは<ruby>英語<rt>えいご</rt></ruby>で“book”です。</li>
+                                </ul>
+                            </div>
+                             <div class="p-4 bg-indigo-50 rounded-md">
+                                 <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                                 <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                     <li>これは<ruby>日本語<rt>にほんご</rt></ruby>で<ruby>何<rt>なん</rt></ruby>ですか。</li>
+                                     <li>「おやすみなさい」は<ruby>英語<rt>えいご</rt></ruby>で<ruby>何<rt>なん</rt></ruby>ですか。</li>
+                                     <li>「すみません」はベトナム<ruby>語<rt>ご</rt></ruby>で<ruby>何<rt>なん</rt></ruby>ですか。</li>
+                                 </ol>
+                             </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Grammar Point 3 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-purple-600 japanese-text">③ Aは Bに Nを Vます (Hành động CHO)</h2>
+                        <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">A làm/tặng cho B cái gì đó.</p>
+                         <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-md">
+                                 <h4 class="font-bold mb-2 text-gray-700">Động từ sử dụng:</h4>
+                                 <p class="japanese-text">あげます, <ruby>貸<rt>か</rt></ruby>します, <ruby>書<rt>か</rt></ruby>きます, <ruby>電話<rt>でんわ</rt></ruby>をかけます, <ruby>教<rt>おし</rt></ruby>えます, <ruby>送<rt>おく</rt></ruby>ります…</p>
+                            </div>
+                            <div class="p-4 bg-purple-50 rounded-md">
+                                <h4 class="font-bold mb-2 text-purple-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                                 <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                     <li><ruby>家族<rt>かぞく</rt></ruby>に<ruby>電話<rt>でんわ</rt></ruby>をかけます。</li>
+                                     <li><ruby>先生<rt>せんせい</rt></ruby>にメールを<ruby>送<rt>おく</rt></ruby>ります。</li>
+                                     <li><ruby>彼<rt>かれ</rt></ruby>に<ruby>手紙<rt>てがみ</rt></ruby>を<ruby>書<rt>か</rt></ruby>きます。</li>
+                                     <li><ruby>誕生日<rt>たんじょうび</rt></ruby>に<ruby>母<rt>はは</rt></ruby>になにをあげますか。→<ruby>誕生日<rt>たんじょうび</rt></ruby>に<ruby>母<rt>はは</rt></ruby>に<ruby>花<rt>はな</rt></ruby>をあげます。</li>
+                                     <li><ruby>山田<rt>やまだ</rt></ruby>さんはだれに<ruby>辞書<rt>じしょ</rt></ruby>をあげますか。→ ミーさんに<ruby>辞書<rt>じしょ</rt></ruby>をあげます。</li>
+                                     <li>リンさんはチャンさんにお<ruby>金<rt>かね</rt></ruby>を<ruby>貸<rt>か</rt></ruby>します。</li>
+                                     <li>チュン<ruby>先生<rt>せんせい</rt></ruby>は<ruby>学生<rt>がくせい</rt></ruby>に<ruby>日本語<rt>にほんご</rt></ruby>を<ruby>教<rt>おし</rt></ruby>えます。</li>
+                                 </ul>
+                            </div>
+                             <div class="p-4 bg-indigo-50 rounded-md">
+                                 <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                                 <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                     <li>お<ruby>父<rt>とう</rt></ruby>さんの<ruby>誕生日<rt>たんじょうび</rt></ruby>になにをあげますか。</li>
+                                     <li>だれに<ruby>本<rt>ほん</rt></ruby>を<ruby>貸<rt>か</rt></ruby>しましたか。</li>
+                                     <li>だれになにをあげましたか。</li>
+                                 </ol>
+                             </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Grammar Point 4 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-yellow-600 japanese-text">④ Aは Bに(から) Nを Vます (Hành động NHẬN)</h2>
+                        <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">A nhận từ B cái gì đó.</p>
+                         <div class="space-y-4">
+                             <div class="p-4 bg-gray-50 rounded-md">
+                                 <h4 class="font-bold mb-2 text-gray-700">Động từ sử dụng:</h4>
+                                 <p class="japanese-text">もらいます, <ruby>借<rt>か</rt></ruby>ります, <ruby>習<rt>なら</rt></ruby>います</p>
+                             </div>
+                            <div class="p-4 bg-yellow-50 rounded-md">
+                                 <h4 class="font-bold mb-2 text-yellow-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                                 <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                    <li><ruby>私<rt>わたし</rt></ruby>は<ruby>母<rt>はは</rt></ruby>にシャツをもらいます。</li>
+                                    <li>チャンさんはリンさんにお<ruby>金<rt>かね</rt></ruby>を<ruby>借<rt>か</rt></ruby>ります。</li>
+                                    <li>ミーさんはタナカ<ruby>先生<rt>せんせい</rt></ruby>に<ruby>英語<rt>えいご</rt></ruby>を<ruby>習<rt>なら</rt></ruby>います。</li>
+                                    <li>パクさんは<ruby>会社<rt>かいしゃ</rt></ruby>からメールをもらいます。</li>
+                                    <li>キムさんのお<ruby>母<rt>かあ</rt></ruby>さんになにをもらいましたか。→ プレゼントをもらいました。</li>
+                                    <li>ランさんはだれにこのきれいなくつを<ruby>借<rt>か</rt></ruby>りましたか。→ <ruby>山田<rt>やまだ</rt></ruby>さんに<ruby>借<rt>か</rt></ruby>りました。</li>
+                                 </ul>
+                            </div>
+                             <div class="p-4 bg-indigo-50 rounded-md">
+                                 <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                                 <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                     <li><ruby>誕生日<rt>たんじょうび</rt></ruby>にあなたはだれになにをもらいましたか。</li>
+                                     <li><ruby>誰<rt>だれ</rt></ruby>に<ruby>日本語<rt>にほんご</rt></ruby>を<ruby>習<rt>なら</rt></ruby>いますか。</li>
+                                 </ol>
+                             </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Verb Practice Section -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-gray-800 japanese-text">Bài tập: Phân loại Động từ</h2>
+                        <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Kéo và thả các động từ vào nhóm "CHO" hoặc "NHẬN" tương ứng để ghi nhớ.</p>
+                
+                        <div id="verb-source" class="p-4 bg-gray-100 rounded-lg flex flex-wrap gap-3 justify-center mb-6 min-h-[50px]">
+                            <!-- Draggable verbs will be generated here by JS -->
+                        </div>
+                
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Dropzone for "CHO" -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-center text-purple-700 mb-2">Nhóm CHO</h4>
+                                <div id="cho-box" data-group="cho" class="dropzone h-48 bg-purple-50 border-2 border-dashed border-purple-300 rounded-lg p-3 space-y-2 overflow-y-auto"></div>
+                            </div>
+                
+                            <!-- Dropzone for "NHẬN" -->
+                            <div>
+                                 <h4 class="text-lg font-semibold text-center text-yellow-700 mb-2">Nhóm NHẬN</h4>
+                                 <div id="nhan-box" data-group="nhan" class="dropzone h-48 bg-yellow-50 border-2 border-dashed border-yellow-300 rounded-lg p-3 space-y-2 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                         <div class="text-center mt-6">
+                             <button id="reset-verb-exercise" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">Làm lại bài tập</button>
+                         </div>
+                    </div>
+                </section>
+
+                <!-- Grammar Point 5 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-red-600 japanese-text">⑤ もう Vましたか。</h2>
+                        <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Đã làm V rồi phải không?</p>
+                         <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-md">
+                                <h4 class="font-bold mb-2 text-gray-700">Cấu trúc trả lời:</h4>
+                                <p class="japanese-text"><strong>Hỏi:</strong> もう Vましたか。</p>
+                                <p class="japanese-text"><strong>Trả lời (Có):</strong> はい、もう Vました。</p>
+                                <p class="japanese-text"><strong>Trả lời (Chưa):</strong> いいえ、まだです。これからVます。</p>
+                            </div>
+                            <div class="p-4 bg-red-50 rounded-md">
+                                <h4 class="font-bold mb-2 text-red-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                                 <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                    <li><strong>Q:</strong> もう、<ruby>朝<rt>あさ</rt></ruby>ごはんを<ruby>食<rt>た</rt></ruby>べましたか。<br><strong>A:</strong> はい、もう<ruby>食<rt>た</rt></ruby>べました。</li>
+                                    <li><strong>Q:</strong> もう、<ruby>家族<rt>かぞく</rt></ruby>に<ruby>手紙<rt>てがみ</rt></ruby>を<ruby>送<rt>おく</rt></ruby>りましたか。<br><strong>A:</strong> いいえ、まだです。これから<ruby>送<rt>おく</rt></ruby>ります。</li>
+                                    <li><strong>Q:</strong> もう<ruby>第6課<rt>だいろっか</rt></ruby>が<ruby>終<rt>お</rt></ruby>わりましたか。<br><strong>A:</strong> はい、もう<ruby>終<rt>お</rt></ruby>わりました。</li>
+                                 </ul>
+                            </div>
+                             <div class="p-4 bg-indigo-50 rounded-md">
+                                 <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                                 <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                     <li>もう<ruby>宿題<rt>しゅくだい</rt></ruby>をしましたか。</li>
+                                     <li>もう<ruby>今日<rt>きょう</rt></ruby>の<ruby>新聞<rt>しんぶん</rt></ruby>を<ruby>読<rt>よ</rt></ruby>みましたか。</li>
+                                     <li>もうレポートを<ruby>送<rt>おく</rt></ruby>りましたか。</li>
+                                 </ol>
+                             </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+         <footer class="text-center mt-12 py-4 border-t">
+            <p class="text-gray-500">Tạo bởi nvnhan, Dung Mori và Gemini</p>
+        </footer>
+    </div>
+    <script>
+        // JS cho trang ngữ pháp
+        document.querySelectorAll('.grammar-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('expanded');
+                const content = toggle.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        });
+
+        // JS cho bài tập kéo thả động từ
+        const verbs = [
+            { html: 'あげます', group: 'cho' },
+            { html: '<ruby>貸<rt>か</rt></ruby>します', group: 'cho' },
+            { html: '<ruby>書<rt>か</rt></ruby>きます', group: 'cho' },
+            { html: '<ruby>電話<rt>でんわ</rt></ruby>をかけます', group: 'cho' },
+            { html: '<ruby>教<rt>おし</rt></ruby>えます', group: 'cho' },
+            { html: '<ruby>送<rt>おく</rt></ruby>ります', group: 'cho' },
+            { html: 'もらいます', group: 'nhan' },
+            { html: '<ruby>借<rt>か</rt></ruby>ります', group: 'nhan' },
+            { html: '<ruby>習<rt>なら</rt></ruby>います', group: 'nhan' }
+        ];
+
+        const verbSourceContainer = document.getElementById('verb-source');
+        const dropzones = document.querySelectorAll('.dropzone');
+        const resetVerbBtn = document.getElementById('reset-verb-exercise');
+
+        function initializeVerbExercise() {
+            if (!verbSourceContainer) return;
+            verbSourceContainer.innerHTML = ''; // Clear previous verbs
+            verbs.sort(() => Math.random() - 0.5).forEach((verb, index) => {
+                const pill = document.createElement('div');
+                pill.id = `verb-${index}`;
+                pill.innerHTML = verb.html;
+                pill.dataset.group = verb.group;
+                pill.draggable = true;
+                pill.className = 'verb-pill japanese-text p-2 bg-white border rounded-full shadow-sm';
+                pill.addEventListener('dragstart', handleDragStart);
+                verbSourceContainer.appendChild(pill);
+            });
+            dropzones.forEach(dz => {
+                dz.innerHTML = ''; // Clear dropzones
+            });
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            e.dataTransfer.setData('text/group', e.target.dataset.group);
+        }
+
+        dropzones.forEach(zone => {
+            zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+            zone.addEventListener('dragleave', () => { zone.classList.remove('drag-over'); });
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const id = e.dataTransfer.getData('text/plain');
+                const group = e.dataTransfer.getData('text/group');
+                const draggableElement = document.getElementById(id);
+                if (draggableElement && zone.dataset.group === group) { draggableElement.classList.add('correct'); }
+                else if(draggableElement) { draggableElement.classList.add('incorrect'); }
+                if(draggableElement) { draggableElement.draggable = false; zone.appendChild(draggableElement); }
+            });
+        });
+        
+        if (resetVerbBtn) { resetVerbBtn.addEventListener('click', initializeVerbExercise); }
+        initializeVerbExercise();
+    </script>
+</body>
+</html>
