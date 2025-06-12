@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 9 - Ngữ pháp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .japanese-text, h1, h2, h3, .main-tab, h4 { font-family: 'Noto Sans JP', sans-serif; }
+        rt { color: #c0392b; font-weight: 500; }
+        .main-tab.active { color: #2563eb; border-color: #2563eb; background-color: #eff6ff; }
+        .grammar-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+        .grammar-toggle .arrow-icon { transition: transform 0.3s ease-in-out; }
+        .grammar-toggle.expanded .arrow-icon { transform: rotate(180deg); }
+        /* Flashcard Styles */
+        .flashcard-container { perspective: 1000px; }
+        .flashcard { width: 100%; height: 100px; position: relative; transform-style: preserve-3d; transition: transform 0.6s; cursor: pointer; }
+        .flashcard.is-flipped { transform: rotateY(180deg); }
+        .flashcard-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .flashcard-front { background-color: #f0f9ff; border: 1px solid #bae6fd; }
+        .flashcard-back { background-color: #e0e7ff; border: 1px solid #c7d2fe; transform: rotateY(180deg); }
+        /* Adverb match styles */
+        .adverb-match-item { cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+        .adverb-match-item:hover { background-color: #fefce8; }
+        .adverb-match-item.selected { background-color: #fde68a; border-color: #facc15; }
+        .adverb-match-item.correct { background-color: #dcfce7; border-color: #22c55e; cursor: default; }
+        .adverb-match-item.incorrect { animation: shake 0.5s; background-color: #fee2e2; border-color: #ef4444; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        /* Notes Section Styles */
+        #note-editor { min-height: 150px; }
+        .note-display-item { border-left: 4px solid #a5b4fc; }
+        .note-source-title { font-size: 0.8rem; font-weight: 600; color: #4338ca; }
+        .note-content p { margin-bottom: 0.5rem; }
+        #note-status, #copy-status { transition: opacity 0.5s ease-out; }
+        .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 0 1px #ccc; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="text-center mb-6 relative">
+             <a href="../curriculum.html" class="absolute top-0 left-0 text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+                &larr; Quay lại trang chủ
+            </a>
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-700 japanese-text">
+                Bài 9: Tôi yêu Nhật Bản
+            </h1>
+        </header>
+
+        <!-- Main Navigation Tabs -->
+        <div class="mb-8 border-b-2 border-gray-200 sticky top-0 bg-white z-10">
+             <nav class="flex -mb-px" aria-label="Tabs">
+                 <a href="lesson_9_kanji.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Kanji
+                </a>
+                <a href="lesson_9_vocabulary.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Từ vựng
+                </a>                
+                <a href="lesson_9_grammar.html" class="main-tab active text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Ngữ pháp
+                </a>
+                <a href="lesson_9_kaiwa.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Hội thoại
+                </a>
+                <a href="lesson_9_practice.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/4 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Bài tập
+                </a>
+            </nav>
+        </div>
+
+        <main>
+            <div id="grammar-section" class="space-y-4">
+                <!-- Grammar Point 1 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-blue-600 japanese-text">① Trợ từ「が」với Động từ & Tính từ</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-blue-100" data-section-title="① Trợ từ「が」với Động từ & Tính từ" title="Thêm ghi chú"><svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Dùng trợ từ「が」để chỉ đối tượng của các động từ và tính từ chỉ năng lực, sở hữu, sở thích, v.v.</p>
+                        <div class="p-4 bg-gray-50 rounded-md mb-6">
+                             <h4 class="font-bold mb-3 text-gray-700">Các từ vựng thường dùng:</h4>
+                             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                 <div class="p-3 bg-white border rounded-lg text-center shadow-sm"><p class="japanese-text text-xl font-bold">あります</p><p class="text-gray-600 text-sm">Có (sở hữu)</p></div>
+                                 <div class="p-3 bg-white border rounded-lg text-center shadow-sm"><p class="japanese-text text-xl font-bold">わかります</p><p class="text-gray-600 text-sm">Hiểu / Biết</p></div>
+                                 <div class="p-3 bg-white border rounded-lg text-center shadow-sm"><p class="japanese-text text-xl font-bold"><ruby>好<rt>す</rt></ruby>きです</p><p class="text-gray-600 text-sm">Thích</p></div>
+                                 <div class="p-3 bg-white border rounded-lg text-center shadow-sm"><p class="japanese-text text-xl font-bold"><ruby>嫌<rt>きら</rt></ruby>いです</p><p class="text-gray-600 text-sm">Ghét</p></div>
+                                 <div class="p-3 bg-white border rounded-lg text-center shadow-sm"><p class="japanese-text text-xl font-bold"><ruby>上手<rt>じょうず</rt></ruby>です</p><p class="text-gray-600 text-sm">Giỏi</p></div>
+                                 <div class="p-3 bg-white border rounded-lg text-center shadow-sm"><p class="japanese-text text-xl font-bold"><ruby>下手<rt>へた</rt></ruby>です</p><p class="text-gray-600 text-sm">Kém</p></div>
+                             </div>
+                        </div>
+                         <div class="p-4 bg-teal-50 rounded-md mb-4">
+                             <h4 class="font-bold mb-3 text-teal-800 japanese-text">Bài tập nhỏ: Flashcard</h4>
+                             <p class="text-sm italic mb-3">Nhấn vào thẻ để xem nghĩa và ghi nhớ.</p>
+                             <div id="flashcard-container" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                         </div>
+                        <div class="p-4 bg-blue-50 rounded-md mb-4">
+                             <h4 class="font-bold mb-2 text-blue-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                            <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                <li><ruby>私<rt>わたし</rt></ruby>は<ruby>日本語<rt>にほんご</rt></ruby>がわかります。</li>
+                                <li><ruby>彼<rt>かれ</rt></ruby>は<ruby>日本<rt>にほん</rt></ruby>のカメラがあります。</li>
+                                <li><ruby>小山<rt>こやま</rt></ruby>さんはサッカーが<ruby>好<rt>す</rt></ruby>きです。</li>
+                                <li><ruby>英語<rt>えいご</rt></ruby>がわかりますか。 → いいえ、<ruby>英語<rt>えいご</rt></ruby>がわかりません。</li>
+                                <li><ruby>田中先生<rt>たなかせんせい</rt></ruby>は<ruby>料理<rt>りょうり</rt></ruby>が<ruby>上手<rt>じょうず</rt></ruby>ですか。 → いいえ、<ruby>上手<rt>じょうず</rt></ruby>じゃありません。<ruby>下手<rt>へた</rt></ruby>です。</li>
+                            </ul>
+                        </div>
+                         <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <p class="text-sm italic mb-2">Dùng các từ dưới đây để viết câu hỏi và câu trả lời phù hợp.</p>
+                             <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li>フランス<ruby>語<rt>ご</rt></ruby> (はい)</li>
+                                 <li>お<ruby>酒<rt>さけ</rt></ruby> (いいえ)</li>
+                                 <li>アニメ (いいえ)</li>
+                             </ul>
+                         </div>
+                    </div>
+                </section>
+                <!-- Grammar Point 2 -->
+                 <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-green-600 japanese-text">② どんな N</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-green-100" data-section-title="② どんな N" title="Thêm ghi chú"><svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Dùng để hỏi về tính chất, nội dung của danh từ N. "N như thế nào?".</p>
+                         <div class="p-4 bg-green-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-green-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                            <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                <li>どんな<ruby>飲<rt>の</rt></ruby>み<ruby>物<rt>もの</rt></ruby>が<ruby>好<rt>す</rt></ruby>きですか。→ ビールが<ruby>好<rt>す</rt></ruby>きです。</li>
+                                <li>どんなスポーツが<ruby>上手<rt>じょうず</rt></ruby>ですか。→ サッカーが<ruby>上手<rt>じょうず</rt></ruby>です。</li>
+                                <li>どんな<ruby>食<rt>た</rt></ruby>べ<ruby>物<rt>もの</rt></ruby>が<ruby>嫌<rt>きら</rt></ruby>いですか。→ マムトムが<ruby>嫌<rt>きら</rt></ruby>いです。</li>
+                            </ul>
+                        </div>
+                         <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li>どんな<ruby>音楽<rt>おんがく</rt></ruby>が<ruby>好<rt>す</rt></ruby>きですか。</li>
+                                 <li>どんな<ruby>車<rt>くるま</rt></ruby>が<ruby>きら<rt>きら</rt></ruby>いですか。</li>
+                                 <li>どんなドラマが<ruby>好<rt>す</rt></ruby>きですか。</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+                <!-- Grammar Point 3 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-purple-600 japanese-text">③ Phó từ chỉ mức độ/số lượng</h2>
+                         <button class="add-note-btn p-1 rounded-full hover:bg-purple-100" data-section-title="③ Phó từ chỉ mức độ/số lượng" title="Thêm ghi chú"><svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Các phó từ như よく, だいたい, たくさん, 少し, あまり, 全然 đứng trước động từ để bổ nghĩa.</p>
+                        
+                        <div class="p-4 bg-gray-50 rounded-md mb-6">
+                            <h4 class="font-bold mb-3 text-gray-700">Bảng Mức độ / Số lượng:</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                                <div>
+                                    <h5 class="font-semibold text-lg mb-2">MỨC ĐỘ</h5>
+                                    <table class="w-full">
+                                        <tbody>
+                                            <tr class="border-b"><td class="py-2 japanese-text">よく</td><td class="py-2">90%</td></tr>
+                                            <tr class="border-b"><td class="py-2 japanese-text">だいたい</td><td class="py-2">70%</td></tr>
+                                            <tr class="border-b"><td class="py-2 japanese-text"><ruby>少<rt>すこ</rt></ruby>し</td><td class="py-2">30%</td></tr>
+                                            <tr class="border-b"><td class="py-2 japanese-text">あまり (+ Vません)</td><td class="py-2">20%</td></tr>
+                                            <tr><td class="py-2 japanese-text"><ruby>全然<rt>ぜんぜん</rt></ruby> (+ Vません)</td><td class="py-2">0%</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div>
+                                    <h5 class="font-semibold text-lg mb-2">SỐ LƯỢNG</h5>
+                                    <table class="w-full">
+                                        <tbody>
+                                            <tr class="border-b"><td class="py-2 japanese-text">たくさん</td><td class="py-2">90%</td></tr>
+                                            <tr class="border-b"><td class="py-2 japanese-text"><ruby>少<rt>すこ</rt></ruby>し</td><td class="py-2">30%</td></tr>
+                                            <tr class="border-b"><td class="py-2 japanese-text">あまり (+ Vません)</td><td class="py-2">20%</td></tr>
+                                            <tr><td class="py-2 japanese-text"><ruby>全然<rt>ぜんぜん</rt></ruby> (+ Vません)</td><td class="py-2">0%</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                         <div class="p-4 bg-yellow-50 rounded-md mb-4">
+                             <h4 class="font-bold mb-3 text-yellow-800 japanese-text">Bài tập nhỏ: Ghép Mức độ</h4>
+                             <p class="text-sm italic mb-3">Ghép phó từ với mức độ tương ứng.</p>
+                             <div class="grid grid-cols-2 gap-4">
+                                <div id="adverb-column" class="space-y-3"></div>
+                                <div id="percent-column" class="space-y-3"></div>
+                             </div>
+                             <div class="text-center mt-4"><button id="adverb-reset-btn" class="text-sm text-gray-600 hover:text-black">Làm lại</button></div>
+                         </div>
+                         <div class="p-4 bg-purple-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-purple-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                             <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>日本語<rt>にほんご</rt></ruby>がよく<ruby>分<rt>わ</rt></ruby>かります。</li>
+                                 <li><ruby>漢字<rt>かんじ</rt></ruby>が<ruby>少<rt>すこ</rt></ruby>し<ruby>分<rt>わ</rt></ruby>かります。</li>
+                                 <li>お<ruby>金<rt>かね</rt></ruby>がたくさんあります。</li>
+                                 <li>この<ruby>映画<rt>えいが</rt></ruby>は<ruby>全然<rt>ぜんぜん</rt></ruby><ruby>面白<rt>おもしろ</rt></ruby>くないです。</li>
+                                 <li><ruby>私<rt>わたし</rt></ruby>はビールをあまり<ruby>飲<rt>の</rt></ruby>みません。</li>
+                             </ul>
+                        </div>
+                         <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <p class="text-sm italic mb-2">Dùng các từ dưới đây để viết câu hỏi và câu trả lời phù hợp.</p>
+                             <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>英語<rt>えいご</rt></ruby>・あまり</li>
+                                 <li><ruby>時間<rt>じかん</rt></ruby>・<ruby>全然<rt>ぜんぜん</rt></ruby></li>
+                                 <li><ruby>中国語<rt>ちゅうごくご</rt></ruby>・だいたい</li>
+                             </ul>
+                         </div>
+                    </div>
+                </section>
+                 <!-- Grammar Point 4 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-yellow-600 japanese-text">④ S1 から、S2</h2>
+                         <button class="add-note-btn p-1 rounded-full hover:bg-yellow-100" data-section-title="④ S1 から、S2" title="Thêm ghi chú"><svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Dùng để nối hai câu, trong đó S1 là nguyên nhân của S2. "Vì S1, nên S2".</p>
+                         <div class="p-4 bg-yellow-50 rounded-md mb-4">
+                             <h4 class="font-bold mb-2 text-yellow-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                             <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                <li><ruby>寿司<rt>すし</rt></ruby>が<ruby>好<rt>す</rt></ruby>きですから、<ruby>毎日<rt>まいにち</rt></ruby><ruby>寿司<rt>すし</rt></ruby>を<ruby>食<rt>た</rt></ruby>べます。</li>
+                                <li><ruby>時間<rt>じかん</rt></ruby>がありませんから、サッカーをしません。</li>
+                                <li><ruby>仕事<rt>しごと</rt></ruby>がありますから、<ruby>会社<rt>かいしゃ</rt></ruby>へ<ruby>行<rt>い</rt></ruby>きました。</li>
+                                <li><ruby>今日<rt>きょう</rt></ruby>は<ruby>暑<rt>あつ</rt></ruby>いですから、アイスクリームを<ruby>食<rt>た</rt></ruby>べます。</li>
+                                <li><ruby>日本語<rt>にほんご</rt></ruby>が<ruby>下手<rt>へた</rt></ruby>ですから、たくさん<ruby>勉強<rt>べんきょう</rt></ruby>します。</li>
+                             </ul>
+                        </div>
+                        <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>野菜<rt>やさい</rt></ruby>が<ruby>嫌<rt>きら</rt></ruby>いですから、...</li>
+                                 <li><ruby>用事<rt>ようじ</rt></ruby>がありますから、...</li>
+                                 <li><ruby>今日<rt>きょう</rt></ruby>は<ruby>日曜日<rt>にちようび</rt></ruby>ですから、...</li>
+                                 <li>...から、<ruby>朝<rt>あさ</rt></ruby>ご<ruby>飯<rt>はん</rt></ruby>を<ruby>食<rt>た</rt></ruby>べません。</li>
+                                 <li>...から、<ruby>日本語<rt>にほんご</rt></ruby>を<ruby>勉強<rt>べんきょう</rt></ruby>します。</li>
+                                 <li>...から、どこもいきませんでした。</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+                <!-- Grammar Point 5 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-red-600 japanese-text">⑤ どうして...か。</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-red-100" data-section-title="⑤ どうして...か。" title="Thêm ghi chú"><svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Dùng để hỏi nguyên nhân, lý do. "Tại sao?". Câu trả lời thường có ～から ở cuối.</p>
+                         <div class="p-4 bg-red-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-red-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                             <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                <li><strong>A:</strong> どうして<ruby>日本語<rt>にほんご</rt></ruby>を<ruby>勉強<rt>べんきょう</rt></ruby>しますか。<br><strong>B:</strong> <ruby>来年<rt>らいねん</rt></ruby>の<ruby>四月<rt>しがつ</rt></ruby>に<ruby>日本<rt>にほん</rt></ruby>へ<ruby>行<rt>い</rt></ruby>きますから。</li>
+                                <li><strong>A:</strong> どうして<ruby>昨日<rt>きのう</rt></ruby>パーティーに<ruby>来<rt>き</rt></ruby>ませんでしたか。<br><strong>B:</strong> <ruby>宿題<rt>しゅくだい</rt></ruby>がありましたから。</li>
+                                <li><strong>A:</strong> <ruby>今日<rt>きょう</rt></ruby>、<ruby>私<rt>わたし</rt></ruby>は<ruby>早<rt>はや</rt></ruby>く<ruby>帰<rt>かえ</rt></ruby>ります。<br><strong>B:</strong> どうしてですか。<br><strong>A:</strong> <ruby>用事<rt>ようじ</rt></ruby>がありますから。</li>
+                             </ul>
+                        </div>
+                        <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <p class="text-sm italic mb-2">Dùng các từ dưới đây để viết câu hỏi và câu trả lời phù hợp.</p>
+                             <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>英語<rt>えいご</rt></ruby>の<ruby>本<rt>ほん</rt></ruby>を<ruby>買<rt>か</rt></ruby>いました (<ruby>来月<rt>らいげつ</rt></ruby>テストがあります)</li>
+                                 <li>カラオケに<ruby>行<rt>い</rt></ruby>きません (<ruby>歌<rt>うた</rt></ruby>が<ruby>下手<rt>へた</rt></ruby>です)</li>
+                                 <li><ruby>新<rt>あたら</rt></ruby>しいケータイを<ruby>買<rt>か</rt></ruby>います (お<ruby>金<rt>かね</rt></ruby>があります)</li>
+                             </ul>
+                         </div>
+                    </div>
+                </section>
+                 <!-- Aggregate Notes Section -->
+                <section class="bg-white p-6 rounded-lg shadow-md mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Ghi chú cá nhân</h2>
+                    <div id="notes-display-area" class="space-y-4">
+                        <!-- Saved notes will be rendered here -->
+                    </div>
+                    <div class="flex items-center justify-end mt-4 gap-2">
+                         <span id="copy-status" class="text-green-600 font-semibold opacity-0 mr-4">Đã sao chép!</span>
+                         <button id="copy-all-notes-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Sao chép tất cả</button>
+                         <button id="clear-all-notes-btn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">Xóa tất cả</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+         <footer class="text-center mt-12 py-4 border-t">
+            <p class="text-gray-500">Tạo bởi nvnhan, Dung Mori và Gemini</p>
+        </footer>
+    </div>
+    
+    <!-- Note Editor & Delete Confirmation Modals will go here -->
+    <div id="note-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <h3 id="modal-title" class="text-xl leading-6 font-medium text-gray-900 mb-4">Thêm Ghi chú</h3>
+            <div id="editor-toolbar" class="flex items-center gap-2 p-2 bg-gray-100 rounded-t-md border-b">
+                <button class="px-3 py-1 hover:bg-gray-200 rounded" data-command="bold"><b>B</b></button>
+                <button class="px-3 py-1 hover:bg-gray-200 rounded" data-command="italic"><i>I</i></button>
+                <button class="px-3 py-1 hover:bg-gray-200 rounded" data-command="underline"><u>U</u></button>
+                <div class="w-px h-6 bg-gray-300"></div>
+                <div class="color-palette flex items-center gap-2">
+                    <button class="color-swatch" style="background-color: #000000;" data-color="#000000"></button>
+                    <button class="color-swatch" style="background-color: #ef4444;" data-color="#ef4444"></button>
+                    <button class="color-swatch" style="background-color: #3b82f6;" data-color="#3b82f6"></button>
+                    <button class="color-swatch" style="background-color: #22c55e;" data-color="#22c55e"></button>
+                </div>
+                <input type="color" id="note-color-picker" class="w-8 h-8 p-0 border-none bg-transparent cursor-pointer" title="Chọn màu khác">
+            </div>
+            <div id="note-editor" contenteditable="true" class="w-full p-3 border border-gray-300 rounded-b-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" style="min-height: 200px;"></div>
+            <div class="flex items-center justify-between mt-4">
+                 <span id="note-status" class="text-green-600 font-semibold opacity-0">Đã lưu!</span>
+                <div class="flex gap-2">
+                    <button id="cancel-note-btn" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400">Hủy</button>
+                    <button id="save-note-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h3 id="delete-modal-title" class="text-lg leading-6 font-medium text-gray-900">Xóa ghi chú?</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p id="delete-modal-text" class="text-sm text-gray-500"></p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="confirm-delete-btn" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">Xóa</button>
+                    <button id="cancel-delete-btn" class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 mt-2">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // JS for grammar page
+            document.querySelectorAll('.grammar-toggle').forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    toggle.classList.toggle('expanded');
+                    const content = toggle.nextElementSibling;
+                    if (content.style.maxHeight) { 
+                        content.style.maxHeight = null;
+                    } else { 
+                        content.style.maxHeight = content.scrollHeight + "px"; 
+                    }
+                });
+            });
+
+            const flashcardVocab = [
+                { jp: "あります", vi: "Có (sở hữu)" }, { jp: "わかります", vi: "Hiểu / Biết" },
+                { jp: "<ruby>好<rt>す</rt></ruby>きです", vi: "Thích" }, { jp: "<ruby>嫌<rt>きら</rt></ruby>いです", vi: "Ghét" },
+                { jp: "<ruby>上手<rt>じょうず</rt></ruby>です", vi: "Giỏi" }, { jp: "<ruby>下手<rt>へた</rt></ruby>です", vi: "Kém" }
+            ];
+            const flashcardContainer = document.getElementById('flashcard-container');
+            if (flashcardContainer) {
+                flashcardVocab.forEach(item => {
+                    const cardWrapper = document.createElement('div');
+                    cardWrapper.className = 'flashcard-container';
+                    const card = document.createElement('div');
+                    card.className = 'flashcard';
+                    card.innerHTML = `<div class="flashcard-face flashcard-front japanese-text text-xl font-bold">${item.jp}</div><div class="flashcard-face flashcard-back text-lg font-semibold">${item.vi}</div>`;
+                    card.addEventListener('click', () => card.classList.toggle('is-flipped'));
+                    cardWrapper.appendChild(card);
+                    flashcardContainer.appendChild(cardWrapper);
+                });
+            }
+            
+            (function() {
+                const adverbData = [
+                    { id: 1, adverb: 'よく', percent: '90%' }, { id: 2, adverb: 'だいたい', percent: '70%' },
+                    { id: 3, adverb: 'すこし', percent: '30%' }, { id: 4, adverb: 'あまり', percent: '20%' },
+                    { id: 5, adverb: 'ぜんぜん', percent: '0%' }
+                ];
+                let selectedAdverb = null, selectedPercent = null;
+                const adverbCol = document.getElementById('adverb-column');
+                const percentCol = document.getElementById('percent-column');
+                const resetBtn = document.getElementById('adverb-reset-btn');
+                function setupAdverbGame() {
+                    if(!adverbCol) return;
+                    adverbCol.innerHTML = ''; percentCol.innerHTML = '';
+                    selectedAdverb = null; selectedPercent = null;
+                    const shuffledAdverbs = [...adverbData].sort(() => Math.random() - 0.5);
+                    const shuffledPercents = [...adverbData].sort(() => Math.random() - 0.5);
+                    shuffledAdverbs.forEach(item => {
+                        const btn = document.createElement('button');
+                        btn.textContent = item.adverb; btn.dataset.id = item.id;
+                        btn.className = 'adverb-match-item w-full japanese-text p-3 border rounded-md';
+                        btn.addEventListener('click', handleAdverbClick);
+                        adverbCol.appendChild(btn);
+                    });
+                    shuffledPercents.forEach(item => {
+                        const btn = document.createElement('button');
+                        btn.textContent = item.percent; btn.dataset.id = item.id;
+                        btn.className = 'adverb-match-item w-full p-3 border rounded-md';
+                        btn.addEventListener('click', handlePercentClick);
+                        percentCol.appendChild(btn);
+                    });
+                }
+                function handleAdverbClick(e) { if (selectedAdverb) selectedAdverb.classList.remove('selected'); selectedAdverb = e.target; selectedAdverb.classList.add('selected'); checkAdverbMatch(); }
+                function handlePercentClick(e) { if (selectedPercent) selectedPercent.classList.remove('selected'); selectedPercent = e.target; selectedPercent.classList.add('selected'); checkAdverbMatch(); }
+                function checkAdverbMatch() {
+                    if (!selectedAdverb || !selectedPercent) return;
+                    if (selectedAdverb.dataset.id === selectedPercent.dataset.id) {
+                        selectedAdverb.classList.add('correct'); selectedPercent.classList.add('correct');
+                        selectedAdverb.disabled = true; selectedPercent.disabled = true;
+                    } else {
+                        selectedAdverb.classList.add('incorrect'); selectedPercent.classList.add('incorrect');
+                        setTimeout(() => { selectedAdverb.classList.remove('incorrect'); selectedPercent.classList.remove('incorrect'); }, 500);
+                    }
+                    setTimeout(() => {
+                        if (selectedAdverb) selectedAdverb.classList.remove('selected');
+                        if (selectedPercent) selectedPercent.classList.remove('selected');
+                        selectedAdverb = null; selectedPercent = null;
+                    }, 500);
+                }
+                if(resetBtn) resetBtn.addEventListener('click', setupAdverbGame);
+                setupAdverbGame();
+            })();
+
+            const notesKey = 'lesson_9_notes_v2';
+            let notes = JSON.parse(localStorage.getItem(notesKey)) || [];
+            let currentEditingIndex = null;
+            const noteModal = document.getElementById('note-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const noteEditor = document.getElementById('note-editor');
+            const saveNoteBtn = document.getElementById('save-note-btn');
+            const cancelNoteBtn = document.getElementById('cancel-note-btn');
+            const notesDisplayArea = document.getElementById('notes-display-area');
+            const copyAllBtn = document.getElementById('copy-all-notes-btn');
+            const clearAllBtn = document.getElementById('clear-all-notes-btn');
+            const copyStatus = document.getElementById('copy-status');
+            const deleteModal = document.getElementById('delete-modal');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            let deleteCallback = null;
+            
+            function showDeleteModal(title, text, callback) {
+                document.getElementById('delete-modal-title').textContent = title;
+                document.getElementById('delete-modal-text').textContent = text;
+                deleteCallback = callback;
+                deleteModal.classList.remove('hidden');
+            }
+            
+            confirmDeleteBtn.addEventListener('click', () => { if (typeof deleteCallback === 'function') { deleteCallback(); } deleteModal.classList.add('hidden'); });
+            cancelDeleteBtn.addEventListener('click', () => deleteModal.classList.add('hidden'));
+
+            function openNoteModal(sectionTitle, content = '', editIndex = null) {
+                modalTitle.textContent = editIndex !== null ? `Chỉnh sửa ghi chú` : `Thêm ghi chú cho: ${sectionTitle}`;
+                noteEditor.innerHTML = content;
+                currentEditingIndex = editIndex;
+                noteModal.classList.remove('hidden');
+                noteEditor.focus();
+            }
+
+            function closeNoteModal() { noteModal.classList.add('hidden'); }
+            function saveAllNotes() { localStorage.setItem(notesKey, JSON.stringify(notes)); }
+
+            function renderNotes() {
+                notesDisplayArea.innerHTML = '';
+                if (notes.length === 0) { notesDisplayArea.innerHTML = `<p class="text-gray-500 italic">Chưa có ghi chú nào.</p>`; return; }
+                notes.forEach((note, index) => {
+                    const noteEl = document.createElement('div');
+                    noteEl.className = 'note-display-item bg-indigo-50 p-4 rounded-lg';
+                    noteEl.innerHTML = `<p class="note-source-title">Từ mục: ${note.section}</p><div class="note-content mt-2">${note.content}</div><div class="text-right mt-2 space-x-2"><button class="edit-note-btn text-sm text-blue-600 hover:underline" data-index="${index}">Sửa</button><button class="delete-note-btn text-sm text-red-600 hover:underline" data-index="${index}">Xóa</button></div>`;
+                    notesDisplayArea.appendChild(noteEl);
+                });
+            }
+
+            document.getElementById('grammar-section').addEventListener('click', (e) => {
+                const addBtn = e.target.closest('.add-note-btn');
+                if (addBtn) { openNoteModal(addBtn.dataset.sectionTitle); }
+            });
+
+            saveNoteBtn.addEventListener('click', () => {
+                const content = noteEditor.innerHTML.trim();
+                if (!content) return;
+                if (currentEditingIndex !== null) { notes[currentEditingIndex].content = content; } 
+                else { const section = modalTitle.textContent.replace('Thêm ghi chú cho: ', ''); notes.push({ section, content, id: Date.now() }); }
+                saveAllNotes(); renderNotes(); closeNoteModal();
+            });
+
+            cancelNoteBtn.addEventListener('click', closeNoteModal);
+
+            document.querySelectorAll('#editor-toolbar button[data-command]').forEach(button => button.addEventListener('click', () => { document.execCommand(button.dataset.command, false, null); noteEditor.focus(); }));
+            document.querySelectorAll('.color-palette button').forEach(button => button.addEventListener('click', () => { document.execCommand('foreColor', false, button.dataset.color); noteEditor.focus(); }));
+            document.getElementById('note-color-picker').addEventListener('input', (e) => { document.execCommand('foreColor', false, e.target.value); noteEditor.focus(); });
+
+            notesDisplayArea.addEventListener('click', (e) => {
+                const index = e.target.dataset.index;
+                if (e.target.classList.contains('edit-note-btn')) { openNoteModal(notes[index].section, notes[index].content, index); }
+                if (e.target.classList.contains('delete-note-btn')) {
+                    showDeleteModal('Xóa ghi chú này?', 'Bạn có chắc chắn muốn xóa ghi chú này không?', () => { notes.splice(index, 1); saveAllNotes(); renderNotes(); });
+                }
+            });
+            
+            copyAllBtn.addEventListener('click', () => {
+                if(notes.length === 0) return;
+                let fullText = '';
+                notes.forEach(note => {
+                    fullText += `--- Ghi chú từ: ${note.section} ---\n`;
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = note.content;
+                    fullText += tempDiv.innerText + '\n\n';
+                });
+                navigator.clipboard.writeText(fullText).then(() => {
+                    copyStatus.style.opacity = '1'; setTimeout(() => { copyStatus.style.opacity = '0'; }, 2000);
+                }).catch(err => alert('Lỗi! Không thể sao chép.'));
+            });
+
+            clearAllBtn.addEventListener('click', () => {
+                 if(notes.length === 0) return;
+                 showDeleteModal('Xóa tất cả ghi chú?', 'Bạn có chắc chắn muốn XÓA TOÀN BỘ ghi chú không? Hành động này không thể hoàn tác.', () => {
+                    notes = []; saveAllNotes(); renderNotes();
+                 });
+            });
+            renderNotes();
+        });
+    </script>
+</body>
+</html>
