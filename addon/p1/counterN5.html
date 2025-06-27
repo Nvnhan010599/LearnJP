@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Học Số Đếm Tiếng Nhật (Tương Tác)</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;500;700&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		:root {
+			--galaxy-bg-dark: linear-gradient(135deg, #1a0633 0%, #0f0522 30%, #1a0633 70%, #0c041f 100%);
+			--galaxy-bg-light: linear-gradient(135deg, #f0f4ff 0%, #e6e9ff 100%);
+			--galaxy-primary-dark: #818cf8;
+			--galaxy-primary-light: #0ea5e9;
+			--galaxy-text-dark: #e2e8f0;
+			--galaxy-text-light: #1e293b;
+			--galaxy-card-dark: rgba(255, 255, 255, 0.1);
+			--galaxy-card-light: #ffffff;
+			--galaxy-card-border-dark: rgba(255, 255, 255, 0.2);
+			--galaxy-card-border-light: rgba(99, 102, 241, 0.2);
+			--galaxy-header-dark: #c7d2fe;
+			--galaxy-header-light: #0c4a6e;
+		}
+
+		body {
+			font-family: 'Inter', 'Noto Sans JP', sans-serif;
+			min-height: 100vh;
+			transition: background 0.5s ease;
+			color: #333;
+		}
+
+		.dark {
+			background: var(--galaxy-bg-dark);
+			color: var(--galaxy-text-dark);
+		}
+
+		.light {
+			background: var(--galaxy-bg-light);
+			color: #2d3748;
+		}
+
+		.jp-font {
+			font-family: 'Noto Sans JP', sans-serif;
+		}
+
+		/* Star background */
+		#stars {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 0;
+			pointer-events: none;
+		}
+
+		.star {
+			position: absolute;
+			background-color: white;
+			border-radius: 50%;
+			animation: twinkle 4s infinite;
+		}
+
+		@keyframes twinkle {
+
+			0%,
+			100% {
+				opacity: 0.2;
+				transform: scale(0.8);
+			}
+
+			50% {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
+
+		/* Galaxy theme elements */
+		.galaxy-header {
+			background: rgba(129, 140, 248, 0.15);
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(129, 140, 248, 0.2);
+			border-radius: 16px;
+		}
+
+		.light .galaxy-header {
+			background: rgba(255, 255, 255, 0.9);
+			border: 1px solid rgba(99, 102, 241, 0.3);
+		}
+
+		.galaxy-card {
+			background: rgba(255, 255, 255, 0.1);
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(129, 140, 248, 0.2);
+			transition: all 0.3s ease;
+		}
+
+		.light .galaxy-card {
+			background: rgba(255, 255, 255, 0.95);
+			border: 1px solid rgba(99, 102, 241, 0.2);
+			color: #2d3748;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+		}
+
+		.galaxy-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 10px 25px rgba(129, 140, 248, 0.2);
+		}
+
+		.light .galaxy-card:hover {
+			box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+		}
+
+		.galaxy-button {
+			background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+			color: white;
+			transition: all 0.3s ease;
+		}
+
+		.galaxy-button:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 15px rgba(129, 140, 248, 0.4);
+		}
+
+		.light .galaxy-button {
+			background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+		}
+
+		.light .galaxy-button:hover {
+			box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+		}
+
+		.galaxy-primary {
+			color: var(--galaxy-primary-dark);
+		}
+
+		.light .galaxy-primary {
+			color: #0c4a6e;
+		}
+
+		/* Text contrast */
+		.dark .text-slate-700 {
+			color: #cbd5e1;
+		}
+
+		.light .text-slate-700 {
+			color: #2d3748;
+		}
+
+		.dark .text-slate-500 {
+			color: #94a3b8;
+		}
+
+		.light .text-slate-500 {
+			color: #4a5568;
+		}
+
+		.dark .text-sky-600 {
+			color: #7dd3fc;
+		}
+
+		.light .text-sky-600 {
+			color: #0c4a6e;
+		}
+
+		/* Modal */
+		.modal-content {
+			background: rgba(30, 41, 59, 0.95);
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(129, 140, 248, 0.3);
+		}
+
+		.light .modal-content {
+			background: rgba(255, 255, 255, 0.98);
+			border: 1px solid rgba(99, 102, 241, 0.2);
+			color: #2d3748;
+		}
+
+		#modal {
+			transition: opacity 0.3s ease;
+		}
+
+		.modal-content {
+			transition: transform 0.3s ease;
+		}
+
+		/* Highlight & Note Styles */
+		.highlight {
+			background-color: rgba(124, 58, 237, 0.2);
+			color: #c084fc;
+			font-weight: 600;
+		}
+
+		.light .highlight {
+			background-color: #fef9c3;
+			color: #b45309;
+		}
+
+		.highlight .note {
+			color: #d8b4fe;
+		}
+
+		.light .highlight .note {
+			color: #92400e;
+		}
+
+		/* Scrollbar */
+		::-webkit-scrollbar {
+			width: 8px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: #1e293b;
+		}
+
+		.light ::-webkit-scrollbar-track {
+			background: #f1f5f9;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: #475569;
+			border-radius: 10px;
+		}
+
+		.light ::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+			background: #64748b;
+		}
+
+		/* Icon Styles */
+		.card-icon {
+			width: 3rem;
+			height: 3rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 12px;
+			background: rgba(129, 140, 248, 0.15);
+			color: #818cf8;
+		}
+
+		.light .card-icon {
+			background: rgba(14, 165, 233, 0.15);
+			color: #0ea5e9;
+		}
+
+		.modal-icon {
+			width: 2.5rem;
+			height: 2.5rem;
+		}
+
+		/* Main Tab Styles */
+		#main-tabs .tab-btn {
+			transition: all 0.3s ease;
+			background: rgba(129, 140, 248, 0.2);
+			color: #c7d2fe;
+		}
+
+		#main-tabs .tab-btn.active {
+			background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+			color: white;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		.light #main-tabs .tab-btn {
+			background: rgba(14, 165, 233, 0.15);
+			color: #0c4a6e;
+			font-weight: 500;
+		}
+
+		.light #main-tabs .tab-btn.active {
+			background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+		}
+
+		/* Modal Tab Styles */
+		#modal-tabs .tab-btn {
+			border-bottom: 3px solid transparent;
+			color: #cbd5e1;
+		}
+
+		.light #modal-tabs .tab-btn {
+			color: #4a5568;
+		}
+
+		#modal-tabs .tab-btn.active {
+			border-bottom-color: #818cf8;
+			color: #c7d2fe;
+		}
+
+		.light #modal-tabs .tab-btn.active {
+			border-bottom-color: #0ea5e9;
+			color: #0c4a6e;
+			font-weight: 600;
+		}
+
+		/* Exercise Styles */
+		.exercise-card {
+			transition: all 0.3s ease;
+		}
+
+		.exercise-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 10px 25px rgba(129, 140, 248, 0.3);
+		}
+
+		.light .exercise-card:hover {
+			box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+		}
+
+		.result-icon {
+			width: 24px;
+			height: 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+		}
+
+		.progress-bar {
+			transition: width 0.5s ease-in-out;
+		}
+
+		/* --- Flashcard Styles --- */
+		.perspective-container {
+			perspective: 1000px;
+		}
+
+		.flashcard {
+			transform-style: preserve-3d;
+			transition: transform 0.6s;
+			box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+		}
+
+		.flashcard.is-flipped {
+			transform: rotateY(180deg);
+		}
+
+		.flashcard-face {
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+			border-radius: 16px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 1rem;
+			transition: background 0.3s ease, color 0.3s ease;
+
+			/* MÀU NỀN FLASHCARD MẶC ĐỊNH (CHẾ ĐỘ TỐI) */
+			background-color: #334155;
+			/* Slate 700 */
+			color: #f1f5f9;
+			/* Slate 100 */
+		}
+
+		.flashcard-back {
+			transform: rotateY(180deg);
+		}
+
+		/* MÀU NỀN FLASHCARD MẶC ĐỊNH (CHẾ ĐỘ SÁNG) */
+		.light .flashcard-face {
+			background-color: #e2e8f0;
+			/* Slate 200 */
+			color: #1e293b;
+			/* Slate 800 */
+		}
+
+		/* Style cho thẻ Ghi chú đặc biệt (Note Lozenge) */
+		.note-lozenge {
+			font-weight: 600;
+			padding: 0.25rem 0.75rem;
+			border-radius: 9999px;
+			margin-top: 1rem;
+			font-size: 0.8rem;
+			background: linear-gradient(135deg, #fcd34d, #fbbf24);
+			/* Amber gradient */
+			color: #1e293b;
+			/* Chữ màu đen */
+		}
+
+		/* --- Ruby (Furigana) Styles --- */
+		ruby rt {
+			font-size: 0.6em;
+			font-weight: 500;
+			user-select: none;
+		}
+
+		.light ruby rt {
+			color: #475569;
+		}
+
+		/* Footer */
+		footer {
+			border-top: 1px solid rgba(129, 140, 248, 0.2);
+		}
+
+		.light footer {
+			border-top: 1px solid rgba(99, 102, 241, 0.1);
+		}
+
+		/* Cải thiện khả năng đọc trong chế độ sáng */
+		.light h1,
+		.light h2,
+		.light h3,
+		.light h4 {
+			color: #1a202c;
+		}
+
+		.light p,
+		.light li {
+			color: #2d3748;
+			line-height: 1.6;
+		}
+
+		.light .text-indigo-200 {
+			color: #4a5568;
+		}
+
+		.light .galaxy-primary {
+			color: #0c4a6e;
+			font-weight: 700;
+		}
+
+		.light input,
+		.light textarea {
+			color: #2d3748;
+			background-color: #f8fafc;
+		}
+
+		.light table th {
+			background-color: #f1f5f9;
+			color: #1e293b;
+		}
+
+		.light table td {
+			color: #334155;
+		}
+
+		.light .tab-btn {
+			font-weight: 500;
+		}
+	</style>
+</head>
+
+<body class="dark">
+	<div id="stars"></div>
+
+	<div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-6xl relative z-10">
+		<div class="absolute top-4 right-4">
+			<button id="theme-toggle" class="galaxy-button px-4 py-2 rounded-full text-sm font-medium">
+				<i class="fas fa-moon mr-2"></i>Chế độ tối
+			</button>
+		</div>
+
+		<header class="text-center mb-10">
+			<div class="flex justify-center mb-4">
+				<a href="../supplementary.html" aria-label="Trang chủ">
+					<div class="galaxy-card rounded-full p-3 shadow-lg">
+						<i class="fas fa-book text-2xl galaxy-primary"></i>
+					</div>
+				</a>
+			</div>
+			<h1 class="text-3xl sm:text-4xl font-bold galaxy-primary jp-font">日本語の数え方</h1>
+			<h2 class="text-xl sm:text-2xl font-semibold text-slate-200 mt-2">Công cụ học Lượng từ Tiếng Nhật</h2>
+			<p class="text-indigo-200 mt-3 max-w-2xl mx-auto">Công cụ toàn diện giúp bạn nắm vững cách đếm trong tiếng Nhật,
+				từ lý thuyết đến thực hành.</p>
+		</header>
+
+		<div id="main-tabs" class="flex justify-center mb-8">
+			<div class="inline-flex rounded-full shadow p-1 galaxy-card">
+				<button data-main-view="theory" class="tab-btn active px-6 py-2 rounded-full font-medium">Lý Thuyết</button>
+				<button data-main-view="tips" class="tab-btn px-6 py-2 rounded-full font-medium">Mẹo Ghi Nhớ</button>
+				<button data-main-view="practice" class="tab-btn px-6 py-2 rounded-full font-medium">Bài Tập</button>
+			</div>
+		</div>
+
+		<main>
+			<div id="theory-content">
+				<p class="text-center text-indigo-200 mb-8">Nhấp vào một chủ đề để xem chi tiết cách đếm và học với flashcard.
+				</p>
+				<div id="counter-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				</div>
+			</div>
+
+			<div id="tips-content" class="hidden">
+				<p class="text-center text-indigo-200 mb-8">Nhóm các lượng từ theo quy tắc biến âm để học nhanh hơn!</p>
+				<div class="space-y-8 max-w-3xl mx-auto">
+					<div class="galaxy-card rounded-xl p-6">
+						<h3 class="text-xl font-bold text-purple-300 jp-font flex items-center gap-3"><span
+								class="text-3xl">🚀</span><span>Nhóm 1: Biến âm với Âm ngắt (っ)</span></h3>
+						<p class="mt-2 text-indigo-100">Phổ biến nhất, xảy ra khi lượng từ bắt đầu bằng phụ âm **K, S, T**.</p>
+						<div class="mt-4 bg-indigo-900/30 border border-indigo-700 rounded-lg p-4">
+							<h4 class="font-semibold text-purple-300">Quy tắc</h4>
+							<ul class="list-disc list-inside text-purple-200 mt-2 space-y-1 jp-font">
+								<li>1 (いち) → <strong class="jp-font">いっ-</strong></li>
+								<li>6 (ろく) → <strong class="jp-font">ろっ-</strong></li>
+								<li>8 (はち) → <strong class="jp-font">はっ-</strong></li>
+								<li>10 (じゅう) → <strong class="jp-font">じゅっ- / じっ-</strong></li>
+							</ul>
+						</div>
+						<div class="mt-4">
+							<h4 class="font-semibold text-indigo-200">Các lượng từ tương tự:</h4>
+							<ul class="list-disc list-inside text-indigo-100 mt-2 space-y-1">
+								<li><strong>～回 (かい):</strong> <span class="jp-font text-sm">ikkai, rokkai, hakkai, jukkai</span></li>
+								<li><strong>～階 (かい):</strong> <span class="jp-font text-sm">ikkai, rokkai, hakkai, jukkai</span>. <span
+										class="text-xs font-semibold text-purple-300">Lưu ý: 3 là san-gai.</span></li>
+								<li><strong>～冊 (さつ):</strong> <span class="jp-font text-sm">issatsu, hassatsu, jussatsu</span>. <span
+										class="text-xs font-semibold text-purple-300">Lưu ý: không biến âm ở số 6.</span></li>
+								<li><strong>～足 (そく):</strong> <span class="jp-font text-sm">issoku, hassoku, jussoku</span>. <span
+										class="text-xs font-semibold text-purple-300">Lưu ý: 3 là san-zoku.</span></li>
+								<li><strong>～個 (こ):</strong> <span class="jp-font text-sm">ikko, rokko, hakko, jukko</span></li>
+							</ul>
+						</div>
+					</div>
+					<div class="galaxy-card rounded-xl p-6">
+						<h3 class="text-xl font-bold text-blue-300 jp-font flex items-center gap-3"><span
+								class="text-3xl">🎨</span><span>Nhóm 2: Biến âm với Âm đục (゛) và Bán đục (゜)</span></h3>
+						<p class="mt-2 text-indigo-100">Dành cho các lượng từ bắt đầu bằng phụ âm **H**.</p>
+						<div class="mt-4 bg-blue-900/30 border border-blue-700 rounded-lg p-4">
+							<h4 class="font-semibold text-blue-300">Quy tắc</h4>
+							<ul class="list-disc list-inside text-blue-200 mt-2 space-y-1">
+								<li>Số **1, 6, 8, 10**: Biến âm **H → P** (Bán đục - Maru) và thêm âm ngắt `(っ)`.</li>
+								<li>Số **3**: Biến âm **H → B** (Âm đục - Tenten).</li>
+							</ul>
+						</div>
+						<div class="mt-4">
+							<h4 class="font-semibold text-indigo-200">Các lượng từ tương tự:</h4>
+							<ul class="list-disc list-inside text-indigo-100 mt-2 space-y-2">
+								<li><strong>～本 (ほん):</strong> 3 → <span class="jp-font font-semibold">san-bon</span>; 1,6,8,10 → <span
+										class="jp-font font-semibold">ip-pon, rop-pon, hap-pon, jup-pon</span></li>
+								<li><strong>～杯 (はい):</strong> 3 → <span class="jp-font font-semibold">san-bai</span>; 1,6,8,10 → <span
+										class="jp-font font-semibold">ip-pai, rop-pai, hap-pai, jup-pai</span></li>
+								<li><strong>～匹 (ひき):</strong> 3 → <span class="jp-font font-semibold">san-biki</span>; 1,6,8,10 → <span
+										class="jp-font font-semibold">ip-piki, rop-piki, hap-piki, jup-piki</span></li>
+							</ul>
+						</div>
+					</div>
+					<div class="galaxy-card rounded-xl p-6">
+						<h3 class="text-xl font-bold text-green-300 jp-font flex items-center gap-3"><span
+								class="text-3xl">✅</span><span>Nhóm 3: Gần như không biến âm (Dễ nhất)</span></h3>
+						<p class="mt-4 text-indigo-100">Nhóm này rất dễ nhớ vì cách đọc gần như không thay đổi.</p>
+						<ul class="list-disc list-inside text-indigo-100 mt-2 space-y-1">
+							<li><strong>～枚 (まい):</strong> Đếm vật mỏng (giấy, đĩa CD...). Hoàn toàn không biến âm.</li>
+							<li><strong>～台 (だい):</strong> Đếm máy móc (xe, tivi...). Hoàn toàn không biến âm.</li>
+						</ul>
+					</div>
+					<div class="galaxy-card rounded-xl p-6">
+						<h3 class="text-xl font-bold text-yellow-300 jp-font flex items-center gap-3"><span
+								class="text-3xl">⭐</span><span>Nhóm 4: Các trường hợp đặc biệt cần nhớ</span></h3>
+						<p class="mt-4 text-indigo-100">Những lượng từ này có cách đọc riêng mà bạn nên học thuộc.</p>
+						<ul class="list-disc list-inside text-indigo-100 mt-2 space-y-2">
+							<li><strong>～人 (にん) - Đếm người:</strong>
+								<ul class="list-['-_'] list-inside ml-4 text-sm">
+									<li>1 người → <span class="font-semibold jp-font">ひとり</span> (không phải いちにん)</li>
+									<li>2 người → <span class="font-semibold jp-font">ふたり</span> (không phải ににん)</li>
+									<li>4 người → <span class="font-semibold jp-font">よにん</span> (không phải よんにん)</li>
+								</ul>
+							</li>
+							<li><strong>～時間 (じかん) - Đếm giờ:</strong>
+								<ul class="list-['-_'] list-inside ml-4 text-sm">
+									<li>4 giờ → <span class="font-semibold jp-font">よじかん</span> (không phải よんじかん)</li>
+									<li>9 giờ → <span class="font-semibold jp-font">くじかん</span> (không phải きゅうじかん)</li>
+								</ul>
+							</li>
+							<li><strong>～つ - Cách đếm chung:</strong>
+								<p class="ml-4 text-sm">Đây là một hệ thống đếm riêng, không tuân theo quy tắc nào ở trên. Cần học thuộc
+									từ 1 (ひとつ) đến 10 (とお).</p>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div id="practice-content" class="hidden">
+				<div class="galaxy-card rounded-2xl p-6 mb-8 galaxy-header">
+					<div class="flex items-center justify-between mb-6">
+						<h3 class="text-2xl font-bold galaxy-primary">Bài Tập Tương Tác</h3>
+						<div class="flex items-center gap-2">
+							<span class="text-sm font-medium text-indigo-200">Tiến độ:</span>
+							<div class="w-32 bg-slate-700 rounded-full h-2.5">
+								<div id="progress-bar" class="progress-bar bg-indigo-500 h-2.5 rounded-full" style="width: 0%"></div>
+							</div>
+							<span id="progress-text" class="text-sm font-bold text-indigo-200">0/10</span>
+						</div>
+					</div>
+					<div id="exercise-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+					<div class="mt-8 text-center"><button id="reset-btn" class="galaxy-button font-medium py-2 px-6 rounded-lg"><i
+								class="fas fa-redo mr-2"></i>Làm Lại Bài Tập</button></div>
+				</div>
+			</div>
+		</main>
+
+		<footer class="text-center mt-10 py-6">
+			<p class="text-sm text-indigo-300">Chúc bạn học tốt và ghi nhớ thật nhanh! (がんばってください！)</p>
+		</footer>
+	</div>
+
+	<div id="modal"
+		class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0">
+		<div id="modal-content" class="modal-content rounded-2xl shadow-2xl w-full max-w-md mx-auto transform scale-95">
+			<div id="modal-header" class="flex justify-between items-center p-5 border-b border-slate-700"></div>
+			<div id="modal-tabs" class="flex border-b border-slate-700 px-2">
+				<button data-view="list" class="tab-btn w-1/2 p-4 font-semibold active">Danh sách từ</button>
+				<button data-view="flashcard" class="tab-btn w-1/2 p-4 font-semibold">Flashcard</button>
+			</div>
+			<div id="modal-body" class="p-6 max-h-[60vh] overflow-y-auto">
+				<div id="list-view"></div>
+				<div id="flashcard-view" class="hidden"></div>
+			</div>
+			<div id="modal-footer" class="p-4 bg-slate-900/50 rounded-b-2xl flex justify-between items-center">
+				<div class="relative">
+					<button id="flashcard-settings-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors hidden">
+						<svg class="w-6 h-6 text-slate-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+							stroke-width="1.5" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round"
+								d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.438.995s.145.755.438.995l1.003.827c.48.398.668 1.03.26 1.431l-1.296 2.247a1.125 1.125 0 0 1-1.37.49l-1.217-.456c-.355-.133-.75-.072-1.075.124a6.57 6.57 0 0 1-.22.127c-.332.183-.582.495-.645.87l-.213 1.281c-.09.543-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.063-.374-.313-.686-.645-.87a6.52 6.52 0 0 1-.22-.127c-.324-.196-.72-.257-1.075-.124l-1.217.456a1.125 1.125 0 0 1-1.37-.49l-1.296-2.247a1.125 1.125 0 0 1 .26-1.431l1.003-.827c.293-.24.438-.613.438-.995s-.145-.755-.438-.995l-1.003-.827a1.125 1.125 0 0 1-.26-1.431l1.296-2.247a1.125 1.125 0 0 1 1.37-.49l1.217.456c.355.133.75.072 1.075-.124.073-.044.146-.087.22-.127.332-.183.582-.495.645-.87l.213-1.281z" />
+							<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+						</svg>
+					</button>
+					<div id="flashcard-settings-panel"
+						class="absolute left-0 bottom-full mb-2 bg-slate-800 p-4 rounded-lg shadow-xl border border-slate-700 hidden w-64 z-10">
+						<p class="font-semibold text-sm text-slate-200 mb-3">Tùy chỉnh Flashcard</p>
+						<div class="space-y-3">
+							<div><label class="font-medium text-sm text-slate-300 block mb-1">Mặt trước:</label>
+								<div class="flex gap-4 text-sm"><label class="flex items-center gap-1"><input type="radio"
+											name="front-view" value="japanese" checked> Tiếng Nhật</label><label
+										class="flex items-center gap-1"><input type="radio" name="front-view" value="vietnamese"> Tiếng
+										Việt</label></div>
+							</div>
+							<div><label class="font-medium text-sm text-slate-300 block mb-1">Mặt sau:</label>
+								<div class="flex gap-4 text-sm"><label class="flex items-center gap-1"><input type="radio"
+											name="back-view" value="japanese"> Tiếng Nhật</label><label class="flex items-center gap-1"><input
+											type="radio" name="back-view" value="vietnamese" checked> Tiếng Việt</label></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<button id="close-modal-btn" class="galaxy-button font-bold py-2 px-6 rounded-lg">Đóng</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// --- DATA FOR ALL COUNTERS ---
+		const countersData = {
+			'tsu': { kanji: 'つ', reading: 'つ', question: 'いくつ', description: 'Đồ vật nói chung', examples: 'Dùng cho vật không có lượng từ riêng.', icon: `<i class="fas fa-box"></i>`, counts: [{ num: 1, jp: 'ひとつ', reading: 'hitotsu', kanjiFull: '一つ' }, { num: 2, jp: 'ふたつ', reading: 'futatsu', kanjiFull: '二つ' }, { num: 3, jp: 'みっつ', reading: 'mittsu', kanjiFull: '三つ' }, { num: 4, jp: 'よっつ', reading: 'yottsu', kanjiFull: '四つ' }, { num: 5, jp: 'いつつ', reading: 'itsutsu', kanjiFull: '五つ' }, { num: 6, jp: 'むっつ', reading: 'muttsu', kanjiFull: '六つ' }, { num: 7, jp: 'ななつ', reading: 'nanatsu', kanjiFull: '七つ' }, { num: 8, jp: 'やっつ', reading: 'yattsu', kanjiFull: '八つ' }, { num: 9, jp: 'ここのつ', reading: 'kokonotsu', kanjiFull: '九つ' }, { num: 10, jp: 'とお', reading: 'too', kanjiFull: '十' }] },
+			'nin': { kanji: '人', reading: 'にん', question: '何人 (なんにん)', description: 'Người', examples: '', icon: `<i class="fas fa-user-friends"></i>`, counts: [{ num: 1, jp: 'ひとり', reading: 'hitori', kanjiFull: '一人', note: 'Cách đọc đặc biệt' }, { num: 2, jp: 'ふたり', reading: 'futari', kanjiFull: '二人', note: 'Cách đọc đặc biệt' }, { num: 3, jp: 'さんにん', reading: 'sannin', kanjiFull: '三人' }, { num: 4, jp: 'よにん', reading: 'yonin', kanjiFull: '四人', note: 'Cách đọc đặc biệt (không phải よんにん)' }, { num: 5, jp: 'ごにん', reading: 'gonin', kanjiFull: '五人' }, { num: 6, jp: 'ろくにん', reading: 'rokunin', kanjiFull: '六人' }, { num: 7, jp: 'しちにん / ななにん', reading: 'shichinin / nananin', kanjiFull: '七人' }, { num: 8, jp: 'はちにん', reading: 'hachinin', kanjiFull: '八人' }, { num: 9, jp: 'きゅうにん', reading: 'kyuunin', kanjiFull: '九人' }, { num: 10, jp: 'じゅうにん', reading: 'juunin', kanjiFull: '十人' }] },
+			'dai': { kanji: '台', reading: 'だい', question: '何台 (なんだい)', description: 'Máy móc, xe cộ', examples: 'Ví dụ: máy tính, tivi, ô tô, xe đạp...', icon: `<i class="fas fa-car"></i>`, counts: [{ num: 1, jp: 'いちだい', reading: 'ichidai', kanjiFull: '一台' }, { num: 2, jp: 'にだい', reading: 'nidai', kanjiFull: '二台' }, { num: 3, jp: 'さんだい', reading: 'sandai', kanjiFull: '三台' }, { num: 4, jp: 'よんだい', reading: 'yondai', kanjiFull: '四台' }, { num: 5, jp: 'ごだい', reading: 'godai', kanjiFull: '五台' }, { num: 6, jp: 'ろくだい', reading: 'rokudai', kanjiFull: '六台' }, { num: 7, jp: 'ななだい', reading: 'nanadai', kanjiFull: '七台' }, { num: 8, jp: 'はちだい', reading: 'hachidai', kanjiFull: '八台' }, { num: 9, jp: 'きゅうだい', reading: 'kyuudai', kanjiFull: '九台' }, { num: 10, jp: 'じゅうだい', reading: 'juudai', kanjiFull: '十台' }] },
+			'mai': { kanji: '枚', reading: 'まい', question: '何枚 (なんまい)', description: 'Vật mỏng, dẹt', examples: 'Ví dụ: tờ giấy, áo phông, đĩa CD, ảnh...', icon: `<i class="fas fa-tshirt"></i>`, counts: [{ num: 1, jp: 'いちまい', reading: 'ichimai', kanjiFull: '一枚' }, { num: 2, jp: 'にまい', reading: 'nimai', kanjiFull: '二枚' }, { num: 3, jp: 'さんまい', reading: 'sanmai', kanjiFull: '三枚' }, { num: 4, jp: 'よんまい', reading: 'yonmai', kanjiFull: '四枚' }, { num: 5, jp: 'ごまい', reading: 'gomai', kanjiFull: '五枚' }, { num: 6, jp: 'ろくまい', reading: 'rokumai', kanjiFull: '六枚' }, { num: 7, jp: 'ななまい', reading: 'nanamai', kanjiFull: '七枚' }, { num: 8, jp: 'はちまい', reading: 'hachimai', kanjiFull: '八枚' }, { num: 9, jp: 'きゅうまい', reading: 'kyuumai', kanjiFull: '九枚' }, { num: 10, jp: 'じゅうまい', reading: 'juumai', kanjiFull: '十枚' }] },
+			'kai': { kanji: '回', reading: 'かい', question: '何回 (なんかい)', description: 'Số lần (tần suất)', examples: 'Dùng để chỉ số lần thực hiện một hành động.', icon: `<i class="fas fa-redo"></i>`, counts: [{ num: 1, jp: 'いっかい', reading: 'ikkai', kanjiFull: '一回', note: 'Âm ngắt (Sokuon)' }, { num: 2, jp: 'にかい', reading: 'nikai', kanjiFull: '二回' }, { num: 3, jp: 'さんかい', reading: 'sankai', kanjiFull: '三回' }, { num: 4, jp: 'よんかい', reading: 'yonkai', kanjiFull: '四回' }, { num: 5, jp: 'ごかい', reading: 'gokai', kanjiFull: '五回' }, { num: 6, jp: 'ろっかい', reading: 'rokkai', kanjiFull: '六回', note: 'Âm ngắt (Sokuon)' }, { num: 7, jp: 'ななかい', reading: 'nanakai', kanjiFull: '七回' }, { num: 8, jp: 'はっかい', reading: 'hakkai', kanjiFull: '八回', note: 'Âm ngắt (Sokuon)' }, { num: 9, jp: 'きゅうかい', reading: 'kyuukai', kanjiFull: '九回' }, { num: 10, jp: 'じゅっかい', reading: 'jukkai', kanjiFull: '十回', note: 'Âm ngắt (Sokuon)' }] },
+			'hon': { kanji: '本', reading: 'ほん', question: '何本 (なんぼん)', description: 'Vật thon, dài', examples: 'Ví dụ: bút, chai, lon, ô...', icon: `<i class="fas fa-wine-bottle"></i>`, counts: [{ num: 1, jp: 'いっぽん', reading: 'ippon', kanjiFull: '一本', note: 'Âm ngắt (っ) + Bán đục (ぽ)' }, { num: 2, jp: 'にほん', reading: 'nihon', kanjiFull: '二本' }, { num: 3, jp: 'さんぼん', reading: 'sanbon', kanjiFull: '三本', note: 'Âm đục (ぼ)' }, { num: 4, jp: 'よんほん', reading: 'yonhon', kanjiFull: '四本' }, { num: 5, jp: 'ごほん', reading: 'gohon', kanjiFull: '五本' }, { num: 6, jp: 'ろっぽん', reading: 'roppon', kanjiFull: '六本', note: 'Âm ngắt (っ) + Bán đục (ぽ)' }, { num: 7, jp: 'ななほん', reading: 'nanahon', kanjiFull: '七本' }, { num: 8, jp: 'はっぽん', reading: 'happon', kanjiFull: '八本', note: 'Âm ngắt (っ) + Bán đục (ぽ)' }, { num: 9, jp: 'きゅうほん', reading: 'kyuuhon', kanjiFull: '九本' }, { num: 10, jp: 'じゅっぽん', reading: 'juppon', kanjiFull: '十本', note: 'Âm ngắt (っ) + Bán đục (ぽ)' }] },
+			'satsu': { kanji: '冊', reading: 'さつ', question: '何冊 (なんさつ)', description: 'Sách, vở, tạp chí', examples: 'Dùng cho các loại ấn phẩm được đóng thành quyển.', icon: `<i class="fas fa-book"></i>`, counts: [{ num: 1, jp: 'いっさつ', reading: 'issatsu', kanjiFull: '一冊', note: 'Âm ngắt (Sokuon)' }, { num: 2, jp: 'にさつ', reading: 'nisatsu', kanjiFull: '二冊' }, { num: 3, jp: 'さんさつ', reading: 'sansatsu', kanjiFull: '三冊' }, { num: 4, jp: 'よんさつ', reading: 'yonsatsu', kanjiFull: '四冊' }, { num: 5, jp: 'ごさつ', reading: 'gosatsu', kanjiFull: '五冊' }, { num: 6, jp: 'ろくさつ', reading: 'rokusatsu', kanjiFull: '六冊' }, { num: 7, jp: 'ななさつ', reading: 'nanasatsu', kanjiFull: '七冊' }, { num: 8, jp: 'はっさつ', reading: 'hassatsu', kanjiFull: '八冊', note: 'Âm ngắt (Sokuon)' }, { num: 9, jp: 'きゅうさつ', reading: 'kyuusatsu', kanjiFull: '九冊' }, { num: 10, jp: 'じゅっさつ', reading: 'jussatsu', kanjiFull: '十冊', note: 'Âm ngắt (Sokuon)' }] },
+			'soku': { kanji: '足', reading: 'そく', question: '何足 (なんぞく)', description: 'Giày, dép, tất (theo đôi)', examples: 'Dùng cho những vật đi ở chân và có đôi.', icon: `<i class="fas fa-socks"></i>`, counts: [{ num: 1, jp: 'いっそく', reading: 'issoku', kanjiFull: '一足', note: 'Âm ngắt (Sokuon)' }, { num: 2, jp: 'にそく', reading: 'nisoku', kanjiFull: '二足' }, { num: 3, jp: 'さんぞく', reading: 'sanzoku', kanjiFull: '三足', note: 'Âm đục (ぞく)' }, { num: 4, jp: 'よんそく', reading: 'yonsoku', kanjiFull: '四足' }, { num: 5, jp: 'ごそく', reading: 'gosoku', kanjiFull: '五足' }, { num: 6, jp: 'ろくそく', reading: 'rokusoku', kanjiFull: '六足' }, { num: 7, jp: 'ななそく', reading: 'nanasoku', kanjiFull: '七足' }, { num: 8, jp: 'はっそく', reading: 'hassoku', kanjiFull: '八足', note: 'Âm ngắt (Sokuon)' }, { num: 9, jp: 'きゅうそく', reading: 'kyuusoku', kanjiFull: '九足' }, { num: 10, jp: 'じゅっそく', reading: 'jussoku', kanjiFull: '十足', note: 'Âm ngắt (Sokuon)' }] },
+			'hai': { kanji: '杯', reading: 'はい', question: '何杯 (なんばい)', description: 'Đồ uống trong vật chứa', examples: 'Ví dụ: một cốc nước, một bát súp...', icon: `<i class="fas fa-coffee"></i>`, counts: [{ num: 1, jp: 'いっぱい', reading: 'ippai', kanjiFull: '一杯', note: 'Âm ngắt (っ) + Bán đục (ぱい)' }, { num: 2, jp: 'にはい', reading: 'nihai', kanjiFull: '二杯' }, { num: 3, jp: 'さんばい', reading: 'sanbai', kanjiFull: '三杯', note: 'Âm đục (ばい)' }, { num: 4, jp: 'よんはい', reading: 'yonhai', kanjiFull: '四杯' }, { num: 5, jp: 'ごはい', reading: 'gohai', kanjiFull: '五杯' }, { num: 6, jp: 'ろっぱい', reading: 'roppai', kanjiFull: '六杯', note: 'Âm ngắt (っ) + Bán đục (ぱい)' }, { num: 7, jp: 'ななはい', reading: 'nanahai', kanjiFull: '七杯' }, { num: 8, jp: 'はっぱい', reading: 'happai', kanjiFull: '八杯', note: 'Âm ngắt (っ) + Bán đục (ぱい)' }, { num: 9, jp: 'きゅうはい', reading: 'kyuuhai', kanjiFull: '九杯' }, { num: 10, jp: 'じゅっぱい', reading: 'juppai', kanjiFull: '十杯', note: 'Âm ngắt (っ) + Bán đục (ぱい)' }] },
+			'hiki': { kanji: '匹', reading: 'ひき', question: '何匹 (なんびき)', description: 'Con vật nhỏ', examples: 'Ví dụ: chó, mèo, cá, côn trùng...', icon: `<i class="fas fa-dog"></i>`, counts: [{ num: 1, jp: 'いっぴき', reading: 'ippiki', kanjiFull: '一匹', note: 'Âm ngắt (っ) + Bán đục (ぴき)' }, { num: 2, jp: 'にひき', reading: 'nihiki', kanjiFull: '二匹' }, { num: 3, jp: 'さんびき', reading: 'sanbiki', kanjiFull: '三匹', note: 'Âm đục (びき)' }, { num: 4, jp: 'よんひき', reading: 'yonhiki', kanjiFull: '四匹' }, { num: 5, jp: 'ごひき', reading: 'gohiki', kanjiFull: '五匹' }, { num: 6, jp: 'ろっぴき', reading: 'roppiki', kanjiFull: '六匹', note: 'Âm ngắt (っ) + Bán đục (ぴき)' }, { num: 7, jp: 'ななひき', reading: 'nanahiki', kanjiFull: '七匹' }, { num: 8, jp: 'はっぴき', reading: 'happiki', kanjiFull: '八匹', note: 'Âm ngắt (っ) + Bán đục (ぴき)' }, { num: 9, jp: 'きゅうひき', reading: 'kyuuhiki', kanjiFull: '九匹' }, { num: 10, jp: 'じゅっぴき', reading: 'juppiki', kanjiFull: '十匹', note: 'Âm ngắt (っ) + Bán đục (ぴき)' }] },
+			'kai_floor': { kanji: '階', reading: 'かい', question: '何階 (なんがい)', description: 'Tầng của tòa nhà', examples: 'Dùng để hỏi hoặc trả lời về số tầng.', icon: `<i class="fas fa-building"></i>`, counts: [{ num: 1, jp: 'いっかい', reading: 'ikkai', kanjiFull: '一階', note: 'Âm ngắt (Sokuon)' }, { num: 2, jp: 'にかい', reading: 'nikai', kanjiFull: '二階' }, { num: 3, jp: 'さんがい', reading: 'sangai', kanjiFull: '三階', note: 'Âm đục (がい)' }, { num: 4, jp: 'よんかい', reading: 'yonkai', kanjiFull: '四階' }, { num: 5, jp: 'ごかい', reading: 'gokai', kanjiFull: '五階' }, { num: 6, jp: 'ろっかい', reading: 'rokkai', kanjiFull: '六階', note: 'Âm ngắt (Sokuon)' }, { num: 7, jp: 'ななかい', reading: 'nanakai', kanjiFull: '七階' }, { num: 8, jp: 'はっかい', reading: 'hakkai', kanjiFull: '八階', note: 'Âm ngắt (Sokuon)' }, { num: 9, jp: 'きゅうかい', reading: 'kyuukai', kanjiFull: '九階' }, { num: 10, jp: 'じゅっかい', reading: 'jukkai', kanjiFull: '十階', note: 'Âm ngắt (Sokuon)' }] },
+			'jikan': { kanji: '時間', reading: 'じかん', question: '何時間 (なんじかん)', description: 'Thời gian (số giờ)', examples: 'Dùng để chỉ một khoảng thời gian tính bằng giờ.', icon: `<i class="fas fa-clock"></i>`, counts: [{ num: 1, jp: 'いちじかん', reading: 'ichijikan', kanjiFull: '一時間' }, { num: 2, jp: 'にじかん', reading: 'nijikan', kanjiFull: '二時間' }, { num: 3, jp: 'さんじかん', reading: 'sanjikan', kanjiFull: '三時間' }, { num: 4, jp: 'よじかん', reading: 'yojikan', kanjiFull: '四時間', note: 'Cách đọc đặc biệt (không phải よんじかん)' }, { num: 5, jp: 'ごじかん', reading: 'gojikan', kanjiFull: '五時間' }, { num: 6, jp: 'ろくじかん', reading: 'rokujikan', kanjiFull: '六時間' }, { num: 7, jp: 'しちじかん', reading: 'shichijikan', kanjiFull: '七時間' }, { num: 8, jp: 'はちじかん', reading: 'hachijikan', kanjiFull: '八時間' }, { num: 9, jp: 'くじかん', reading: 'kujikan', kanjiFull: '九時間', note: 'Cách đọc đặc biệt (không phải きゅうじかん)' }, { num: 10, jp: 'じゅうじかん', reading: 'juujikan', kanjiFull: '十時間' }] },
+			'ko': { kanji: '個', reading: 'こ', question: '何個 (なんこ)', description: 'Vật nhỏ, tròn, khối', examples: 'Ví dụ: kẹo, cục tẩy, trứng, táo...', icon: `<i class="fas fa-apple-alt"></i>`, counts: [{ num: 1, jp: 'いっこ', reading: 'ikko', kanjiFull: '一個', note: 'Âm ngắt (Sokuon)' }, { num: 2, jp: 'にこ', reading: 'niko', kanjiFull: '二個' }, { num: 3, jp: 'さんこ', reading: 'sanko', kanjiFull: '三個' }, { num: 4, jp: 'よんこ', reading: 'yonko', kanjiFull: '四個' }, { num: 5, jp: 'ごこ', reading: 'goko', kanjiFull: '五個' }, { num: 6, jp: 'ろっこ', reading: 'rokko', kanjiFull: '六個', note: 'Âm ngắt (Sokuon)' }, { num: 7, jp: 'ななこ', reading: 'nanako', kanjiFull: '七個' }, { num: 8, jp: 'はっこ', reading: 'hakko', kanjiFull: '八個', note: 'Âm ngắt (Sokuon)' }, { num: 9, jp: 'きゅうこ', reading: 'kyuuko', kanjiFull: '九個' }, { num: 10, jp: 'じゅっこ', reading: 'jukko', kanjiFull: '十個', note: 'Âm ngắt (Sokuon)' }] },
+		};
+
+		// --- SCRIPT TO HANDLE INTERACTIONS ---
+		document.addEventListener('DOMContentLoaded', () => {
+			// Generate stars background
+			function createStars() {
+				const starsContainer = document.getElementById('stars');
+				if (!starsContainer) return;
+				starsContainer.innerHTML = '';
+				const starsCount = 150;
+
+				for (let i = 0; i < starsCount; i++) {
+					const star = document.createElement('div');
+					star.classList.add('star');
+					const top = Math.random() * 100;
+					const left = Math.random() * 100;
+					star.style.top = `${top}%`;
+					star.style.left = `${left}%`;
+					const size = Math.random() * 3;
+					star.style.width = `${size}px`;
+					star.style.height = `${size}px`;
+					star.style.opacity = Math.random() * 0.8 + 0.2;
+					star.style.animationDelay = `${Math.random() * 5}s`;
+					starsContainer.appendChild(star);
+				}
+			}
+			createStars();
+
+			const mainTabs = document.getElementById('main-tabs');
+			const theoryContent = document.getElementById('theory-content');
+			const tipsContent = document.getElementById('tips-content');
+			const practiceContent = document.getElementById('practice-content');
+			const counterGrid = document.getElementById('counter-grid');
+			const modal = document.getElementById('modal');
+			const modalContent = document.getElementById('modal-content');
+			const modalHeader = document.getElementById('modal-header');
+			const modalTabs = document.getElementById('modal-tabs');
+			const listView = document.getElementById('list-view');
+			const flashcardView = document.getElementById('flashcard-view');
+			const closeModalBtn = document.getElementById('close-modal-btn');
+			const settingsBtn = document.getElementById('flashcard-settings-btn');
+			const exerciseContainer = document.getElementById('exercise-container');
+			const progressBar = document.getElementById('progress-bar');
+			const progressText = document.getElementById('progress-text');
+			const resetBtn = document.getElementById('reset-btn');
+			const themeToggle = document.getElementById('theme-toggle');
+
+			let currentCardIndex = 0;
+			let currentCounterData = null;
+			let flashcardSettings = { front: 'japanese', back: 'vietnamese' };
+			let exerciseData = [];
+			let completedExercises = 0;
+			let isDarkMode = true;
+
+			// Theme toggle
+			themeToggle.addEventListener('click', () => {
+				isDarkMode = !isDarkMode;
+				document.body.classList.toggle('dark', isDarkMode);
+				document.body.classList.toggle('light', !isDarkMode);
+				themeToggle.innerHTML = isDarkMode
+					? '<i class="fas fa-moon mr-2"></i>Chế độ tối'
+					: '<i class="fas fa-sun mr-2"></i>Chế độ sáng';
+			});
+
+			// 1. Generate theory cards
+			Object.keys(countersData).forEach(key => {
+				const counter = countersData[key];
+				const card = document.createElement('div');
+				card.className = 'galaxy-card rounded-xl shadow-lg p-6 flex flex-col cursor-pointer';
+				card.dataset.counterKey = key;
+				card.innerHTML = `<div class="flex items-start gap-4"><div class="card-icon">${counter.icon}</div><div class="flex-1"><div class="mb-2"><div class="flex flex-wrap items-baseline gap-x-3 gap-y-1"><h3 class="text-3xl font-bold galaxy-primary jp-font">${counter.kanji}</h3><span class="text-lg font-medium text-indigo-300 jp-font">${counter.reading}</span><span class="text-lg font-bold text-purple-400 jp-font">${counter.question}</span></div></div><p class="text-indigo-200 font-semibold">${counter.description}</p><p class="text-xs text-indigo-300 mt-1">${counter.examples}</p></div></div>`;
+				counterGrid.appendChild(card);
+			});
+
+			// 2. Modal Logic
+			const openModal = (key) => {
+				currentCounterData = countersData[key];
+				if (!currentCounterData) return;
+				modalHeader.innerHTML = `<div class="flex items-center gap-4"><div class="modal-icon galaxy-primary">${currentCounterData.icon}</div><div><h3 class="text-2xl font-bold galaxy-primary jp-font">${currentCounterData.kanji} <span class="text-lg font-medium text-indigo-300 jp-font">${currentCounterData.reading}</span></h3><p class="text-sm text-indigo-300">Từ để hỏi: <span class="jp-font font-semibold">${currentCounterData.question}</span></p></div></div>`;
+				renderListView(currentCounterData);
+				renderFlashcardView();
+				currentCardIndex = 0;
+				updateFlashcardContent(currentCardIndex);
+				switchModalView('list');
+				modal.classList.remove('hidden');
+				setTimeout(() => { modal.classList.remove('opacity-0'); modalContent.classList.remove('scale-95'); }, 10);
+			};
+			const closeModal = () => {
+				modal.classList.add('opacity-0');
+				modalContent.classList.add('scale-95');
+				setTimeout(() => { modal.classList.add('hidden'); }, 300);
+			};
+
+			// HÀM RENDER DANH SÁCH TỪ (ĐÃ CẬP NHẬT)
+			const renderListView = (data) => {
+				let tableRows = data.counts.map(c =>
+					`<tr class="${c.note ? 'highlight' : ''}">
+                     <td class="py-3 px-4 text-center font-semibold text-indigo-200">${c.num}</td>
+                     <td class="py-3 px-4 jp-font text-lg text-center">
+                         <ruby>${c.kanjiFull}<rt>${c.jp}</rt></ruby>
+                     </td>
+                     <td class="py-3 px-4 text-xs note">${c.note || ''}</td>
+                 </tr>`
+				).join('');
+
+				listView.innerHTML = `
+                 <div class="overflow-hidden border border-indigo-700 rounded-lg">
+                     <table class="w-full text-left table-fixed">
+                         <thead class="bg-indigo-900/30 text-indigo-200 text-sm">
+                             <tr>
+                                 <th class="py-2 px-4 text-center w-[15%]">Số</th>
+                                 <th class="py-2 px-4 text-center w-[50%]">Từ vựng (Hán tự)</th>
+                                 <th class="py-2 px-4 w-[35%]">Ghi chú</th>
+                             </tr>
+                         </thead>
+                         <tbody class="divide-y divide-indigo-800">${tableRows}</tbody>
+                     </table>
+                 </div>`;
+			};
+
+			const renderFlashcardView = () => {
+				flashcardView.innerHTML = `<div class="perspective-container h-52"><div id="flashcard" class="flashcard relative w-full h-full cursor-pointer"><div id="flashcard-front" class="flashcard-face absolute w-full h-full"></div><div id="flashcard-back" class="flashcard-back flashcard-face absolute w-full h-full"></div></div></div><div class="flex justify-between items-center mt-6"><button id="prev-card-btn" class="bg-indigo-900/50 hover:bg-indigo-800 font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">&lt; Trước</button><span id="card-counter" class="font-semibold text-indigo-200"></span><button id="next-card-btn" class="bg-indigo-900/50 hover:bg-indigo-800 font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Sau &gt;</button></div>`;
+				document.getElementById('flashcard').addEventListener('click', () => { document.getElementById('flashcard').classList.toggle('is-flipped'); });
+				document.getElementById('prev-card-btn').addEventListener('click', showPrevCard);
+				document.getElementById('next-card-btn').addEventListener('click', showNextCard);
+			};
+
+			// --- HÀM UPDATE FLASHCARD ---
+			const updateFlashcardContent = (index) => {
+				if (!currentCounterData) return;
+				const cardData = currentCounterData.counts[index];
+				const front = document.getElementById('flashcard-front');
+				const back = document.getElementById('flashcard-back');
+				const counter = document.getElementById('card-counter');
+
+				const japaneseContent = `<div class="main-text text-5xl font-bold jp-font leading-tight text-center"><ruby>${cardData.kanjiFull}<rt>${cardData.jp}</rt></ruby></div> ${cardData.note ? `<span class="note-lozenge">${cardData.note}</span>` : ''}`;
+				const vietnameseContent = `<div class="main-text text-center"><span class="text-7xl font-bold">${cardData.num}</span><span class="text-xl mt-2 block">${currentCounterData.description}</span></div>`;
+
+				front.innerHTML = flashcardSettings.front === 'japanese' ? japaneseContent : vietnameseContent;
+				back.innerHTML = flashcardSettings.back === 'japanese' ? japaneseContent : vietnameseContent;
+
+				counter.textContent = `${index + 1} / ${currentCounterData.counts.length}`;
+				document.getElementById('prev-card-btn').disabled = index === 0;
+				document.getElementById('next-card-btn').disabled = index === currentCounterData.counts.length - 1;
+				document.getElementById('flashcard').classList.remove('is-flipped');
+			};
+
+			const updateSettings = () => {
+				const frontValue = document.querySelector('input[name="front-view"]:checked').value;
+				const backValue = document.querySelector('input[name="back-view"]:checked').value;
+				if (frontValue === backValue) {
+					if (event.target.name === 'front-view') {
+						const newBackValue = frontValue === 'japanese' ? 'vietnamese' : 'japanese';
+						document.querySelector(`input[name="back-view"][value="${newBackValue}"]`).checked = true;
+					} else {
+						const newFrontValue = backValue === 'japanese' ? 'vietnamese' : 'japanese';
+						document.querySelector(`input[name="front-view"][value="${newFrontValue}"]`).checked = true;
+					}
+				}
+				flashcardSettings.front = document.querySelector('input[name="front-view"]:checked').value;
+				flashcardSettings.back = document.querySelector('input[name="back-view"]:checked').value;
+				updateFlashcardContent(currentCardIndex);
+			};
+			const showNextCard = () => { if (currentCardIndex < currentCounterData.counts.length - 1) { currentCardIndex++; updateFlashcardContent(currentCardIndex); } };
+			const showPrevCard = () => { if (currentCardIndex > 0) { currentCardIndex--; updateFlashcardContent(currentCardIndex); } };
+			const switchModalView = (viewName) => {
+				const isList = viewName === 'list';
+				listView.classList.toggle('hidden', !isList);
+				flashcardView.classList.toggle('hidden', isList);
+				settingsBtn.classList.toggle('hidden', isList);
+				document.querySelector('#modal-tabs [data-view="list"]').classList.toggle('active', isList);
+				document.querySelector('#modal-tabs [data-view="flashcard"]').classList.toggle('active', !isList);
+			};
+
+			// 3. Main View Logic
+			const switchMainView = (viewName) => {
+				document.querySelectorAll('#main-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+				document.querySelector(`[data-main-view="${viewName}"]`).classList.add('active');
+				theoryContent.classList.toggle('hidden', viewName !== 'theory');
+				tipsContent.classList.toggle('hidden', viewName !== 'tips');
+				practiceContent.classList.toggle('hidden', viewName !== 'practice');
+				if (viewName === 'practice') generateExercises();
+			};
+
+			// 4. Exercise Logic
+			function generateExercises() {
+				exerciseContainer.innerHTML = '';
+				exerciseData = [];
+				completedExercises = 0;
+				updateProgress();
+				const counterKeys = Object.keys(countersData);
+				let selectedExercises = [];
+				while (selectedExercises.length < 10) {
+					const randomKey = counterKeys[Math.floor(Math.random() * counterKeys.length)];
+					const counter = countersData[randomKey];
+					const randomNumIndex = Math.floor(Math.random() * counter.counts.length);
+					const countItem = counter.counts[randomNumIndex];
+					const exercise = { counterKey: randomKey, answer: countItem.reading, jpAnswer: countItem.jp };
+					if (!selectedExercises.some(ex => ex.counterKey === exercise.counterKey && ex.number === countItem.num)) {
+						exercise.number = countItem.num;
+						selectedExercises.push(exercise);
+					}
+				}
+				exerciseData = selectedExercises;
+				selectedExercises.forEach((ex, index) => renderExercise(ex, index));
+			}
+
+			function renderExercise(exercise, index) {
+				const counter = countersData[exercise.counterKey];
+				const exerciseCard = document.createElement('div');
+				exerciseCard.className = 'exercise-card galaxy-card rounded-xl p-5';
+				exerciseCard.innerHTML = `<div class="flex items-start gap-3 mb-4"><div class="card-icon !w-10 !h-10 !text-xl">${counter.icon}</div><div><h4 class="font-bold text-indigo-200">${counter.kanji} (${counter.reading})</h4><p class="text-lg font-bold galaxy-primary mt-1">${exercise.number} ${counter.description}</p></div></div><div class="mb-4"><label class="block text-sm font-medium text-indigo-200 mb-1">Cách đọc (Romaji):</label><input type="text" class="w-full px-4 py-2 bg-slate-800/50 border border-indigo-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-white" placeholder="Nhập cách đọc..." data-answer-input></div><div class="flex items-center justify-between"><button class="galaxy-button font-medium py-2 px-4 rounded-lg" data-check-btn>Kiểm tra</button><div class="result flex items-center gap-2 hidden" data-result-container><div class="result-icon" data-result-icon></div><span class="text-sm font-bold" data-result-text></span></div></div><div class="mt-4 text-sm hidden bg-slate-800/50 p-3 rounded-md" data-answer-details><p><span class="font-medium">Đáp án đúng:</span> <span class="jp-font font-bold text-green-400">${exercise.jpAnswer}</span></p><p><span class="font-medium">Romaji:</span> <span class="font-bold text-green-400">${exercise.answer}</span></p></div>`;
+				exerciseContainer.appendChild(exerciseCard);
+				const checkBtn = exerciseCard.querySelector('[data-check-btn]');
+				const answerInput = exerciseCard.querySelector('[data-answer-input]');
+				checkBtn.addEventListener('click', () => checkAnswer(exerciseCard, exercise));
+				answerInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(exerciseCard, exercise); });
+			}
+
+			function checkAnswer(exerciseCard, exercise) {
+				const checkBtn = exerciseCard.querySelector('[data-check-btn]');
+				if (checkBtn.disabled) return;
+				const answerInput = exerciseCard.querySelector('[data-answer-input]');
+				const resultContainer = exerciseCard.querySelector('[data-result-container]');
+				const resultIcon = exerciseCard.querySelector('[data-result-icon]');
+				const resultText = exerciseCard.querySelector('[data-result-text]');
+				const answerDetails = exerciseCard.querySelector('[data-answer-details]');
+				const userAnswer = answerInput.value.trim().toLowerCase();
+				if (!userAnswer) return;
+
+				exercise.attempted = true;
+
+				if (userAnswer === exercise.answer.toLowerCase()) {
+					resultIcon.innerHTML = '<i class="fas fa-check text-white"></i>'; resultIcon.className = 'result-icon bg-green-500';
+					resultText.textContent = 'Chính xác!'; resultText.className = 'text-sm font-bold text-green-400';
+					exercise.correct = true; exerciseCard.classList.add('border-green-500');
+				} else {
+					resultIcon.innerHTML = '<i class="fas fa-times text-white"></i>'; resultIcon.className = 'result-icon bg-red-500';
+					resultText.textContent = 'Chưa chính xác'; resultText.className = 'text-sm font-bold text-red-400';
+					exercise.correct = false; exerciseCard.classList.add('border-red-500');
+					answerDetails.classList.remove('hidden');
+				}
+				resultContainer.classList.remove('hidden');
+				checkBtn.disabled = true;
+				answerInput.disabled = true;
+				updateProgress();
+			}
+
+			function updateProgress() {
+				const correctCount = exerciseData.filter(ex => ex.correct === true).length;
+				const attemptedCount = exerciseData.filter(ex => ex.attempted === true).length;
+				const progressPercentage = (attemptedCount / 10) * 100;
+
+				progressBar.style.width = `${progressPercentage}%`;
+				progressText.textContent = `${attemptedCount}/10`;
+
+				if (attemptedCount < 10) {
+					progressBar.className = 'progress-bar bg-indigo-500 h-2.5 rounded-full';
+				} else {
+					const scorePercentage = (correctCount / 10) * 100;
+					if (scorePercentage < 40) progressBar.className = 'progress-bar bg-red-500 h-2.5 rounded-full';
+					else if (scorePercentage < 70) progressBar.className = 'progress-bar bg-yellow-500 h-2.5 rounded-full';
+					else progressBar.className = 'progress-bar bg-green-500 h-2.5 rounded-full';
+					progressText.textContent = `Điểm: ${correctCount}/10`;
+				}
+			}
+			resetBtn.addEventListener('click', generateExercises);
+
+			// --- Event Listeners ---
+			mainTabs.addEventListener('click', (e) => { if (e.target.matches('button')) switchMainView(e.target.dataset.mainView); });
+			counterGrid.addEventListener('click', (e) => { const card = e.target.closest('[data-counter-key]'); if (card) openModal(card.dataset.counterKey); });
+			modalTabs.addEventListener('click', (e) => { if (e.target.matches('button')) switchModalView(e.target.dataset.view); });
+			closeModalBtn.addEventListener('click', closeModal);
+			settingsBtn.addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('flashcard-settings-panel').classList.toggle('hidden'); });
+			document.querySelectorAll('input[name="front-view"], input[name="back-view"]').forEach(radio => { radio.addEventListener('change', updateSettings); });
+			modal.addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+			document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal(); });
+			document.body.addEventListener('click', (e) => {
+				const settingsPanel = document.getElementById('flashcard-settings-panel');
+				if (settingsPanel && !settingsPanel.classList.contains('hidden') && !settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
+					settingsPanel.classList.add('hidden');
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>
