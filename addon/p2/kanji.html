@@ -108,6 +108,13 @@
             --btn-hoc-hover: #f97316;
             --btn-batdau-bg: #bbf7d0; /* xanh lá nhạt */
             --btn-batdau-hover: #4ade80; /* xanh lá tươi hơn khi hover */
+
+            --progress-bar-bg: #e5e7eb;
+            --progress-learned-bg: linear-gradient(90deg, #fb923c 0%, #fbbf24 100%);
+            --progress-mastered-bg: linear-gradient(90deg, #38bdf8 0%, #22c55e 100%);
+            --progress-bar-radius: 4px;
+            --progress-bar-height: 6px;
+            --progress-bar-margin: 4px auto 0 auto;
         }
         .darkmode {
             /* Improved dark mode colors for better contrast and readability */
@@ -508,6 +515,68 @@
             background: var(--btn-batdau-hover) !important;
             color: #166534 !important;
         }
+
+        .kanji-progress-bar {
+            width: 80%;
+            height: 5px;
+            background: var(--progress-bar-bg);
+            border-radius: var(--progress-bar-radius);
+            margin: 10px auto 0 auto;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+        }
+        .kanji-progress-bar-inner {
+            position: absolute;
+            left: 0; top: 0;
+            height: 100%;
+            background: var(--progress-mastered-bg);
+            border-radius: var(--progress-bar-radius);
+            transition: width 0.3s;
+            z-index: 2;
+        }
+        /* Đánh dấu trạng thái góc trên trái */
+        .kanji-status-dot {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            z-index: 3;
+            box-shadow: 0 0 0 2px var(--bg-container);
+            border: 2px solid var(--bg-container);
+            pointer-events: none;
+        }
+        .kanji-status-dot-learned {
+            background: #fb923c;
+            /* màu cam */
+        }
+        .kanji-status-dot-mastered {
+            background: #22c55e;
+            /* màu xanh lá */
+        }
+        /* Đổ bóng trạng thái */
+        .kanji-cell-learned {
+            box-shadow: 0 0 0 2px #fde68a, 0 4px 16px 0 #fbbf2440 !important;
+            /* cam nhạt */
+            border-color: #fbbf24 !important;
+        }
+        .kanji-cell-mastered {
+            box-shadow: 0 0 0 2px #bbf7d0, 0 4px 16px 0 #22c55e40 !important;
+            /* xanh lá nhạt */
+            border-color: #22c55e !important;
+        }
+        /* Ẩn text trạng thái cũ */
+        .kanji-status-pill {
+            display: none !important;
+        }
+        /* --- GRID VIEW --- */
+        #kanji-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6">
@@ -622,261 +691,302 @@
     </div>
 
     <script>
-        // Toàn bộ JavaScript giữ nguyên
-        const kanjiData = [
-          { "char": "一", "name": "NHẤT", "kunyomi": "ひと", "onyomi": "イチ", "vocab": [ { "word": "一日", "reading": "ついたち", "meaning": "mồng 1" }, { "word": "一人で", "reading": "ひとりで", "meaning": "một mình" }, { "word": "一人", "reading": "ひとり", "meaning": "một người" }, { "word": "一つ", "reading": "ひとつ", "meaning": "một cái" }, { "word": "一番", "reading": "いちばん", "meaning": "nhất" }, { "word": "一緒に", "reading": "いっしょに", "meaning": "cùng nhau" }, { "word": "一度", "reading": "いちど", "meaning": "một lần" }, { "word": "一度も", "reading": "いちども", "meaning": "chưa lần nào" }, { "word": "一生懸命", "reading": "いっしょうけんめい", "meaning": "Sự cố gắng hết sức" } ] },
-          { "char": "二", "name": "NHỊ", "kunyomi": "ふた", "onyomi": "ニ", "vocab": [ { "word": "二日", "reading": "ふつか", "meaning": "mồng 2" }, { "word": "二人", "reading": "ふたり", "meaning": "hai người" }, { "word": "二つ", "reading": "ふたつ", "meaning": "hai cái" } ] },
-          { "char": "三", "name": "TAM", "kunyomi": "みっ", "onyomi": "サン", "vocab": [ { "word": "三日", "reading": "みっか", "meaning": "mồng 3" }, { "word": "三つ", "reading": "みっつ", "meaning": "ba cái" } ] },
-          { "char": "四", "name": "TỨ", "kunyomi": "よん、よっ、よ", "onyomi": "シ", "vocab": [ { "word": "四日", "reading": "よっか", "meaning": "mồng 4" }, { "word": "二十四日", "reading": "にじゅうよっか", "meaning": "ngày 24" }, { "word": "四つ", "reading": "よっつ", "meaning": "bốn cái" } ] },
-          { "char": "五", "name": "NGŨ", "kunyomi": "いつ", "onyomi": "ゴ", "vocab": [ { "word": "五日", "reading": "いつか", "meaning": "mồng 5" }, { "word": "五つ", "reading": "いつつ", "meaning": "năm cái" } ] },
-          { "char": "六", "name": "LỤC", "kunyomi": "むい、むっ", "onyomi": "ロク", "vocab": [ { "word": "六日", "reading": "むいか", "meaning": "mồng 6" }, { "word": "六つ", "reading": "むっつ", "meaning": "sáu cái" } ] },
-          { "char": "七", "name": "THẤT", "kunyomi": "なな、なの", "onyomi": "シチ", "vocab": [ { "word": "七日", "reading": "なのか", "meaning": "mồng 7" }, { "word": "七つ", "reading": "ななつ", "meaning": "bảy cái" } ] },
-          { "char": "八", "name": "BÁT", "kunyomi": "やっ、よう", "onyomi": "ハチ", "vocab": [ { "word": "八日", "reading": "ようか", "meaning": "mồng 8" }, { "word": "八つ", "reading": "やっつ", "meaning": "tám cái" } ] },
-          { "char": "九", "name": "CỬU", "kunyomi": "ここの", "onyomi": "ク、キュウ", "vocab": [ { "word": "九日", "reading": "ここのか", "meaning": "mồng 9" }, { "word": "九つ", "reading": "ここのつ", "meaning": "chín cái" } ] },
-          { "char": "十", "name": "THẬP", "kunyomi": "とお", "onyomi": "ジュウ、ジッ", "vocab": [ { "word": "十日", "reading": "とおか", "meaning": "mồng 10" }, { "word": "十四日", "reading": "じゅうよっか", "meaning": "ngày 14" }, { "word": "二十日", "reading": "はつか", "meaning": "ngày 20" }, { "word": "十", "reading": "とお", "meaning": "mười cái" } ] },
-          { "char": "百", "name": "BÁCH", "kunyomi": "-", "onyomi": "ヒャク、ヒャッ-、ピャク、ビャク", "vocab": [] },
-          { "char": "千", "name": "THIÊN", "kunyomi": "-", "onyomi": "セン、ゼン", "vocab": [] },
-          { "char": "万", "name": "VẠN", "kunyomi": "-", "onyomi": "マン、バン", "vocab": [] },
-          { "char": "円", "name": "VIÊN", "kunyomi": "-", "onyomi": "エン", "vocab": [ { "word": "円", "reading": "えん", "meaning": "yên" } ] },
-          { "char": "日", "name": "NHẬT", "kunyomi": "ひ、び、か", "onyomi": "ニチ、ジツ", "vocab": [ { "word": "日曜日", "reading": "にちようび", "meaning": "chủ nhật" }, { "word": "何曜日", "reading": "なんようび", "meaning": "thứ mấy" }, { "word": "昨日", "reading": "きのう", "meaning": "hôm qua" }, { "word": "今日", "reading": "きょう", "meaning": "hôm nay" }, { "word": "明日", "reading": "あした", "meaning": "ngày mai" }, { "word": "毎日", "reading": "まいにち", "meaning": "mỗi ngày" }, { "word": "何日", "reading": "なんにち", "meaning": "ngày mấy" }, { "word": "誕生日", "reading": "たんじょうび", "meaning": "sinh nhật" }, { "word": "日記", "reading": "にっき", "meaning": "nhật kí" }, { "word": "日本", "reading": "にほん", "meaning": "Nhật Bản" }, { "word": "日本酒", "reading": "にほんしゅ", "meaning": "Rượu Nhật" }, { "word": "日", "reading": "ひ", "meaning": "ngày" }, { "word": "日本製", "reading": "にほんせい", "meaning": "hàng Nhật" } ] },
-          { "char": "月", "name": "NGUYỆT", "kunyomi": "つき", "onyomi": "ゲツ、ガツ", "vocab": [ { "word": "月曜日", "reading": "げつようび", "meaning": "thứ hai" }, { "word": "先月", "reading": "せんげつ", "meaning": "tháng trước" }, { "word": "今月", "reading": "こんげつ", "meaning": "tháng này" }, { "word": "来月", "reading": "らいげつ", "meaning": "tháng sau" }, { "word": "何月", "reading": "なんがつ", "meaning": "tháng mấy" }, { "word": "毎月", "reading": "まいげつ", "meaning": "mỗi tháng" }, { "word": "~ヶ月", "reading": "~かげつ", "meaning": "~ tháng" } ] },
-          { "char": "火", "name": "HỎA", "kunyomi": "ひ", "onyomi": "カ", "vocab": [ { "word": "火曜日", "reading": "かようび", "meaning": "thứ ba" } ] },
-          { "char": "水", "name": "THỦY", "kunyomi": "みず", "onyomi": "スイ", "vocab": [ { "word": "水曜日", "reading": "すいようび", "meaning": "thứ tư" }, { "word": "水", "reading": "みず", "meaning": "nước" } ] },
-          { "char": "木", "name": "MỘC", "kunyomi": "き", "onyomi": "ボク、モク", "vocab": [ { "word": "木曜日", "reading": "もくようび", "meaning": "thứ năm" }, { "word": "木", "reading": "き", "meaning": "cây, gỗ" } ] },
-          { "char": "金", "name": "KIM", "kunyomi": "かね", "onyomi": "キン", "vocab": [ { "word": "金曜日", "reading": "きんようび", "meaning": "thứ sáu" }, { "word": "お金", "reading": "おかね", "meaning": "tiền" }, { "word": "現金", "reading": "げんきん", "meaning": "tiền mặt" }, { "word": "細かいお金", "reading": "こまかいおかね", "meaning": "tiền lẻ" }, { "word": "貯金箱", "reading": "ちょきんばこ", "meaning": "Hộp tiết kiệm" } ] },
-          { "char": "土", "name": "THỔ", "kunyomi": "つち", "onyomi": "ド", "vocab": [ { "word": "土曜日", "reading": "どようび", "meaning": "thứ bảy" } ] },
-          { "char": "人", "name": "NHÂN", "kunyomi": "ひと", "onyomi": "ジン、ニン", "vocab": [ { "word": "あの人", "reading": "あのひと", "meaning": "người đó" }, { "word": "~人", "reading": "~じん", "meaning": "người (nước)" }, { "word": "人", "reading": "ひと", "meaning": "người" }, { "word": "男の人", "reading": "おとこのひと", "meaning": "người đàn ông" }, { "word": "女の人", "reading": "おんなのひと", "meaning": "người phụ nữ" }, { "word": "[人が~]多い", "reading": "[ひとが~]おおい", "meaning": "nhiều [người]" }, { "word": "[人が~]少ない", "reading": "[ひとが~]すくない", "meaning": "ít [người]" }, { "word": "恋人", "reading": "こいびと", "meaning": "người yêu" } ] },
-          { "char": "先", "name": "TIÊN", "kunyomi": "さき", "onyomi": "セン", "vocab": [ { "word": "先生", "reading": "せんせい", "meaning": "thầy/cô" }, { "word": "先週", "reading": "せんしゅう", "meaning": "tuần trước" } ] },
-          { "char": "生", "name": "SINH", "kunyomi": "い・きる、う・まれる", "onyomi": "セイ、ショウ", "vocab": [ { "word": "学生", "reading": "がくせい", "meaning": "học sinh" }, { "word": "留学生", "reading": "りゅうがくせい", "meaning": "du học sinh" }, { "word": "生活", "reading": "せいかつ", "meaning": "cuộc sống" }, { "word": "生まれます", "reading": "うまれる", "meaning": "được sinh ra" } ] },
-          { "char": "学", "name": "HỌC", "kunyomi": "まな・ぶ", "onyomi": "ガク", "vocab": [ { "word": "大学", "reading": "だいがく", "meaning": "đại học" }, { "word": "学校", "reading": "がっこう", "meaning": "trường học" }, { "word": "見学します", "reading": "けんがくする", "meaning": "tham quan học tập" }, { "word": "留学します", "reading": "りゅうがくする", "meaning": "du học" } ] },
-          { "char": "方", "name": "PHƯƠNG", "kunyomi": "かた（がた）", "onyomi": "ホウ", "vocab": [ { "word": "(あの方)", "reading": "(あのかた)", "meaning": "vị kia" }, { "word": "夕方", "reading": "ゆうがた", "meaning": "buổi chiều" }, { "word": "~方", "reading": "~かた", "meaning": "cách ~" }, { "word": "読み方", "reading": "よみかた", "meaning": "cách đọc" }, { "word": "仕方がない", "reading": "しかたがない", "meaning": "không còn cách nào khác" } ] },
-          { "char": "何", "name": "HÀ", "kunyomi": "なん、なに", "onyomi": "カ", "vocab": [ { "word": "何", "reading": "なん", "meaning": "cái gì" }, { "word": "何時", "reading": "なんじ", "meaning": "mấy giờ" }, { "word": "何分", "reading": "なんぷん", "meaning": "mấy phút" }, { "word": "何", "reading": "なに", "meaning": "cái gì, gì" } ] },
-          { "char": "今", "name": "KIM", "kunyomi": "いま", "onyomi": "コン", "vocab": [ { "word": "今", "reading": "いま", "meaning": "bây giờ" }, { "word": "今朝", "reading": "けさ", "meaning": "sáng nay" }, { "word": "今晩", "reading": "こんばん", "meaning": "tối nay" }, { "word": "今夜", "reading": "こんや", "meaning": "đêm nay" }, { "word": "今週", "reading": "こんしゅう", "meaning": "tuần này" }, { "word": "今年", "reading": "ことし", "meaning": "năm nay" } ] },
-          { "char": "分", "name": "PHÂN", "kunyomi": "わ・かる、わ・ける", "onyomi": "ブン、フン、プン", "vocab": [ { "word": "分かります", "reading": "わかります", "meaning": "hiểu" }, { "word": "自分で", "reading": "じぶんで", "meaning": "tự mình" } ] },
-          { "char": "半", "name": "BÁN", "kunyomi": "-", "onyomi": "ハン", "vocab": [ { "word": "半", "reading": "はん", "meaning": "rưỡi, nửa" } ] },
-          { "char": "時", "name": "THỜI", "kunyomi": "とき", "onyomi": "ジ", "vocab": [ { "word": "時計", "reading": "とけい", "meaning": "đồng hồ" }, { "word": "時々", "reading": "ときどき", "meaning": "thỉnh thoảng" }, { "word": "時間", "reading": "じかん", "meaning": "thời gian" }, { "word": "~時間", "reading": "~じかん", "meaning": "~ tiếng" }, { "word": "時刻表", "reading": "じこくひょう", "meaning": "bảng giờ tàu chạy" } ] },
-          { "char": "年", "name": "NIÊN", "kunyomi": "とし", "onyomi": "ネン", "vocab": [ { "word": "去年", "reading": "きょねん", "meaning": "năm ngoái" }, { "word": "来年", "reading": "らいねん", "meaning": "năm sau" }, { "word": "毎年", "reading": "まいとし", "meaning": "mỗi năm" }, { "word": "~年", "reading": "~ねん", "meaning": "~ năm" } ] },
-          { "char": "本", "name": "BẢN", "kunyomi": "もと", "onyomi": "ホン、ポン", "vocab": [ { "word": "本", "reading": "ほん", "meaning": "sách" }, { "word": "本の気持ち", "reading": "ほんのきもち", "meaning": "chút lòng thành" }, { "word": "本社", "reading": "ほんしゃ", "meaning": "Trụ sở chính" }, { "word": "本屋", "reading": "ほんや", "meaning": "hiệu sách" }, { "word": "本棚", "reading": "ほんだな", "meaning": "giá sách" }, { "word": "本当に", "reading": "ほんとうに", "meaning": "thật sự" } ] },
-          { "char": "休", "name": "HƯU", "kunyomi": "やす・みます", "onyomi": "キュウ", "vocab": [ { "word": "休み", "reading": "やすみ", "meaning": "ngày nghỉ" }, { "word": "昼休み", "reading": "ひるやすみ", "meaning": "nghỉ trưa" }, { "word": "休みます", "reading": "やすみます", "meaning": "nghỉ ngơi" }, { "word": "休む", "reading": "やすむ", "meaning": "nghỉ ngơi" } ] },
-          { "char": "校", "name": "HIỆU", "kunyomi": "-", "onyomi": "コウ", "vocab": [ { "word": "校長", "reading": "こうちょう", "meaning": "hiệu trưởng" }, { "word": "高校", "reading": "こうこう", "meaning": "trường THPT" } ] },
-          { "char": "帰", "name": "QUY", "kunyomi": "かえ・ります", "onyomi": "キ", "vocab": [ { "word": "帰ります", "reading": "かえります", "meaning": "về" } ] },
-          { "char": "行", "name": "HÀNH", "kunyomi": "い・きます、おこな・います", "onyomi": "コウ、ギョウ", "vocab": [ { "word": "銀行員", "reading": "ぎんこういん", "meaning": "nhân viên ngân hàng" }, { "word": "銀行", "reading": "ぎんこう", "meaning": "ngân hàng" }, { "word": "行きます", "reading": "いきます", "meaning": "đi" }, { "word": "飛行機", "reading": "ひこうき", "meaning": "máy bay" }, { "word": "旅行します", "reading": "りょこうする", "meaning": "du lịch" }, { "word": "持って行きます", "reading": "もっていく", "meaning": "mang đi" } ] },
-          { "char": "来", "name": "LAI", "kunyomi": "き・ます、く・る", "onyomi": "ライ", "vocab": [ { "word": "~から来ました", "reading": "~からきました", "meaning": "đến từ ~" }, { "word": "来ます", "reading": "きます", "meaning": "đến" }, { "word": "持って来ます", "reading": "もってくる", "meaning": "mang đến" }, { "word": "将来", "reading": "しょうらい", "meaning": "tương lai" } ] },
-          { "char": "車", "name": "XA", "kunyomi": "くるま", "onyomi": "シャ", "vocab": [ { "word": "運転手", "reading": "うんてんしゅ", "meaning": "tài xế" }, { "word": "車", "reading": "くるま", "meaning": "ô tô" }, { "word": "電車", "reading": "でんしゃ", "meaning": "tàu điện" }, { "word": "自転車", "reading": "じてんしゃ", "meaning": "xe đạp" }, { "word": "地下鉄", "reading": "ちかてつ", "meaning": "tàu điện ngầm" }, { "word": "運転します", "reading": "うんてんする", "meaning": "lái xe" } ] },
-          { "char": "書", "name": "THƯ", "kunyomi": "か・きます", "onyomi": "ショ", "vocab": [ { "word": "辞書", "reading": "じしょ", "meaning": "từ điển" }, { "word": "図書館", "reading": "としょかん", "meaning": "thư viện" }, { "word": "書きます", "reading": "かきます", "meaning": "viết" }, { "word": "葉書", "reading": "はがき", "meaning": "bưu thiếp" }, { "word": "電子辞書", "reading": "でんしじしょ", "meaning": "kim từ điển" } ] },
-          { "char": "食", "name": "THỰC", "kunyomi": "た・べます", "onyomi": "ショク", "vocab": [ { "word": "食堂", "reading": "しょくどう", "meaning": "nhà ăn" }, { "word": "食べ物", "reading": "たべもの", "meaning": "đồ ăn" }, { "word": "食べます", "reading": "たべます", "meaning": "ăn" }, { "word": "食事します", "reading": "しょくじする", "meaning": "dùng bữa" }, { "word": "夕食", "reading": "ゆうしょく", "meaning": "cơm chiều" } ] },
-          { "char": "飲", "name": "ẨM", "kunyomi": "の・みます", "onyomi": "イン", "vocab": [ { "word": "飲みます", "reading": "のみます", "meaning": "uống" }, { "word": "飲み物", "reading": "のみもの", "meaning": "đồ uống" } ] },
-          { "char": "見", "name": "KIẾN", "kunyomi": "み・ます", "onyomi": "ケン", "vocab": [ { "word": "[お]花見", "reading": "[お]はなみ", "meaning": "ngắm hoa anh đào" }, { "word": "見ます", "reading": "みます", "meaning": "xem, nhìn" }, { "word": "見せます", "reading": "みせる", "meaning": "cho xem" }, { "word": "意見", "reading": "いけん", "meaning": "ý kiến" } ] },
-          { "char": "聞", "name": "VĂN", "kunyomi": "き・きます", "onyomi": "ブン", "vocab": [ { "word": "新聞", "reading": "しんぶん", "meaning": "báo" }, { "word": "聞きます", "reading": "ききます", "meaning": "nghe" }, { "word": "[先生に~]聞きます", "reading": "[せんせいに~]きく", "meaning": "hỏi [giáo viên]" } ] },
-          { "char": "新", "name": "TÂN", "kunyomi": "あたら・しい", "onyomi": "シン", "vocab": [ { "word": "新しい", "reading": "あたらしい", "meaning": "mới" } ] },
-          { "char": "肉", "name": "NHỤC", "kunyomi": "-", "onyomi": "ニク", "vocab": [ { "word": "肉", "reading": "にく", "meaning": "thịt" } ] },
-          { "char": "魚", "name": "NGƯ", "kunyomi": "うお、さかな", "onyomi": "ギョ", "vocab": [ { "word": "魚", "reading": "さかな", "meaning": "cá" } ] },
-          { "char": "牛", "name": "NGƯU", "kunyomi": "うし", "onyomi": "ギュウ", "vocab": [ { "word": "牛肉", "reading": "ぎゅうにく", "meaning": "thịt bò" }, { "word": "牛丼", "reading": "ぎゅうどん", "meaning": "cơm thịt bò" }, { "word": "牛乳", "reading": "ぎゅうにゅう", "meaning": "sữa" } ] },
-          { "char": "茶", "name": "TRÀ", "kunyomi": "-", "onyomi": "チャ、サ", "vocab": [ { "word": "お茶", "reading": "おちゃ", "meaning": "trà" }, { "word": "喫茶店", "reading": "きっさてん", "meaning": "quán cà phê" }, { "word": "お茶碗", "reading": "おちゃわん", "meaning": "bát" }, { "word": "茶道", "reading": "さどう", "meaning": "trà đạo" } ] },
-          { "char": "物", "name": "VẬT", "kunyomi": "もの", "onyomi": "ブツ、モツ", "vocab": [ { "word": "物価", "reading": "ぶっか", "meaning": "vật giá" }, { "word": "買い物します", "reading": "かいものする", "meaning": "mua sắm" }, { "word": "物", "reading": "もの", "meaning": "vật, đồ vật" }, { "word": "動物", "reading": "どうぶつ", "meaning": "động vật" }, { "word": "荷物", "reading": "にもつ", "meaning": "hành lý" } ] },
-          { "char": "花", "name": "HOA", "kunyomi": "はな", "onyomi": "カ", "vocab": [ { "word": "花", "reading": "はな", "meaning": "hoa" } ] },
-          { "char": "買", "name": "MÃI", "kunyomi": "か・います", "onyomi": "バイ", "vocab": [ { "word": "買います", "reading": "かいます", "meaning": "mua" } ] },
-          { "char": "読", "name": "ĐỘC", "kunyomi": "よ・みます", "onyomi": "ドク", "vocab": [ { "word": "読みます", "reading": "よみます", "meaning": "đọc" } ] },
-          { "char": "手", "name": "THỦ", "kunyomi": "て", "onyomi": "ズ、シュ", "vocab": [ { "word": "手帳", "reading": "てちょう", "meaning": "sổ tay" }, { "word": "お手洗い", "reading": "おてあらい", "meaning": "phòng vệ sinh" }, { "word": "上手", "reading": "じょうず[な]", "meaning": "giỏi, khéo" }, { "word": "下手", "reading": "へた[な]", "meaning": "kém" }, { "word": "手", "reading": "て", "meaning": "tay" }, { "word": "手紙", "reading": "てがみ", "meaning": "thư" }, { "word": "手伝う", "reading": "てつだいます", "meaning": "giúp đỡ" } ] },
-          { "char": "少", "name": "THIỂU", "kunyomi": "すく・ない、すこ・し", "onyomi": "ショウ", "vocab": [ { "word": "少し", "reading": "すこし", "meaning": "một ít" }, { "word": "もう少し", "reading": "もうすこし", "meaning": "thêm một chút" } ] },
-          { "char": "間", "name": "GIAN", "kunyomi": "あいだ、ま", "onyomi": "カン", "vocab": [ { "word": "この間", "reading": "このあいだ", "meaning": "vừa rồi" }, { "word": "間", "reading": "あいだ", "meaning": "giữa" } ] },
-          { "char": "内", "name": "NỘI", "kunyomi": "うち", "onyomi": "ナイ", "vocab": [ { "word": "家内", "reading": "かない", "meaning": "vợ (mình)" }, { "word": "案内します", "reading": "あんないする", "meaning": "hướng dẫn" } ] },
-          { "char": "田", "name": "ĐIỀN", "kunyomi": "た(だ)", "onyomi": "-", "vocab": [ { "word": "田舎", "reading": "いなか", "meaning": "quê, nông thôn" } ] },
-          { "char": "町", "name": "ĐINH", "kunyomi": "まち", "onyomi": "チョウ", "vocab": [ { "word": "町", "reading": "まち", "meaning": "thị trấn" } ] },
-          { "char": "電", "name": "ĐIỆN", "kunyomi": "-", "onyomi": "デン", "vocab": [ { "word": "電話", "reading": "でんわ", "meaning": "điện thoại" }, { "word": "電気", "reading": "でんき", "meaning": "điện" }, { "word": "電話番号", "reading": "でんわばんごう", "meaning": "số điện thoại" }, { "word": "電池", "reading": "でんち", "meaning": "pin" }, { "word": "電話します", "reading": "でんわする", "meaning": "gọi điện thoại" } ] },
-          { "char": "気", "name": "KHÍ", "kunyomi": "-", "onyomi": "キ", "vocab": [ { "word": "元気", "reading": "げんき[な]", "meaning": "khỏe mạnh" }, { "word": "天気", "reading": "てんき", "meaning": "thời tiết" }, { "word": "病気", "reading": "びょうき", "meaning": "bệnh" }, { "word": "気をつける", "reading": "きをつけます", "meaning": "chú ý" } ] },
-          { "char": "山", "name": "SƠN", "kunyomi": "やま", "onyomi": "サン", "vocab": [ { "word": "山", "reading": "やま", "meaning": "núi" }, { "word": "富士山", "reading": "ふじさん", "meaning": "núi Phú Sĩ" }, { "word": "[山に~]登る", "reading": "[やまに~]のぼる", "meaning": "leo [núi]" } ] },
-          { "char": "川", "name": "XUYÊN", "kunyomi": "かわ", "onyomi": "-", "vocab": [ { "word": "川", "reading": "かわ", "meaning": "sông" } ] },
-          { "char": "中", "name": "TRUNG", "kunyomi": "なか", "onyomi": "チュウ、ジュウ", "vocab": [ { "word": "中国", "reading": "ちゅうごく", "meaning": "Trung Quốc" }, { "word": "中", "reading": "なか", "meaning": "trong, giữa" }, { "word": "会議中", "reading": "かいぎちゅう", "meaning": "đang họp" }, { "word": "勉強", "reading": "べんきょう", "meaning": "việc học" }, { "word": "勉強します", "reading": "べんきょうします", "meaning": "học" } ] },
-          { "char": "外", "name": "NGOẠI", "kunyomi": "そと、はか・す、はず・します", "onyomi": "ガイ", "vocab": [ { "word": "外国", "reading": "がいこく", "meaning": "nước ngoài" }, { "word": "そと", "meaning": "ngoài" } ] },
-          { "char": "下", "name": "HẠ", "kunyomi": "した、さ・がります、お・ります、お・ろします", "onyomi": "カ、ゲ", "vocab": [ { "word": "靴下", "reading": "くつした", "meaning": "tất" }, { "word": "地下", "reading": "ちか", "meaning": "tầng hầm" }, { "word": "下", "reading": "した", "meaning": "dưới" }, { "word": "下着", "reading": "したぎ", "meaning": "áo lót" } ] },
-          { "char": "上", "name": "THƯỢNG", "kunyomi": "うえ、うわ、あ・がります、あ・げます、のぼ・ります", "onyomi": "ジョウ", "vocab": [ { "word": "上", "reading": "うえ", "meaning": "trên" }, { "word": "上着", "reading": "うわぎ", "meaning": "áo khoác" } ] },
-          { "char": "左", "name": "TẢ", "kunyomi": "ひだり", "onyomi": "サ", "vocab": [ { "word": "左", "reading": "ひだり", "meaning": "trái" } ] },
-          { "char": "右", "name": "HỮU", "kunyomi": "みぎ", "onyomi": "ウ", "vocab": [ { "word": "右", "reading": "みぎ", "meaning": "phải" }, { "word": "[右へ~]曲がる", "reading": "[みぎへ~]まがる", "meaning": "rẽ [phải]" } ] },
-          { "char": "大", "name": "ĐẠI", "kunyomi": "おお・きい", "onyomi": "ダイ、タイ", "vocab": [ { "word": "大きい", "reading": "おおきい", "meaning": "to, lớn" }, { "word": "大切", "reading": "たいせつ[な]", "meaning": "quan trọng" }, { "word": "大丈夫", "reading": "だいじょうぶ[な]", "meaning": "không sao" }, { "word": "大変", "reading": "たいへん[な]", "meaning": "vất vả" }, { "word": "大使館", "reading": "たいしかん", "meaning": "đại sứ quán" }, { "word": "大体", "reading": "だいたい", "meaning": "đại khái" }, { "word": "大阪城", "reading": "おおさかじょう", "meaning": "lâu đài Osaka" } ] },
-          { "char": "小", "name": "TIỂU", "kunyomi": "ちい・さい", "onyomi": "ショウ", "vocab": [ { "word": "小さい", "reading": "ちいさい", "meaning": "nhỏ, bé" } ] },
-          { "char": "古", "name": "CỔ", "kunyomi": "ふる・い", "onyomi": "コ", "vocab": [ { "word": "古い", "reading": "ふるい", "meaning": "cũ" } ] },
-          { "char": "高", "name": "CAO", "kunyomi": "たか・い", "onyomi": "コウ", "vocab": [ { "word": "高い", "reading": "たかい", "meaning": "đắt, cao" }, { "word": "背が高い", "reading": "せがたかい", "meaning": "cao (người)" } ] },
-          { "char": "安", "name": "AN", "kunyomi": "やす・い", "onyomi": "アン", "vocab": [ { "word": "安い", "reading": "やすい", "meaning": "rẻ" } ] },
-          { "char": "多", "name": "ĐA", "kunyomi": "おお・い", "onyomi": "タ", "vocab": [ { "word": "多分", "reading": "たぶん", "meaning": "có lẽ" } ] },
-          { "char": "男", "name": "NAM", "kunyomi": "おとこ", "onyomi": "ダン、ナン", "vocab": [ { "word": "男の子", "reading": "おとこのこ", "meaning": "cậu bé" } ] },
-          { "char": "女", "name": "NỮ", "kunyomi": "おんな", "onyomi": "ジョ", "vocab": [ { "word": "彼女", "reading": "かのじょ", "meaning": "cô ấy, bạn gái" }, { "word": "女の子", "reading": "おんなのこ", "meaning": "cô bé" } ] },
-          { "char": "子", "name": "TỬ", "kunyomi": "こ、ご", "onyomi": "シ、ス", "vocab": [ { "word": "子供", "reading": "こども", "meaning": "trẻ con" }, { "word": "[子供が~]居る", "reading": "[こどもが~]いる", "meaning": "có [con]" }, { "word": "椅子", "reading": "いす", "meaning": "ghế" }, { "word": "帽子", "reading": "ぼうし", "meaning": "mũ" }, { "word": "お菓子", "reading": "[お]かし", "meaning": "bánh kẹo" }, { "word": "調子", "reading": "ちょうし", "meaning": "tình trạng" } ] },
-          { "char": "父", "name": "PHỤ", "kunyomi": "ちち", "onyomi": "フ", "vocab": [ { "word": "父", "reading": "ちち", "meaning": "bố (mình)" }, { "word": "お父さん", "reading": "おとうさん", "meaning": "bố" }, { "word": "お祖父さん", "reading": "おじいさん", "meaning": "ông" } ] },
-          { "char": "母", "name": "MẪU", "kunyomi": "はは", "onyomi": "ボ", "vocab": [ { "word": "母", "reading": "はは", "meaning": "mẹ (mình)" }, { "word": "お母さん", "reading": "おかあさん", "meaning": "mẹ" }, { "word": "お祖母さん", "reading": "おばあさん", "meaning": "bà" } ] },
-          { "char": "友", "name": "HỮU", "kunyomi": "とも", "onyomi": "ユウ", "vocab": [ { "word": "友達", "reading": "ともだち", "meaning": "bạn bè" } ] },
-          { "char": "名", "name": "DANH", "kunyomi": "な", "onyomi": "メイ、ミョウ", "vocab": [ { "word": "有名", "reading": "ゆうめい[な]", "meaning": "nổi tiếng" }, { "word": "名刺", "reading": "めいし", "meaning": "danh thiếp" }, { "word": "名前", "reading": "なまえ", "meaning": "tên" } ] },
-          { "char": "音", "name": "ÂM", "kunyomi": "おと、ね", "onyomi": "オン", "vocab": [ { "word": "音楽", "reading": "おんがく", "meaning": "âm nhạc" }, { "word": "音", "reading": "おと", "meaning": "âm thanh" } ] },
-          { "char": "字", "name": "TỰ", "kunyomi": "-", "onyomi": "ジ", "vocab": [ { "word": "字", "reading": "じ", "meaning": "chữ" }, { "word": "漢字", "reading": "かんじ", "meaning": "chữ Hán" } ] },
-          { "char": "雨", "name": "VŨ", "kunyomi": "あめ", "onyomi": "ウ", "vocab": [ { "word": "雨", "reading": "あめ", "meaning": "mưa" }, { "word": "[雨が~]降る", "reading": "[あめが~]ふる", "meaning": "mưa" } ] },
-          { "char": "寺", "name": "TỰ", "kunyomi": "てら", "onyomi": "ジ", "vocab": [ { "word": "お寺", "reading": "おてら", "meaning": "Chùa" }, { "word": "[お]寺", "reading": "[お]てら", "meaning": "chùa" } ] },
-          { "char": "米", "name": "MỄ", "kunyomi": "こめ", "onyomi": "マイ", "vocab": [] },
-          { "char": "出", "name": "XUẤT", "kunyomi": "で・ます、で・かける、だ・します", "onyomi": "シュツ", "vocab": [ { "word": "出身", "reading": "しゅっしん", "meaning": "xuất thân" }, { "word": "出かける", "reading": "でかけます", "meaning": "ra ngoài" }, { "word": "[喫茶店を~]出る", "reading": "[きっさてんを~]でる", "meaning": "ra khỏi [quán]" }, { "word": "[大学を~]出る", "reading": "[だいがくを~]でる", "meaning": "tốt nghiệp [đại học]" }, { "word": "[レポートを~]出す", "reading": "[レポートを~]だす", "meaning": "nộp [báo cáo]" }, { "word": "出張します", "reading": "しゅっちょうする", "meaning": "đi công tác" } ] },
-          { "char": "入", "name": "NHẬP", "kunyomi": "い・れます、はい・ります、い・る", "onyomi": "ニュウ", "vocab": [ { "word": "[喫茶店に~]入る", "reading": "[きっさてんに~]はいる", "meaning": "vào [quán]" }, { "word": "入れる", "reading": "いれます", "meaning": "cho vào" }, { "word": "[大学に~]入る", "reading": "[だいがくに~]はいる", "meaning": "nhập học [đại học]" }, { "word": "入る", "reading": "はいります", "meaning": "vào" }, { "word": "押入れ", "reading": "おしいれ", "meaning": "tủ âm tường" }, { "word": "[コーヒーを~]入れる", "reading": "[コーヒーを~]いれる", "meaning": "pha [cà phê]" } ] },
-          { "char": "立", "name": "LẬP", "kunyomi": "た・ちます", "onyomi": "リツ、リッ", "vocab": [ { "word": "立ちます", "reading": "たちます", "meaning": "đứng" }, { "word": "役に立つ", "reading": "やくにたちます", "meaning": "giúp ích" } ] },
-          { "char": "言", "name": "NGÔN", "kunyomi": "い・います、こと", "onyomi": "ゲン、ゴン", "vocab": [ { "word": "言います", "reading": "いいます", "meaning": "nói" }, { "word": "言葉", "reading": "ことば", "meaning": "từ, tiếng" } ] },
-          { "char": "話", "name": "THOẠI", "kunyomi": "はな・します、はなし", "onyomi": "ワ", "vocab": [ { "word": "会話", "reading": "かいわ", "meaning": "hội thoại" }, { "word": "話します", "reading": "はなします", "meaning": "nói chuyện" }, { "word": "[お]話", "reading": "[お]はなし", "meaning": "câu chuyện" }, { "word": "お話します", "reading": "おはなしします", "meaning": "Kể chuyện" } ] },
-          { "char": "力", "name": "LỰC", "kunyomi": "ちから", "onyomi": "リョク", "vocab": [] },
-          { "char": "長", "name": "TRƯỜNG", "kunyomi": "なが・い", "onyomi": "チョウ", "vocab": [ { "word": "校長", "reading": "こうちょう", "meaning": "hiệu trưởng" }, { "word": "課長", "reading": "かちょう", "meaning": "tổ trưởng" }, { "word": "部長", "reading": "ぶちょう", "meaning": "trưởng phòng" }, { "word": "社長", "reading": "しゃちょう", "meaning": "giám đốc" }, { "word": "長い", "reading": "ながい", "meaning": "dài" } ] },
-          { "char": "明", "name": "MINH", "kunyomi": "あか・るい、あ・ける", "onyomi": "メイ", "vocab": [ { "word": "明るい", "reading": "あかるい", "meaning": "sáng sủa" }, { "word": "説明します", "reading": "せつめいする", "meaning": "giải thích" } ] },
-          { "char": "暗", "name": "ÁM", "kunyomi": "くら・い", "onyomi": "アン", "vocab": [ { "word": "暗い", "reading": "くらい", "meaning": "tối" } ] },
-          { "char": "元", "name": "NGUYÊN", "kunyomi": "もと", "onyomi": "ゲン、ガン", "vocab": [] },
-          { "char": "好", "name": "HẢO", "kunyomi": "す・きな", "onyomi": "コウ", "vocab": [ { "word": "好き", "reading": "すき[な]", "meaning": "thích" } ] },
-          { "char": "足", "name": "TÚC", "kunyomi": "あし、た・ります", "onyomi": "ソク", "vocab": [ { "word": "足", "reading": "あし", "meaning": "chân" }, { "word": "足りる", "reading": "たります", "meaning": "đủ" } ] },
-          { "char": "東", "name": "ĐÔNG", "kunyomi": "ひがし", "onyomi": "トウ", "vocab": [] },
-          { "char": "西", "name": "TÂY", "kunyomi": "にし", "onyomi": "セイ", "vocab": [] },
-          { "char": "南", "name": "NAM", "kunyomi": "みなみ", "onyomi": "ナン", "vocab": [] },
-          { "char": "北", "name": "BẮC", "kunyomi": "きた", "onyomi": "ホク", "vocab": [] },
-          { "char": "夕", "name": "TỊCH", "kunyomi": "-", "onyomi": "ユウ", "vocab": [] },
-          { "char": "石", "name": "THẠCH", "kunyomi": "いし", "onyomi": "セキ", "vocab": [] },
-          { "char": "体", "name": "THỂ", "kunyomi": "からだ", "onyomi": "タイ", "vocab": [ { "word": "体", "reading": "からだ", "meaning": "cơ thể" }, { "word": "体にいい", "reading": "からだにいい", "meaning": "tốt cho sức khỏe" } ] },
-          { "char": "目", "name": "MỤC", "kunyomi": "め", "onyomi": "モク", "vocab": [ { "word": "目", "reading": "め", "meaning": "mắt" }, { "word": "~目", "reading": "~め", "meaning": "thứ ~ (thứ tự)" }, { "word": "目が覚める", "reading": "めがさめる", "meaning": "Tỉnh giấc" } ] },
-          { "char": "耳", "name": "NHĨ", "kunyomi": "みみ", "onyomi": "ジ", "vocab": [ { "word": "耳", "reading": "みみ", "meaning": "tai" } ] },
-          { "char": "口", "name": "KHẨU", "kunyomi": "くち", "onyomi": "コウ", "vocab": [ { "word": "口", "reading": "くち", "meaning": "miệng" } ] },
-          { "char": "鳥", "name": "ĐIỂU", "kunyomi": "とり", "onyomi": "チョウ", "vocab": [ { "word": "鳥", "reading": "とり", "meaning": "chim" } ] },
-          { "char": "犬", "name": "KHUYỂN", "kunyomi": "いぬ", "onyomi": "ケン", "vocab": [ { "word": "犬", "reading": "いぬ", "meaning": "chó" } ] },
-          { "char": "竹", "name": "TRÚC", "kunyomi": "たけ", "onyomi": "チク", "vocab": [] },
-          { "char": "貝", "name": "BỐI", "kunyomi": "かい", "onyomi": "バイ", "vocab": [] },
-          { "char": "林", "name": "LÂM", "kunyomi": "はやし", "onyomi": "リン", "vocab": [] },
-          { "char": "森", "name": "SÂM", "kunyomi": "もり", "onyomi": "シン", "vocab": [] },
-          { "char": "畑", "name": "(Không có Hán Việt)", "kunyomi": "はたけ", "onyomi": "-", "vocab": [] },
-          { "char": "門", "name": "MÔN", "kunyomi": "-", "onyomi": "モン", "vocab": [ { "word": "専門", "reading": "せんもん", "meaning": "chuyên môn" } ] },
-          { "char": "岩", "name": "NHAM", "kunyomi": "いわ", "onyomi": "ガン", "vocab": [] }
-        ]
+const kanjiData = [
+    { "char": "一", "name": "NHẤT", "kunyomi": "ひと", "onyomi": "イチ", "vocab": [ { "word": "一日", "reading": "ついたち", "meaning": "mồng 1" }, { "word": "一人で", "reading": "ひとりで", "meaning": "một mình" }, { "word": "一人", "reading": "ひとり", "meaning": "một người" }, { "word": "一つ", "reading": "ひとつ", "meaning": "một cái" }, { "word": "一番", "reading": "いちばん", "meaning": "nhất" }, { "word": "一緒に", "reading": "いっしょに", "meaning": "cùng nhau" }, { "word": "一度", "reading": "いちど", "meaning": "một lần" }, { "word": "一度も", "reading": "いちども", "meaning": "chưa lần nào" }, { "word": "一生懸命", "reading": "いっしょうけんめい", "meaning": "Sự cố gắng hết sức" } ] },
+    { "char": "二", "name": "NHỊ", "kunyomi": "ふた", "onyomi": "ニ", "vocab": [ { "word": "二日", "reading": "ふつか", "meaning": "mồng 2" }, { "word": "二人", "reading": "ふたり", "meaning": "hai người" }, { "word": "二つ", "reading": "ふたつ", "meaning": "hai cái" } ] },
+    { "char": "三", "name": "TAM", "kunyomi": "みっ", "onyomi": "サン", "vocab": [ { "word": "三日", "reading": "みっか", "meaning": "mồng 3" }, { "word": "三つ", "reading": "みっつ", "meaning": "ba cái" } ] },
+    { "char": "四", "name": "TỨ", "kunyomi": "よん、よっ、よ", "onyomi": "シ", "vocab": [ { "word": "四日", "reading": "よっか", "meaning": "mồng 4" }, { "word": "二十四日", "reading": "にじゅうよっか", "meaning": "ngày 24" }, { "word": "四つ", "reading": "よっつ", "meaning": "bốn cái" } ] },
+    { "char": "五", "name": "NGŨ", "kunyomi": "いつ", "onyomi": "ゴ", "vocab": [ { "word": "五日", "reading": "いつか", "meaning": "mồng 5" }, { "word": "五つ", "reading": "いつつ", "meaning": "năm cái" } ] },
+    { "char": "六", "name": "LỤC", "kunyomi": "むい、むっ", "onyomi": "ロク", "vocab": [ { "word": "六日", "reading": "むいか", "meaning": "mồng 6" }, { "word": "六つ", "reading": "むっつ", "meaning": "sáu cái" } ] },
+    { "char": "七", "name": "THẤT", "kunyomi": "なな、なの", "onyomi": "シチ", "vocab": [ { "word": "七日", "reading": "なのか", "meaning": "mồng 7" }, { "word": "七つ", "reading": "ななつ", "meaning": "bảy cái" } ] },
+    { "char": "八", "name": "BÁT", "kunyomi": "やっ、よう", "onyomi": "ハチ", "vocab": [ { "word": "八日", "reading": "ようか", "meaning": "mồng 8" }, { "word": "八つ", "reading": "やっつ", "meaning": "tám cái" } ] },
+    { "char": "九", "name": "CỬU", "kunyomi": "ここの", "onyomi": "ク、キュウ", "vocab": [ { "word": "九日", "reading": "ここのか", "meaning": "mồng 9" }, { "word": "九つ", "reading": "ここのつ", "meaning": "chín cái" } ] },
+    { "char": "十", "name": "THẬP", "kunyomi": "とお", "onyomi": "ジュウ、ジッ", "vocab": [ { "word": "十日", "reading": "とおか", "meaning": "mồng 10" }, { "word": "十四日", "reading": "じゅうよっか", "meaning": "ngày 14" }, { "word": "二十日", "reading": "はつか", "meaning": "ngày 20" }, { "word": "十", "reading": "とお", "meaning": "mười cái" } ] },
+    { "char": "百", "name": "BÁCH", "kunyomi": "-", "onyomi": "ヒャク、ヒャッ-、ピャク、ビャク", "vocab": [] },
+    { "char": "千", "name": "THIÊN", "kunyomi": "-", "onyomi": "セン、ゼン", "vocab": [] },
+    { "char": "万", "name": "VẠN", "kunyomi": "-", "onyomi": "マン、バン", "vocab": [] },
+    { "char": "円", "name": "VIÊN", "kunyomi": "-", "onyomi": "エン", "vocab": [ { "word": "円", "reading": "えん", "meaning": "yên" } ] },
+    { "char": "日", "name": "NHẬT", "kunyomi": "ひ、び、か", "onyomi": "ニチ、ジツ", "vocab": [ { "word": "日曜日", "reading": "にちようび", "meaning": "chủ nhật" }, { "word": "何曜日", "reading": "なんようび", "meaning": "thứ mấy" }, { "word": "昨日", "reading": "きのう", "meaning": "hôm qua" }, { "word": "今日", "reading": "きょう", "meaning": "hôm nay" }, { "word": "明日", "reading": "あした", "meaning": "ngày mai" }, { "word": "毎日", "reading": "まいにち", "meaning": "mỗi ngày" }, { "word": "何日", "reading": "なんにち", "meaning": "ngày mấy" }, { "word": "誕生日", "reading": "たんじょうび", "meaning": "sinh nhật" }, { "word": "日記", "reading": "にっき", "meaning": "nhật kí" }, { "word": "日本", "reading": "にほん", "meaning": "Nhật Bản" }, { "word": "日本酒", "reading": "にほんしゅ", "meaning": "Rượu Nhật" }, { "word": "日", "reading": "ひ", "meaning": "ngày" }, { "word": "日本製", "reading": "にほんせい", "meaning": "hàng Nhật" } ] },
+    { "char": "月", "name": "NGUYỆT", "kunyomi": "つき", "onyomi": "ゲツ、ガツ", "vocab": [ { "word": "月曜日", "reading": "げつようび", "meaning": "thứ hai" }, { "word": "先月", "reading": "せんげつ", "meaning": "tháng trước" }, { "word": "今月", "reading": "こんげつ", "meaning": "tháng này" }, { "word": "来月", "reading": "らいげつ", "meaning": "tháng sau" }, { "word": "何月", "reading": "なんがつ", "meaning": "tháng mấy" }, { "word": "毎月", "reading": "まいげつ", "meaning": "mỗi tháng" }, { "word": "~ヶ月", "reading": "~かげつ", "meaning": "~ tháng" } ] },
+    { "char": "火", "name": "HỎA", "kunyomi": "ひ", "onyomi": "カ", "vocab": [ { "word": "火曜日", "reading": "かようび", "meaning": "thứ ba" } ] },
+    { "char": "水", "name": "THỦY", "kunyomi": "みず", "onyomi": "スイ", "vocab": [ { "word": "水曜日", "reading": "すいようび", "meaning": "thứ tư" }, { "word": "水", "reading": "みず", "meaning": "nước" } ] },
+    { "char": "木", "name": "MỘC", "kunyomi": "き", "onyomi": "ボク、モク", "vocab": [ { "word": "木曜日", "reading": "もくようび", "meaning": "thứ năm" }, { "word": "木", "reading": "き", "meaning": "cây, gỗ" } ] },
+    { "char": "金", "name": "KIM", "kunyomi": "かね", "onyomi": "キン", "vocab": [ { "word": "金曜日", "reading": "きんようび", "meaning": "thứ sáu" }, { "word": "お金", "reading": "おかね", "meaning": "tiền" }, { "word": "現金", "reading": "げんきん", "meaning": "tiền mặt" }, { "word": "細かいお金", "reading": "こまかいおかね", "meaning": "tiền lẻ" }, { "word": "貯金箱", "reading": "ちょきんばこ", "meaning": "Hộp tiết kiệm" } ] },
+    { "char": "土", "name": "THỔ", "kunyomi": "つち", "onyomi": "ド", "vocab": [ { "word": "土曜日", "reading": "どようび", "meaning": "thứ bảy" } ] },
+    { "char": "人", "name": "NHÂN", "kunyomi": "ひと", "onyomi": "ジン、ニン", "vocab": [ { "word": "あの人", "reading": "あのひと", "meaning": "người đó" }, { "word": "~人", "reading": "~じん", "meaning": "người (nước)" }, { "word": "人", "reading": "ひと", "meaning": "người" }, { "word": "男の人", "reading": "おとこのひと", "meaning": "người đàn ông" }, { "word": "女の人", "reading": "おんなのひと", "meaning": "người phụ nữ" }, { "word": "[人が~]多い", "reading": "[ひとが~]おおい", "meaning": "nhiều [người]" }, { "word": "[人が~]少ない", "reading": "[ひとが~]すくない", "meaning": "ít [người]" }, { "word": "恋人", "reading": "こいびと", "meaning": "người yêu" } ] },
+    { "char": "先", "name": "TIÊN", "kunyomi": "さき", "onyomi": "セン", "vocab": [ { "word": "先生", "reading": "せんせい", "meaning": "thầy/cô" }, { "word": "先週", "reading": "せんしゅう", "meaning": "tuần trước" } ] },
+    { "char": "生", "name": "SINH", "kunyomi": "い・きる、う・まれる", "onyomi": "セイ、ショウ", "vocab": [ { "word": "学生", "reading": "がくせい", "meaning": "học sinh" }, { "word": "留学生", "reading": "りゅうがくせい", "meaning": "du học sinh" }, { "word": "生活", "reading": "せいかつ", "meaning": "cuộc sống" }, { "word": "生まれます", "reading": "うまれる", "meaning": "được sinh ra" } ] },
+    { "char": "学", "name": "HỌC", "kunyomi": "まな・ぶ", "onyomi": "ガク", "vocab": [ { "word": "大学", "reading": "だいがく", "meaning": "đại học" }, { "word": "学校", "reading": "がっこう", "meaning": "trường học" }, { "word": "見学します", "reading": "けんがくする", "meaning": "tham quan học tập" }, { "word": "留学します", "reading": "りゅうがくする", "meaning": "du học" } ] },
+    { "char": "方", "name": "PHƯƠNG", "kunyomi": "かた（がた）", "onyomi": "ホウ", "vocab": [ { "word": "(あの方)", "reading": "(あのかた)", "meaning": "vị kia" }, { "word": "夕方", "reading": "ゆうがた", "meaning": "buổi chiều" }, { "word": "~方", "reading": "~かた", "meaning": "cách ~" }, { "word": "読み方", "reading": "よみかた", "meaning": "cách đọc" }, { "word": "仕方がない", "reading": "しかたがない", "meaning": "không còn cách nào khác" } ] },
+    { "char": "何", "name": "HÀ", "kunyomi": "なん、なに", "onyomi": "カ", "vocab": [ { "word": "何", "reading": "なん", "meaning": "cái gì" }, { "word": "何時", "reading": "なんじ", "meaning": "mấy giờ" }, { "word": "何分", "reading": "なんぷん", "meaning": "mấy phút" }, { "word": "何", "reading": "なに", "meaning": "cái gì, gì" } ] },
+    { "char": "今", "name": "KIM", "kunyomi": "いま", "onyomi": "コン", "vocab": [ { "word": "今", "reading": "いま", "meaning": "bây giờ" }, { "word": "今朝", "reading": "けさ", "meaning": "sáng nay" }, { "word": "今晩", "reading": "こんばん", "meaning": "tối nay" }, { "word": "今夜", "reading": "こんや", "meaning": "đêm nay" }, { "word": "今週", "reading": "こんしゅう", "meaning": "tuần này" }, { "word": "今年", "reading": "ことし", "meaning": "năm nay" } ] },
+    { "char": "分", "name": "PHÂN", "kunyomi": "わ・かる、わ・ける", "onyomi": "ブン、フン、プン", "vocab": [ { "word": "分かります", "reading": "わかります", "meaning": "hiểu" }, { "word": "自分で", "reading": "じぶんで", "meaning": "tự mình" } ] },
+    { "char": "半", "name": "BÁN", "kunyomi": "-", "onyomi": "ハン", "vocab": [ { "word": "半", "reading": "はん", "meaning": "rưỡi, nửa" } ] },
+    { "char": "時", "name": "THỜI", "kunyomi": "とき", "onyomi": "ジ", "vocab": [ { "word": "時計", "reading": "とけい", "meaning": "đồng hồ" }, { "word": "時々", "reading": "ときどき", "meaning": "thỉnh thoảng" }, { "word": "時間", "reading": "じかん", "meaning": "thời gian" }, { "word": "~時間", "reading": "~じかん", "meaning": "~ tiếng" }, { "word": "時刻表", "reading": "じこくひょう", "meaning": "bảng giờ tàu chạy" } ] },
+    { "char": "年", "name": "NIÊN", "kunyomi": "とし", "onyomi": "ネン", "vocab": [ { "word": "去年", "reading": "きょねん", "meaning": "năm ngoái" }, { "word": "来年", "reading": "らいねん", "meaning": "năm sau" }, { "word": "毎年", "reading": "まいとし", "meaning": "mỗi năm" }, { "word": "~年", "reading": "~ねん", "meaning": "~ năm" } ] },
+    { "char": "本", "name": "BẢN", "kunyomi": "もと", "onyomi": "ホン、ポン", "vocab": [ { "word": "本", "reading": "ほん", "meaning": "sách" }, { "word": "本の気持ち", "reading": "ほんのきもち", "meaning": "chút lòng thành" }, { "word": "本社", "reading": "ほんしゃ", "meaning": "Trụ sở chính" }, { "word": "本屋", "reading": "ほんや", "meaning": "hiệu sách" }, { "word": "本棚", "reading": "ほんだな", "meaning": "giá sách" }, { "word": "本当に", "reading": "ほんとうに", "meaning": "thật sự" } ] },
+    { "char": "休", "name": "HƯU", "kunyomi": "やす・みます", "onyomi": "キュウ", "vocab": [ { "word": "休み", "reading": "やすみ", "meaning": "ngày nghỉ" }, { "word": "昼休み", "reading": "ひるやすみ", "meaning": "nghỉ trưa" }, { "word": "休みます", "reading": "やすみます", "meaning": "nghỉ ngơi" }, { "word": "休む", "reading": "やすむ", "meaning": "nghỉ ngơi" } ] },
+    { "char": "校", "name": "HIỆU", "kunyomi": "-", "onyomi": "コウ", "vocab": [ { "word": "校長", "reading": "こうちょう", "meaning": "hiệu trưởng" }, { "word": "高校", "reading": "こうこう", "meaning": "trường THPT" } ] },
+    { "char": "帰", "name": "QUY", "kunyomi": "かえ・ります", "onyomi": "キ", "vocab": [ { "word": "帰ります", "reading": "かえります", "meaning": "về" } ] },
+    { "char": "行", "name": "HÀNH", "kunyomi": "い・きます、おこな・います", "onyomi": "コウ、ギョウ", "vocab": [ { "word": "銀行員", "reading": "ぎんこういん", "meaning": "nhân viên ngân hàng" }, { "word": "銀行", "reading": "ぎんこう", "meaning": "ngân hàng" }, { "word": "行きます", "reading": "いきます", "meaning": "đi" }, { "word": "飛行機", "reading": "ひこうき", "meaning": "máy bay" }, { "word": "旅行します", "reading": "りょこうする", "meaning": "du lịch" }, { "word": "持って行きます", "reading": "もっていく", "meaning": "mang đi" } ] },
+    { "char": "来", "name": "LAI", "kunyomi": "き・ます、く・る", "onyomi": "ライ", "vocab": [ { "word": "~から来ました", "reading": "~からきました", "meaning": "đến từ ~" }, { "word": "来ます", "reading": "きます", "meaning": "đến" }, { "word": "持って来ます", "reading": "もってくる", "meaning": "mang đến" }, { "word": "将来", "reading": "しょうらい", "meaning": "tương lai" } ] },
+    { "char": "車", "name": "XA", "kunyomi": "くるま", "onyomi": "シャ", "vocab": [ { "word": "運転手", "reading": "うんてんしゅ", "meaning": "tài xế" }, { "word": "車", "reading": "くるま", "meaning": "ô tô" }, { "word": "電車", "reading": "でんしゃ", "meaning": "tàu điện" }, { "word": "自転車", "reading": "じてんしゃ", "meaning": "xe đạp" }, { "word": "地下鉄", "reading": "ちかてつ", "meaning": "tàu điện ngầm" }, { "word": "運転します", "reading": "うんてんする", "meaning": "lái xe" } ] },
+    { "char": "書", "name": "THƯ", "kunyomi": "か・きます", "onyomi": "ショ", "vocab": [ { "word": "辞書", "reading": "じしょ", "meaning": "từ điển" }, { "word": "図書館", "reading": "としょかん", "meaning": "thư viện" }, { "word": "書きます", "reading": "かきます", "meaning": "viết" }, { "word": "葉書", "reading": "はがき", "meaning": "bưu thiếp" }, { "word": "電子辞書", "reading": "でんしじしょ", "meaning": "kim từ điển" } ] },
+    { "char": "食", "name": "THỰC", "kunyomi": "た・べます", "onyomi": "ショク", "vocab": [ { "word": "食堂", "reading": "しょくどう", "meaning": "nhà ăn" }, { "word": "食べ物", "reading": "たべもの", "meaning": "đồ ăn" }, { "word": "食べます", "reading": "たべます", "meaning": "ăn" }, { "word": "食事します", "reading": "しょくじする", "meaning": "dùng bữa" }, { "word": "夕食", "reading": "ゆうしょく", "meaning": "cơm chiều" } ] },
+    { "char": "飲", "name": "ẨM", "kunyomi": "の・みます", "onyomi": "イン", "vocab": [ { "word": "飲みます", "reading": "のみます", "meaning": "uống" }, { "word": "飲み物", "reading": "のみもの", "meaning": "đồ uống" } ] },
+    { "char": "見", "name": "KIẾN", "kunyomi": "み・ます", "onyomi": "ケン", "vocab": [ { "word": "[お]花見", "reading": "[お]はなみ", "meaning": "ngắm hoa anh đào" }, { "word": "見ます", "reading": "みます", "meaning": "xem, nhìn" }, { "word": "見せます", "reading": "みせる", "meaning": "cho xem" }, { "word": "意見", "reading": "いけん", "meaning": "ý kiến" } ] },
+    { "char": "聞", "name": "VĂN", "kunyomi": "き・きます", "onyomi": "ブン", "vocab": [ { "word": "新聞", "reading": "しんぶん", "meaning": "báo" }, { "word": "聞きます", "reading": "ききます", "meaning": "nghe" }, { "word": "[先生に~]聞きます", "reading": "[せんせいに~]きく", "meaning": "hỏi [giáo viên]" } ] },
+    { "char": "新", "name": "TÂN", "kunyomi": "あたら・しい", "onyomi": "シン", "vocab": [ { "word": "新しい", "reading": "あたらしい", "meaning": "mới" } ] },
+    { "char": "肉", "name": "NHỤC", "kunyomi": "-", "onyomi": "ニク", "vocab": [ { "word": "肉", "reading": "にく", "meaning": "thịt" } ] },
+    { "char": "魚", "name": "NGƯ", "kunyomi": "うお、さかな", "onyomi": "ギョ", "vocab": [ { "word": "魚", "reading": "さかな", "meaning": "cá" } ] },
+    { "char": "牛", "name": "NGƯU", "kunyomi": "うし", "onyomi": "ギュウ", "vocab": [ { "word": "牛肉", "reading": "ぎゅうにく", "meaning": "thịt bò" }, { "word": "牛丼", "reading": "ぎゅうどん", "meaning": "cơm thịt bò" }, { "word": "牛乳", "reading": "ぎゅうにゅう", "meaning": "sữa" } ] },
+    { "char": "茶", "name": "TRÀ", "kunyomi": "-", "onyomi": "チャ、サ", "vocab": [ { "word": "お茶", "reading": "おちゃ", "meaning": "trà" }, { "word": "喫茶店", "reading": "きっさてん", "meaning": "quán cà phê" }, { "word": "お茶碗", "reading": "おちゃわん", "meaning": "bát" }, { "word": "茶道", "reading": "さどう", "meaning": "trà đạo" } ] },
+    { "char": "物", "name": "VẬT", "kunyomi": "もの", "onyomi": "ブツ、モツ", "vocab": [ { "word": "物価", "reading": "ぶっか", "meaning": "vật giá" }, { "word": "買い物します", "reading": "かいものする", "meaning": "mua sắm" }, { "word": "物", "reading": "もの", "meaning": "vật, đồ vật" }, { "word": "動物", "reading": "どうぶつ", "meaning": "động vật" }, { "word": "荷物", "reading": "にもつ", "meaning": "hành lý" } ] },
+    { "char": "花", "name": "HOA", "kunyomi": "はな", "onyomi": "カ", "vocab": [ { "word": "花", "reading": "はな", "meaning": "hoa" } ] },
+    { "char": "買", "name": "MÃI", "kunyomi": "か・います", "onyomi": "バイ", "vocab": [ { "word": "買います", "reading": "かいます", "meaning": "mua" } ] },
+    { "char": "読", "name": "ĐỘC", "kunyomi": "よ・みます", "onyomi": "ドク", "vocab": [ { "word": "読みます", "reading": "よみます", "meaning": "đọc" } ] },
+    { "char": "手", "name": "THỦ", "kunyomi": "て", "onyomi": "ズ、シュ", "vocab": [ { "word": "手帳", "reading": "てちょう", "meaning": "sổ tay" }, { "word": "お手洗い", "reading": "おてあらい", "meaning": "phòng vệ sinh" }, { "word": "上手", "reading": "じょうず[な]", "meaning": "giỏi, khéo" }, { "word": "下手", "reading": "へた[な]", "meaning": "kém" }, { "word": "手", "reading": "て", "meaning": "tay" }, { "word": "手紙", "reading": "てがみ", "meaning": "thư" }, { "word": "手伝う", "reading": "てつだいます", "meaning": "giúp đỡ" } ] },
+    { "char": "少", "name": "THIỂU", "kunyomi": "すく・ない、すこ・し", "onyomi": "ショウ", "vocab": [ { "word": "少し", "reading": "すこし", "meaning": "một ít" }, { "word": "もう少し", "reading": "もうすこし", "meaning": "thêm một chút" } ] },
+    { "char": "間", "name": "GIAN", "kunyomi": "あいだ、ま", "onyomi": "カン", "vocab": [ { "word": "この間", "reading": "このあいだ", "meaning": "vừa rồi" }, { "word": "間", "reading": "あいだ", "meaning": "giữa" } ] },
+    { "char": "内", "name": "NỘI", "kunyomi": "うち", "onyomi": "ナイ", "vocab": [ { "word": "家内", "reading": "かない", "meaning": "vợ (mình)" }, { "word": "案内します", "reading": "あんないする", "meaning": "hướng dẫn" } ] },
+    { "char": "田", "name": "ĐIỀN", "kunyomi": "た(だ)", "onyomi": "-", "vocab": [ { "word": "田舎", "reading": "いなか", "meaning": "quê, nông thôn" } ] },
+    { "char": "町", "name": "ĐINH", "kunyomi": "まち", "onyomi": "チョウ", "vocab": [ { "word": "町", "reading": "まち", "meaning": "thị trấn" } ] },
+    { "char": "電", "name": "ĐIỆN", "kunyomi": "-", "onyomi": "デン", "vocab": [ { "word": "電話", "reading": "でんわ", "meaning": "điện thoại" }, { "word": "電気", "reading": "でんき", "meaning": "điện" }, { "word": "電話番号", "reading": "でんわばんごう", "meaning": "số điện thoại" }, { "word": "電池", "reading": "でんち", "meaning": "pin" }, { "word": "電話します", "reading": "でんわする", "meaning": "gọi điện thoại" } ] },
+    { "char": "気", "name": "KHÍ", "kunyomi": "-", "onyomi": "キ", "vocab": [ { "word": "元気", "reading": "げんき[な]", "meaning": "khỏe mạnh" }, { "word": "天気", "reading": "てんき", "meaning": "thời tiết" }, { "word": "病気", "reading": "びょうき", "meaning": "bệnh" }, { "word": "気をつける", "reading": "きをつけます", "meaning": "chú ý" } ] },
+    { "char": "山", "name": "SƠN", "kunyomi": "やま", "onyomi": "サン", "vocab": [ { "word": "山", "reading": "やま", "meaning": "núi" }, { "word": "富士山", "reading": "ふじさん", "meaning": "núi Phú Sĩ" }, { "word": "[山に~]登る", "reading": "[やまに~]のぼる", "meaning": "leo [núi]" } ] },
+    { "char": "川", "name": "XUYÊN", "kunyomi": "かわ", "onyomi": "-", "vocab": [ { "word": "川", "reading": "かわ", "meaning": "sông" } ] },
+    { "char": "中", "name": "TRUNG", "kunyomi": "なか", "onyomi": "チュウ、ジュウ", "vocab": [ { "word": "中国", "reading": "ちゅうごく", "meaning": "Trung Quốc" }, { "word": "中", "reading": "なか", "meaning": "trong, giữa" }, { "word": "会議中", "reading": "かいぎちゅう", "meaning": "đang họp" }, { "word": "勉強", "reading": "べんきょう", "meaning": "việc học" }, { "word": "勉強します", "reading": "べんきょうします", "meaning": "học" } ] },
+    { "char": "外", "name": "NGOẠI", "kunyomi": "そと、はか・す、はず・します", "onyomi": "ガイ", "vocab": [ { "word": "外国", "reading": "がいこく", "meaning": "nước ngoài" }, { "word": "そと", "meaning": "ngoài" } ] },
+    { "char": "下", "name": "HẠ", "kunyomi": "した、さ・がります、お・ります、お・ろします", "onyomi": "カ、ゲ", "vocab": [ { "word": "靴下", "reading": "くつした", "meaning": "tất" }, { "word": "地下", "reading": "ちか", "meaning": "tầng hầm" }, { "word": "下", "reading": "した", "meaning": "dưới" }, { "word": "下着", "reading": "したぎ", "meaning": "áo lót" } ] },
+    { "char": "上", "name": "THƯỢNG", "kunyomi": "うえ、うわ、あ・がります、あ・げます、のぼ・ります", "onyomi": "ジョウ", "vocab": [ { "word": "上", "reading": "うえ", "meaning": "trên" }, { "word": "上着", "reading": "うわぎ", "meaning": "áo khoác" } ] },
+    { "char": "左", "name": "TẢ", "kunyomi": "ひだり", "onyomi": "サ", "vocab": [ { "word": "左", "reading": "ひだり", "meaning": "trái" } ] },
+    { "char": "右", "name": "HỮU", "kunyomi": "みぎ", "onyomi": "ウ", "vocab": [ { "word": "右", "reading": "みぎ", "meaning": "phải" }, { "word": "[右へ~]曲がる", "reading": "[みぎへ~]まがる", "meaning": "rẽ [phải]" } ] },
+    { "char": "大", "name": "ĐẠI", "kunyomi": "おお・きい", "onyomi": "ダイ、タイ", "vocab": [ { "word": "大きい", "reading": "おおきい", "meaning": "to, lớn" }, { "word": "大切", "reading": "たいせつ[な]", "meaning": "quan trọng" }, { "word": "大丈夫", "reading": "だいじょうぶ[な]", "meaning": "không sao" }, { "word": "大変", "reading": "たいへん[な]", "meaning": "vất vả" }, { "word": "大使館", "reading": "たいしかん", "meaning": "đại sứ quán" }, { "word": "大体", "reading": "だいたい", "meaning": "đại khái" }, { "word": "大阪城", "reading": "おおさかじょう", "meaning": "lâu đài Osaka" } ] },
+    { "char": "小", "name": "TIỂU", "kunyomi": "ちい・さい", "onyomi": "ショウ", "vocab": [ { "word": "小さい", "reading": "ちいさい", "meaning": "nhỏ, bé" } ] },
+    { "char": "古", "name": "CỔ", "kunyomi": "ふる・い", "onyomi": "コ", "vocab": [ { "word": "古い", "reading": "ふるい", "meaning": "cũ" } ] },
+    { "char": "高", "name": "CAO", "kunyomi": "たか・い", "onyomi": "コウ", "vocab": [ { "word": "高い", "reading": "たかい", "meaning": "đắt, cao" }, { "word": "背が高い", "reading": "せがたかい", "meaning": "cao (người)" } ] },
+    { "char": "安", "name": "AN", "kunyomi": "やす・い", "onyomi": "アン", "vocab": [ { "word": "安い", "reading": "やすい", "meaning": "rẻ" } ] },
+    { "char": "多", "name": "ĐA", "kunyomi": "おお・い", "onyomi": "タ", "vocab": [ { "word": "多分", "reading": "たぶん", "meaning": "có lẽ" } ] },
+    { "char": "男", "name": "NAM", "kunyomi": "おとこ", "onyomi": "ダン、ナン", "vocab": [ { "word": "男の子", "reading": "おとこのこ", "meaning": "cậu bé" } ] },
+    { "char": "女", "name": "NỮ", "kunyomi": "おんな", "onyomi": "ジョ", "vocab": [ { "word": "彼女", "reading": "かのじょ", "meaning": "cô ấy, bạn gái" }, { "word": "女の子", "reading": "おんなのこ", "meaning": "cô bé" } ] },
+    { "char": "子", "name": "TỬ", "kunyomi": "こ、ご", "onyomi": "シ、ス", "vocab": [ { "word": "子供", "reading": "こども", "meaning": "trẻ con" }, { "word": "[子供が~]居る", "reading": "[こどもが~]いる", "meaning": "có [con]" }, { "word": "椅子", "reading": "いす", "meaning": "ghế" }, { "word": "帽子", "reading": "ぼうし", "meaning": "mũ" }, { "word": "お菓子", "reading": "[お]かし", "meaning": "bánh kẹo" }, { "word": "調子", "reading": "ちょうし", "meaning": "tình trạng" } ] },
+    { "char": "父", "name": "PHỤ", "kunyomi": "ちち", "onyomi": "フ", "vocab": [ { "word": "父", "reading": "ちち", "meaning": "bố (mình)" }, { "word": "お父さん", "reading": "おとうさん", "meaning": "bố" }, { "word": "お祖父さん", "reading": "おじいさん", "meaning": "ông" } ] },
+    { "char": "母", "name": "MẪU", "kunyomi": "はは", "onyomi": "ボ", "vocab": [ { "word": "母", "reading": "はは", "meaning": "mẹ (mình)" }, { "word": "お母さん", "reading": "おかあさん", "meaning": "mẹ" }, { "word": "お祖母さん", "reading": "おばあさん", "meaning": "bà" } ] },
+    { "char": "友", "name": "HỮU", "kunyomi": "とも", "onyomi": "ユウ", "vocab": [ { "word": "友達", "reading": "ともだち", "meaning": "bạn bè" } ] },
+    { "char": "名", "name": "DANH", "kunyomi": "な", "onyomi": "メイ、ミョウ", "vocab": [ { "word": "有名", "reading": "ゆうめい[な]", "meaning": "nổi tiếng" }, { "word": "名刺", "reading": "めいし", "meaning": "danh thiếp" }, { "word": "名前", "reading": "なまえ", "meaning": "tên" } ] },
+    { "char": "音", "name": "ÂM", "kunyomi": "おと、ね", "onyomi": "オン", "vocab": [ { "word": "音楽", "reading": "おんがく", "meaning": "âm nhạc" }, { "word": "音", "reading": "おと", "meaning": "âm thanh" } ] },
+    { "char": "字", "name": "TỰ", "kunyomi": "-", "onyomi": "ジ", "vocab": [ { "word": "字", "reading": "じ", "meaning": "chữ" }, { "word": "漢字", "reading": "かんじ", "meaning": "chữ Hán" } ] },
+    { "char": "雨", "name": "VŨ", "kunyomi": "あめ", "onyomi": "ウ", "vocab": [ { "word": "雨", "reading": "あめ", "meaning": "mưa" }, { "word": "[雨が~]降る", "reading": "[あめが~]ふる", "meaning": "mưa" } ] },
+    { "char": "寺", "name": "TỰ", "kunyomi": "てら", "onyomi": "ジ", "vocab": [ { "word": "お寺", "reading": "おてら", "meaning": "Chùa" }, { "word": "[お]寺", "reading": "[お]てら", "meaning": "chùa" } ] },
+    { "char": "米", "name": "MỄ", "kunyomi": "こめ", "onyomi": "マイ", "vocab": [] },
+    { "char": "出", "name": "XUẤT", "kunyomi": "で・ます、で・かける、だ・します", "onyomi": "シュツ", "vocab": [ { "word": "出身", "reading": "しゅっしん", "meaning": "xuất thân" }, { "word": "出かける", "reading": "でかけます", "meaning": "ra ngoài" }, { "word": "[喫茶店を~]出る", "reading": "[きっさてんを~]でる", "meaning": "ra khỏi [quán]" }, { "word": "[大学を~]出る", "reading": "[だいがくを~]でる", "meaning": "tốt nghiệp [đại học]" }, { "word": "[レポートを~]出す", "reading": "[レポートを~]だす", "meaning": "nộp [báo cáo]" }, { "word": "出張します", "reading": "しゅっちょうする", "meaning": "đi công tác" } ] },
+    { "char": "入", "name": "NHẬP", "kunyomi": "い・れます、はい・ります、い・る", "onyomi": "ニュウ", "vocab": [ { "word": "[喫茶店に~]入る", "reading": "[きっさてんに~]はいる", "meaning": "vào [quán]" }, { "word": "入れる", "reading": "いれます", "meaning": "cho vào" }, { "word": "[大学に~]入る", "reading": "[だいがくに~]はいる", "meaning": "nhập học [đại học]" }, { "word": "入る", "reading": "はいります", "meaning": "vào" }, { "word": "押入れ", "reading": "おしいれ", "meaning": "tủ âm tường" }, { "word": "[コーヒーを~]入れる", "reading": "[コーヒーを~]いれる", "meaning": "pha [cà phê]" } ] },
+    { "char": "立", "name": "LẬP", "kunyomi": "た・ちます", "onyomi": "リツ、リッ", "vocab": [ { "word": "立ちます", "reading": "たちます", "meaning": "đứng" }, { "word": "役に立つ", "reading": "やくにたちます", "meaning": "giúp ích" } ] },
+    { "char": "言", "name": "NGÔN", "kunyomi": "い・います、こと", "onyomi": "ゲン、ゴン", "vocab": [ { "word": "言います", "reading": "いいます", "meaning": "nói" }, { "word": "言葉", "reading": "ことば", "meaning": "từ, tiếng" } ] },
+    { "char": "話", "name": "THOẠI", "kunyomi": "はな・します、はなし", "onyomi": "ワ", "vocab": [ { "word": "会話", "reading": "かいわ", "meaning": "hội thoại" }, { "word": "話します", "reading": "はなします", "meaning": "nói chuyện" }, { "word": "[お]話", "reading": "[お]はなし", "meaning": "câu chuyện" }, { "word": "お話します", "reading": "おはなしします", "meaning": "Kể chuyện" } ] },
+    { "char": "力", "name": "LỰC", "kunyomi": "ちから", "onyomi": "リョク", "vocab": [] },
+    { "char": "長", "name": "TRƯỜNG", "kunyomi": "なが・い", "onyomi": "チョウ", "vocab": [ { "word": "校長", "reading": "こうちょう", "meaning": "hiệu trưởng" }, { "word": "課長", "reading": "かちょう", "meaning": "tổ trưởng" }, { "word": "部長", "reading": "ぶちょう", "meaning": "trưởng phòng" }, { "word": "社長", "reading": "しゃちょう", "meaning": "giám đốc" }, { "word": "長い", "reading": "ながい", "meaning": "dài" } ] },
+    { "char": "明", "name": "MINH", "kunyomi": "あか・るい、あ・ける", "onyomi": "メイ", "vocab": [ { "word": "明るい", "reading": "あかるい", "meaning": "sáng sủa" }, { "word": "説明します", "reading": "せつめいする", "meaning": "giải thích" } ] },
+    { "char": "暗", "name": "ÁM", "kunyomi": "くら・い", "onyomi": "アン", "vocab": [ { "word": "暗い", "reading": "くらい", "meaning": "tối" } ] },
+    { "char": "元", "name": "NGUYÊN", "kunyomi": "もと", "onyomi": "ゲン、ガン", "vocab": [] },
+    { "char": "好", "name": "HẢO", "kunyomi": "す・きな", "onyomi": "コウ", "vocab": [ { "word": "好き", "reading": "すき[な]", "meaning": "thích" } ] },
+    { "char": "足", "name": "TÚC", "kunyomi": "あし、た・ります", "onyomi": "ソク", "vocab": [ { "word": "足", "reading": "あし", "meaning": "chân" }, { "word": "足りる", "reading": "たります", "meaning": "đủ" } ] },
+    { "char": "東", "name": "ĐÔNG", "kunyomi": "ひがし", "onyomi": "トウ", "vocab": [] },
+    { "char": "西", "name": "TÂY", "kunyomi": "にし", "onyomi": "セイ", "vocab": [] },
+    { "char": "南", "name": "NAM", "kunyomi": "みなみ", "onyomi": "ナン", "vocab": [] },
+    { "char": "北", "name": "BẮC", "kunyomi": "きた", "onyomi": "ホク", "vocab": [] },
+    { "char": "夕", "name": "TỊCH", "kunyomi": "-", "onyomi": "ユウ", "vocab": [] },
+    { "char": "石", "name": "THẠCH", "kunyomi": "いし", "onyomi": "セキ", "vocab": [] },
+    { "char": "体", "name": "THỂ", "kunyomi": "からだ", "onyomi": "タイ", "vocab": [ { "word": "体", "reading": "からだ", "meaning": "cơ thể" }, { "word": "体にいい", "reading": "からだにいい", "meaning": "tốt cho sức khỏe" } ] },
+    { "char": "目", "name": "MỤC", "kunyomi": "め", "onyomi": "モク", "vocab": [ { "word": "目", "reading": "め", "meaning": "mắt" }, { "word": "~目", "reading": "~め", "meaning": "thứ ~ (thứ tự)" }, { "word": "目が覚める", "reading": "めがさめる", "meaning": "Tỉnh giấc" } ] },
+    { "char": "耳", "name": "NHĨ", "kunyomi": "みみ", "onyomi": "ジ", "vocab": [ { "word": "耳", "reading": "みみ", "meaning": "tai" } ] },
+    { "char": "口", "name": "KHẨU", "kunyomi": "くち", "onyomi": "コウ", "vocab": [ { "word": "口", "reading": "くち", "meaning": "miệng" } ] },
+    { "char": "鳥", "name": "ĐIỂU", "kunyomi": "とり", "onyomi": "チョウ", "vocab": [ { "word": "鳥", "reading": "とり", "meaning": "chim" } ] },
+    { "char": "犬", "name": "KHUYỂN", "kunyomi": "いぬ", "onyomi": "ケン", "vocab": [ { "word": "犬", "reading": "いぬ", "meaning": "chó" } ] },
+    { "char": "竹", "name": "TRÚC", "kunyomi": "たけ", "onyomi": "チク", "vocab": [] },
+    { "char": "貝", "name": "BỐI", "kunyomi": "かい", "onyomi": "バイ", "vocab": [] },
+    { "char": "林", "name": "LÂM", "kunyomi": "はやし", "onyomi": "リン", "vocab": [] },
+    { "char": "森", "name": "SÂM", "kunyomi": "もり", "onyomi": "シン", "vocab": [] },
+    { "char": "畑", "name": "(Không có Hán Việt)", "kunyomi": "はたけ", "onyomi": "-", "vocab": [] },
+    { "char": "門", "name": "MÔN", "kunyomi": "-", "onyomi": "モン", "vocab": [ { "word": "専門", "reading": "せんもん", "meaning": "chuyên môn" } ] },
+    { "char": "岩", "name": "NHAM", "kunyomi": "いわ", "onyomi": "ガン", "vocab": [] }
+]
         
-        // --- GLOBAL STATE & DOM ELEMENTS ---
-        const gridView = document.getElementById('grid-view');
-        const detailView = document.getElementById('detail-view');
-        const quizView = document.getElementById('quiz-view');
-        const flashcardView = document.getElementById('flashcard-view');
+// --- GLOBAL STATE & DOM ELEMENTS ---
+const gridView = document.getElementById('grid-view');
+const detailView = document.getElementById('detail-view');
+const quizView = document.getElementById('quiz-view');
+const flashcardView = document.getElementById('flashcard-view');
+const kanjiGridContainer = document.getElementById('kanji-grid-container');
+const learnedCounterPill = document.getElementById('learned-counter-pill');
 
-        const kanjiGridContainer = document.getElementById('kanji-grid-container');
-        const learnedCounterPill = document.getElementById('learned-counter-pill');
-
-        // Settings Modal
-        const settingsBtn = document.getElementById('settings-btn');
-        const settingsModal = document.getElementById('settings-modal');
-        const closeSettingsBtn = document.getElementById('close-settings-btn');
-        const saveSettingsBtn = document.getElementById('save-settings-btn');
-        const resetProgressBtn = document.getElementById('reset-progress-btn');
+/* Settings Modal */
+const settingsBtn = document.getElementById('settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const closeSettingsBtn = document.getElementById('close-settings-btn');
+const saveSettingsBtn = document.getElementById('save-settings-btn');
+const resetProgressBtn = document.getElementById('reset-progress-btn');
         
-        // Confirm Modal
-        const confirmModal = document.getElementById('confirm-modal');
-        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+/* Confirm Modal */
+const confirmModal = document.getElementById('confirm-modal');
+const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
 
-        // Feature Buttons
-        const startFlashcardBtn = document.getElementById('start-flashcard-btn');
-        const startHVQuizBtn = document.getElementById('start-hv-quiz-btn');
-        const startVocabQuizBtn = document.getElementById('start-vocab-quiz-btn');
-        const quizPromptText = document.getElementById('quiz-prompt-text');
+/* Feature Buttons */
+const startFlashcardBtn = document.getElementById('start-flashcard-btn');
+const startHVQuizBtn = document.getElementById('start-hv-quiz-btn');
+const startVocabQuizBtn = document.getElementById('start-vocab-quiz-btn');
+const quizPromptText = document.getElementById('quiz-prompt-text');
 
 
-        let learnedIndices = [];
-        let currentDetailIndex = -1;
-        let currentFlashcardIndex = 0;
-        let quizItems = [];
-        let currentQuizIndex = 0;
-        
-        // --- LOCAL STORAGE KEYS ---
-        const LEARNED_STORAGE_KEY = 'kanji_learned_indices';
-        const SETTINGS_STORAGE_KEY = 'kanji_app_settings';
+let kanjiProgress = [];
+let currentDetailIndex = -1;
+let currentFlashcardIndex = 0;
+let quizItems = [];
+let currentQuizIndex = 0;
+let appSettings = {
+    flashcardFront: 'kanji',
+    theme: 'system'
+};
 
-        let appSettings = {
-            flashcardFront: 'kanji', // Default setting
-            theme: 'system' // Default theme
-        };
+function loadData() {
+    const storedProgress = localStorage.getItem('kanji_progress_v2');
+    if (storedProgress) {
+        kanjiProgress = JSON.parse(storedProgress);
+    } else {
+        kanjiProgress = kanjiData.map(k => ({
+            learned: false,
+            progress: {
+                hanviet: false,
+                vocab: Array.isArray(k.vocab) ? k.vocab.map(() => false) : []
+            }
+        }));
+    }
+    const storedSettings = localStorage.getItem('kanji_app_settings');
+    if (storedSettings) {
+        appSettings = JSON.parse(storedSettings);
+    }
+}
 
-        // --- CORE FUNCTIONS ---
-        function loadData() {
-            const storedLearned = localStorage.getItem(LEARNED_STORAGE_KEY);
-            learnedIndices = storedLearned ? JSON.parse(storedLearned) : [];
-            const storedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
-            if (storedSettings) {
-                appSettings = JSON.parse(storedSettings);
+function saveProgress() {
+    localStorage.setItem('kanji_progress_v2', JSON.stringify(kanjiProgress));
+}
+function saveSettings() {
+    localStorage.setItem('kanji_app_settings', JSON.stringify(appSettings));
+}
+
+function updateProgressUI() {
+    const learnedCount = kanjiProgress.filter(k => k.learned).length;
+    const masteredCount = kanjiProgress.filter(k => {
+        const total = 1 + (k.progress.vocab ? k.progress.vocab.length : 0);
+        const done = (k.progress.hanviet ? 1 : 0) + k.progress.vocab.filter(Boolean).length;
+        return done === total;
+    }).length;
+    const totalCount = kanjiData.length;
+    document.getElementById('progress-text').textContent = `${masteredCount}/${totalCount} đã thuộc, ${learnedCount} đã học`;
+    const percent = totalCount > 0 ? (masteredCount / totalCount) * 100 : 0;
+    document.getElementById('progress-bar').style.width = `${percent}%`;
+    learnedCounterPill.textContent = `${masteredCount} đã thuộc`;
+}
+
+function applyTheme() {
+    const theme = appSettings.theme;
+    const root = document.documentElement;
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    root.classList.toggle('darkmode', isDark);
+    const themeBtns = settingsModal.querySelectorAll('.theme-btn');
+    themeBtns.forEach(btn => {
+        const isActive = btn.dataset.theme === theme;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+}
+
+function showView(viewId) {
+    [gridView, detailView, quizView, flashcardView].forEach(view => {
+        view.classList.toggle('hidden', view.id !== viewId);
+    });
+}
+
+function renderGridView() {
+    kanjiGridContainer.innerHTML = '';
+    kanjiData.forEach((kanji, index) => {
+        const prog = kanjiProgress[index];
+        const total = 1 + (kanji.vocab ? kanji.vocab.length : 0);
+
+        // Đếm số mục đã thuộc (mastered)
+        let masteredCount = 0;
+        if (prog.progress.hanviet) masteredCount++;
+        if (prog.progress.vocab && prog.progress.vocab.length) {
+            masteredCount += prog.progress.vocab.filter(Boolean).length;
+        }
+
+        // Đếm số mục đã học (learned) nhưng chưa thuộc
+        let learnedCount = 0;
+        if (prog.learned) {
+            if (!prog.progress.hanviet) learnedCount++;
+            if (prog.progress.vocab && kanji.vocab) {
+                learnedCount += prog.progress.vocab.filter((v, i) => !v && kanji.vocab[i]).length;
             }
         }
-        function saveData(key, data) {
-            localStorage.setItem(key, JSON.stringify(data));
-        }
-        
-        function updateProgressUI() {
-            const learnedCount = learnedIndices.length;
-            const totalCount = kanjiData.length;
-            const percentage = totalCount > 0 ? (learnedCount / totalCount) * 100 : 0;
-            document.getElementById('progress-text').textContent = `${learnedCount}/${totalCount}`;
-            document.getElementById('progress-bar').style.width = `${percentage}%`;
-            learnedCounterPill.textContent = `${learnedCount} đã học`;
+
+        // Tính phần trăm mastered
+        const masteredPercent = total > 0 ? (masteredCount / total) * 100 : 0;
+        // const done = masteredCount + learnedCount; // Không dùng nữa
+
+        // Trạng thái
+        const mastered = masteredCount === total && total > 0;
+        const learned = prog.learned;
+
+        // Dấu chấm trạng thái
+        let statusDot = '';
+        if (mastered) {
+            statusDot = `<span class="kanji-status-dot kanji-status-dot-mastered"></span>`;
+        } else if (learned) {
+            statusDot = `<span class="kanji-status-dot kanji-status-dot-learned"></span>`;
         }
 
-        // --- THEME MANAGEMENT ---
-        function applyTheme() {
-            const theme = appSettings.theme;
-            const root = document.documentElement;
-            const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            root.classList.toggle('darkmode', isDark);
+        const cell = document.createElement('div');
+        cell.className =
+            `kanji-cell flex flex-col items-center justify-center p-2 rounded-2xl h-24 shadow-sm hover:shadow-lg hover:border-sky-300 dark:hover:border-sky-700 cursor-pointer transform hover:-translate-y-1 transition-all duration-300`
+            + (learned ? ' kanji-cell-learned' : '')
+            + (mastered ? ' kanji-cell-mastered' : '');
+        cell.setAttribute('data-index', index);
+        cell.innerHTML =
+            `${statusDot}
+            <div class="text-4xl font-bold kanji-char text-slate-800 dark:text-slate-200">${kanji.char}</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400 mt-1 kanji-name font-medium">${kanji.name}</div>
+            <div class="kanji-progress-bar" style="position:relative;">
+                <div class="kanji-progress-bar-inner" style="width:${masteredPercent}%;"></div>
+            </div>
+            `;
+        kanjiGridContainer.appendChild(cell);
+    });
+    updateQuizButtonState();
+    updateProgressUI();
+}
 
-            // Update settings modal UI
-            const themeBtns = settingsModal.querySelectorAll('.theme-btn');
-            themeBtns.forEach(btn => {
-                const isActive = btn.dataset.theme === theme;
-                btn.classList.toggle('active', isActive);
-                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+function updateQuizButtonState() {
+    const learnedVocab = [];
+    kanjiProgress.forEach((prog, idx) => {
+        if (prog.learned && kanjiData[idx].vocab && kanjiData[idx].vocab.length) {
+            kanjiData[idx].vocab.forEach((v, vi) => {
+                learnedVocab.push({ ...v, sourceKanjiIndex: idx, vocabIdx: vi });
             });
         }
-        
-        // --- VIEW MANAGEMENT ---
-        function showView(viewId) {
-            [gridView, detailView, quizView, flashcardView].forEach(view => {
-                view.classList.toggle('hidden', view.id !== viewId);
-            });
-        }
-        
-        // --- GRID VIEW ---
-        function renderGridView() {
-            kanjiGridContainer.innerHTML = '';
-            kanjiData.forEach((kanji, index) => {
-                const isLearned = learnedIndices.includes(index);
-                const cell = document.createElement('div');
-                cell.className = `kanji-cell flex flex-col items-center justify-center p-2 rounded-2xl h-24 shadow-sm hover:shadow-lg hover:border-sky-300 dark:hover:border-sky-700 cursor-pointer transform hover:-translate-y-1 transition-all duration-300${isLearned ? ' kanji-cell-learned' : ''}`;
-                cell.setAttribute('data-index', index);
-                cell.innerHTML = `${isLearned ? '<div class="checkmark">✓</div>' : ''}<div class="text-4xl font-bold kanji-char text-slate-800 dark:text-slate-200">${kanji.char}</div><div class="text-sm text-slate-500 dark:text-slate-400 mt-1 kanji-name font-medium">${kanji.name}</div>`;
-                kanjiGridContainer.appendChild(cell);
-            });
-            updateQuizButtonState();
-            updateProgressUI();
-        }
+    });
+    if (startVocabQuizBtn) {
+        startVocabQuizBtn.disabled = learnedVocab.length < 4;
+    }
+    if (quizPromptText) {
+        quizPromptText.textContent = learnedVocab.length < 4
+            ? "Học ít nhất 4 từ vựng để bắt đầu bài kiểm tra."
+            : "Bạn đã đủ điều kiện để làm bài kiểm tra từ vựng!";
+    }
+}
 
-        // --- QUIZ BUTTON STATE ---
-        function updateQuizButtonState() {
-            // Enable/disable vocab quiz button based on learned vocab count
-            const learnedVocab = getLearnedVocab();
-            if (startVocabQuizBtn) {
-                startVocabQuizBtn.disabled = learnedVocab.length < 4;
-            }
-            if (quizPromptText) {
-                quizPromptText.textContent = learnedVocab.length < 4
-                    ? "Học ít nhất 4 từ vựng để bắt đầu bài kiểm tra."
-                    : "Bạn đã đủ điều kiện để làm bài kiểm tra từ vựng!";
-            }
-        }
-
-        // --- GET LEARNED VOCAB ---
-        function getLearnedVocab() {
-            // Trả về mảng các từ vựng đã học (dựa trên các kanji đã đánh dấu đã học)
-            const vocab = [];
-            learnedIndices.forEach(idx => {
-                const kanji = kanjiData[idx];
-                if (kanji && Array.isArray(kanji.vocab)) {
-                    kanji.vocab.forEach(v => vocab.push({ ...v, sourceKanjiIndex: idx }));
-                }
-            });
-            return vocab;
-        }
-
-        // --- DETAIL VIEW ---
-        function renderDetailView() {
-            detailView.innerHTML = `
+function renderDetailView() {
+    detailView.innerHTML = `
                 <div class="flex justify-between items-center mb-6">
                     <button id="back-to-grid-from-detail" class="bg-slate-200/70 hover:bg-slate-300/80 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-semibold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>Quay lại</button>
                     <button id="mark-as-learned-btn" class="font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center"></button>
@@ -894,13 +1004,14 @@
         }
         function updateDetailContent(index, activeTab) {
             const kanji = kanjiData[index];
-            const isLearned = learnedIndices.includes(index);
+            const prog = kanjiProgress[index];
             const markBtn = detailView.querySelector('#mark-as-learned-btn');
-            markBtn.disabled = isLearned;
-            markBtn.innerHTML = isLearned ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg> Đã học' : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V4zm2 1v1h6V5H7zm6 3H7v1h6V8zm0 2H7v1h6v-1z" /></svg>Đánh dấu đã học';
-            markBtn.className = `font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center transform hover:scale-105 ${isLearned ? 'bg-slate-400 cursor-not-allowed text-white' : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'}`;
+            markBtn.disabled = prog.learned;
+            markBtn.innerHTML = prog.learned
+                ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg> Đã học'
+                : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V4zm2 1v1h6V5H7zm6 3H7v1h6V8zm0 2H7v1h6v-1z" /></svg>Đánh dấu đã học';
+            markBtn.className = `font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center transform hover:scale-105 ${prog.learned ? 'bg-slate-400 cursor-not-allowed text-white' : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'}`;
             const tabNav = detailView.querySelector('#tab-nav');
-            // Đặt active tab
             tabNav.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.toggle('active-tab', btn.dataset.tab === (activeTab || 'learn'));
             });
@@ -912,7 +1023,6 @@
                 <div id="writing-tab" class="tab-panel${activeTab === 'writing' ? '' : ' hidden'}"><div class="flex flex-col items-center justify-center p-4"><p class="text-secondary mb-4">Thứ tự các nét viết của chữ Hán.</p><img src="${gifUrl}" class="bg-white rounded-lg shadow-md w-64 h-64 border" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" ><p class="text-rose-500 mt-4 hidden">Không tìm thấy ảnh GIF cho Hán tự này.</p></div></div>
                 <div id="vocab-tab" class="tab-panel${activeTab === 'vocab' ? '' : ' hidden'}"><table class="w-full text-left"><thead class="bg-slate-100/80 dark:bg-slate-700/50"><tr class="border-b-2 border-border-primary"><th class="p-3 font-semibold text-secondary">Từ vựng</th><th class="p-3 font-semibold text-secondary">Cách đọc</th><th class="p-3 font-semibold text-secondary">Nghĩa</th></tr></thead><tbody>${(kanji.vocab && kanji.vocab.length > 0) ? kanji.vocab.map(v => `<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700"><td class="p-3 text-primary font-medium">${v.word}</td><td class="p-3 text-rose-600 dark:text-rose-400">${v.reading}</td><td class="p-3 text-secondary">${v.meaning}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center p-4 text-secondary">Chưa có từ vựng cho Hán tự này.</td></tr>'}</tbody></table></div>
             `;
-            // Tab click event
             tabNav.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.onclick = () => {
                     updateDetailContent(index, btn.dataset.tab);
@@ -920,7 +1030,6 @@
             });
         }
 
-        // --- FLASHCARD VIEW ---
         function renderFlashcardView() {
             currentFlashcardIndex = 0;
             flashcardView.innerHTML = `
@@ -967,22 +1076,17 @@
             const card = kanjiData[currentFlashcardIndex];
             const frontEl = flashcardView.querySelector('.flashcard-front');
             const backEl = flashcardView.querySelector('.flashcard-back');
-            
             const frontText = appSettings.flashcardFront === 'kanji' ? card.char : card.name;
             const backText = appSettings.flashcardFront === 'kanji' ? card.name : card.char;
-            
             frontEl.innerHTML = `<span class="text-7xl sm:text-8xl font-black">${frontText}</span>`;
             backEl.innerHTML = `<span class="text-5xl sm:text-6xl font-bold">${backText}</span>`;
-
             flashcardView.querySelector('#fc-progress').textContent = `${currentFlashcardIndex + 1} / ${kanjiData.length}`;
             flashcardView.querySelector('#fc-prev-btn').disabled = currentFlashcardIndex === 0;
             flashcardView.querySelector('#fc-next-btn').disabled = currentFlashcardIndex === kanjiData.length - 1;
-            // Đảm bảo mặt trước luôn hiển thị khi chuyển thẻ
             const fcCardInner = flashcardView.querySelector('.flashcard-inner');
             fcCardInner.classList.remove('is-flipped');
         }
 
-        // --- QUIZ VIEW ---
         function renderQuizView(quizType) {
             quizView.innerHTML = `
                 <header class="text-center mb-6">
@@ -991,7 +1095,7 @@
                 </header>
                 <div id="quiz-content" class="min-h-[300px]">
                     <div class="text-center p-6" style="background: var(--bg-container); color: var(--text-primary); border-radius: 1rem; box-shadow: 0 2px 8px 0 var(--shadow-cell);">
-                        <p id="quiz-question-prompt" class="text-lg text-secondary mb-2" style="color: var(--text-secondary);">${/* text-secondary for subtitle */''}</p>
+                        <p id="quiz-question-prompt" class="text-lg text-secondary mb-2" style="color: var(--text-secondary);"></p>
                         <h2 id="quiz-question" class="text-6xl font-black" style="color: var(--text-heading);"></h2>
                     </div>
                     <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6"></div>
@@ -1009,31 +1113,30 @@
             quizView.querySelector('#quiz-question').textContent = questionData.word;
             quizView.querySelector('#quiz-question-prompt').textContent = `Cách đọc của từ này là gì?`;
             quizView.querySelector('#quiz-progress-text').textContent = `Câu ${currentQuizIndex + 1} / ${quizItems.length}`;
-            
             const correctAnswer = questionData.reading;
             const allPossibleAnswers = kanjiData.flatMap(k => k.vocab.map(v => v.reading));
             const uniqueAnswers = [...new Set(allPossibleAnswers)].filter(Boolean);
             const distractors = uniqueAnswers.filter(ans => ans !== correctAnswer);
-            
-            displayQuizOptions(correctAnswer, distractors);
+            displayQuizOptions(correctAnswer, distractors, () => {
+                handleVocabQuizCorrect(questionData.sourceKanjiIndex, questionData.vocabIdx);
+            });
         }
         function displayHVQuestion() {
             const questionData = quizItems[currentQuizIndex];
             quizView.querySelector('#quiz-question').textContent = questionData.char;
             quizView.querySelector('#quiz-question-prompt').textContent = `Âm Hán-Việt của chữ này là gì?`;
             quizView.querySelector('#quiz-progress-text').textContent = `Câu ${currentQuizIndex + 1} / ${quizItems.length}`;
-            
             const correctAnswer = questionData.name;
             const allPossibleAnswers = kanjiData.map(k => k.name);
             const distractors = allPossibleAnswers.filter(ans => ans !== correctAnswer);
-            
-            displayQuizOptions(correctAnswer, distractors);
+            displayQuizOptions(correctAnswer, distractors, () => {
+                handleHVQuizCorrect(questionData.sourceKanjiIndex);
+            });
         }
-        function displayQuizOptions(correctAnswer, distractors) {
+        function displayQuizOptions(correctAnswer, distractors, onCorrect) {
             for (let i = distractors.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [distractors[i], distractors[j]] = [distractors[j], distractors[i]];}
             const finalOptions = [correctAnswer, ...distractors.slice(0, 3)];
             for (let i = finalOptions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [finalOptions[i], finalOptions[j]] = [finalOptions[j], finalOptions[i]];}
-
             const optionsContainer = quizView.querySelector('#quiz-options');
             optionsContainer.innerHTML = '';
             finalOptions.forEach(option => {
@@ -1043,57 +1146,54 @@
                 if (option === correctAnswer) { button.dataset.correct = 'true'; }
                 button.onclick = function() {
                     if (optionsContainer.dataset.answered) return;
-                    // Bỏ chọn tất cả
                     optionsContainer.querySelectorAll('.quiz-option').forEach(btn => btn.classList.remove('selected'));
                     button.classList.add('selected');
                 };
                 optionsContainer.appendChild(button);
             });
             optionsContainer.dataset.answered = '';
-        }
-
-        function handleQuizAnswer(e) {
-            const selectedButton = e.target.closest('.quiz-option');
-            if (!selectedButton || selectedButton.parentElement.dataset.answered) return;
-
-            // Đánh dấu đã chọn
-            selectedButton.parentElement.querySelectorAll('.quiz-option').forEach(btn => btn.classList.remove('selected'));
-            selectedButton.classList.add('selected');
-
-            selectedButton.parentElement.dataset.answered = 'true';
-            const isCorrect = selectedButton.dataset.correct === 'true';
-
-            if (isCorrect) {
-                selectedButton.classList.add('correct');
-            } else {
-                selectedButton.classList.add('incorrect');
-                const correctButton = quizView.querySelector('.quiz-option[data-correct="true"]');
-                if (correctButton) correctButton.classList.add('correct');
-                
-                const kanjiToUnlearnIndex = quizItems[currentQuizIndex].sourceKanjiIndex;
-                const indexInLearned = learnedIndices.indexOf(kanjiToUnlearnIndex);
-                if (indexInLearned > -1) {
-                    learnedIndices.splice(indexInLearned, 1);
-                    saveData(LEARNED_STORAGE_KEY, learnedIndices);
+            optionsContainer.onclick = function(e) {
+                const selectedButton = e.target.closest('.quiz-option');
+                if (!selectedButton || optionsContainer.dataset.answered) return;
+                optionsContainer.querySelectorAll('.quiz-option').forEach(btn => btn.classList.remove('selected'));
+                selectedButton.classList.add('selected');
+                optionsContainer.dataset.answered = 'true';
+                const isCorrect = selectedButton.dataset.correct === 'true';
+                if (isCorrect) {
+                    selectedButton.classList.add('correct');
+                    if (typeof onCorrect === 'function') onCorrect();
+                } else {
+                    selectedButton.classList.add('incorrect');
+                    const correctButton = optionsContainer.querySelector('.quiz-option[data-correct="true"]');
+                    if (correctButton) correctButton.classList.add('correct');
                 }
-            }
-
-            // Disable all options after answer
-            selectedButton.parentElement.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
-
-            if (currentQuizIndex < quizItems.length - 1) {
-                quizView.querySelector('#next-question-btn').classList.remove('hidden');
-            } else {
-                quizView.querySelector('#finish-quiz-btn').classList.remove('hidden');
+                optionsContainer.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
+                if (currentQuizIndex < quizItems.length - 1) {
+                    quizView.querySelector('#next-question-btn').classList.remove('hidden');
+                } else {
+                    quizView.querySelector('#finish-quiz-btn').classList.remove('hidden');
+                }
+            };
+        }
+        function handleHVQuizCorrect(kanjiIndex) {
+            if (!kanjiProgress[kanjiIndex].progress.hanviet) {
+                kanjiProgress[kanjiIndex].progress.hanviet = true;
+                saveProgress();
+                renderGridView();
             }
         }
-        
-        // --- EVENT LISTENERS ---
+        function handleVocabQuizCorrect(kanjiIndex, vocabIdx) {
+            if (!kanjiProgress[kanjiIndex].progress.vocab[vocabIdx]) {
+                kanjiProgress[kanjiIndex].progress.vocab[vocabIdx] = true;
+                saveProgress();
+                renderGridView();
+            }
+        }
+
         document.addEventListener('click', (e) => {
             const target = e.target;
             const closestButton = target.closest('button');
             const targetId = target.id || closestButton?.id;
-
             switch(true) {
                 case target.closest('.kanji-cell') !== null:
                     const index = parseInt(target.closest('.kanji-cell').dataset.index, 10);
@@ -1104,23 +1204,30 @@
                 case targetId === 'settings-btn': openSettingsModal(); break;
                 case targetId === 'back-to-grid-from-detail' || targetId === 'back-to-grid-from-fc' || targetId === 'back-to-grid-from-quiz':
                     showView('grid-view');
-                    renderGridView(); // Đảm bảo cập nhật lại trạng thái đã học khi quay lại
+                    renderGridView();
                     break;
-                case target.closest('.tab-btn') !== null: switchTab(target.closest('.tab-btn').dataset.tab); break;
+                case target.closest('.tab-btn') !== null: break;
                 case targetId === 'mark-as-learned-btn':
-                    if (currentDetailIndex !== -1 && !learnedIndices.includes(currentDetailIndex)) {
-                        learnedIndices.push(currentDetailIndex);
-                        saveData(LEARNED_STORAGE_KEY, learnedIndices);
+                    if (currentDetailIndex !== -1 && !kanjiProgress[currentDetailIndex].learned) {
+                        kanjiProgress[currentDetailIndex].learned = true;
+                        saveProgress();
                         updateDetailContent(currentDetailIndex);
-                        renderGridView(); // Cập nhật lại grid ngay khi đánh dấu đã học
+                        renderGridView();
                     }
                     break;
                 case targetId === 'start-flashcard-btn': renderFlashcardView(); break;
-                case target.closest('#fc-card-container') !== null: target.closest('#fc-card-container').classList.toggle('is-flipped'); break;
+                case target.closest('#fc-card-container') !== null: break;
                 case targetId === 'fc-prev-btn': if (currentFlashcardIndex > 0) { currentFlashcardIndex--; updateFlashcard(); } break;
                 case targetId === 'fc-next-btn': if (currentFlashcardIndex < kanjiData.length - 1) { currentFlashcardIndex++; updateFlashcard(); } break;
                 case targetId === 'start-vocab-quiz-btn':
-                    quizItems = getLearnedVocab();
+                    quizItems = [];
+                    kanjiProgress.forEach((prog, idx) => {
+                        if (prog.learned && kanjiData[idx].vocab && kanjiData[idx].vocab.length) {
+                            kanjiData[idx].vocab.forEach((v, vi) => {
+                                quizItems.push({ ...v, sourceKanjiIndex: idx, vocabIdx: vi });
+                            });
+                        }
+                    });
                     renderQuizView('vocab');
                     currentQuizIndex = 0;
                     displayVocabQuestion();
@@ -1131,7 +1238,7 @@
                     currentQuizIndex = 0;
                     displayHVQuestion();
                     break;
-                case target.closest('.quiz-option') !== null: handleQuizAnswer(e); break;
+                case target.closest('.quiz-option') !== null: break;
                 case targetId === 'next-question-btn':
                     currentQuizIndex++;
                     quizView.querySelector('#next-question-btn').classList.add('hidden');
@@ -1142,8 +1249,14 @@
                 case targetId === 'reset-progress-btn': openConfirmModal(); break;
                 case targetId === 'cancel-delete-btn' || target.id === 'confirm-modal': closeConfirmModal(); break;
                 case targetId === 'confirm-delete-btn':
-                    learnedIndices = [];
-                    saveData(LEARNED_STORAGE_KEY, learnedIndices);
+                    kanjiProgress = kanjiData.map(k => ({
+                        learned: false,
+                        progress: {
+                            hanviet: false,
+                            vocab: Array.isArray(k.vocab) ? k.vocab.map(() => false) : []
+                        }
+                    }));
+                    saveProgress();
                     renderGridView();
                     closeConfirmModal();
                     if(!settingsModal.classList.contains('hidden')) closeSettingsModal();
@@ -1151,7 +1264,6 @@
             }
         });
 
-        // --- MODAL & SETTINGS LOGIC ---
         function openSettingsModal() {
             settingsModal.querySelector(`input[value="${appSettings.flashcardFront}"]`).checked = true;
             settingsModal.querySelectorAll('.theme-btn').forEach(btn => btn.onclick = () => {
@@ -1166,7 +1278,7 @@
         }
         function closeSettingsModal() {
             appSettings.flashcardFront = settingsModal.querySelector('input[name="flashcard_front"]:checked').value;
-            saveData(SETTINGS_STORAGE_KEY, appSettings);
+            saveSettings();
             settingsModal.classList.add('opacity-0');
             settingsModal.querySelector('.modal-content').classList.add('scale-95');
             setTimeout(() => settingsModal.classList.add('hidden'), 300);
@@ -1183,15 +1295,15 @@
             confirmModal.querySelector('.modal-content').classList.add('scale-95');
             setTimeout(() => confirmModal.classList.add('hidden'), 300);
         }
-        
-        // --- INITIALIZATION ---
+
         window.onload = () => {
             loadData();
             applyTheme();
-            renderGridView(); // <--- Thêm dòng này để hiển thị danh sách Hán tự
+            renderGridView();
             showView('grid-view');
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
         };
     </script>
 </body>
+</html>
 </html>
