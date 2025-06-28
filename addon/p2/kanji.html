@@ -193,7 +193,7 @@
             --button-filter-bg-hover: #0f172a;
             --button-filter-text: #93c5fd;
             --button-filter-border: #3b82f6;
-            --button-vocab-start-text: #166534; /* Đã đổi thành màu xanh sáng hơn */
+            --button-vocab-start-text: #166534; 
             --button-mark-learned-bg: #4b5563;
             --button-mark-learned-bg-hover: #374151;
             --button-mark-learned-text: #d1d5db;
@@ -714,6 +714,20 @@ let vocabQuizSettings = {
     questionCount: 20, // Default number of questions for vocab quiz
 };
 
+const openModal = (modal) => {
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.querySelector('.modal-content').classList.remove('scale-95');
+    }, 10);
+};
+
+const closeModal = (modal) => {
+    modal.classList.add('opacity-0');
+    modal.querySelector('.modal-content').classList.add('scale-95');
+    setTimeout(() => modal.classList.add('hidden'), 300);
+};
+
 function loadData() {
     const storedProgress = localStorage.getItem('kanji_progress_v2');
     if (storedProgress) {
@@ -762,7 +776,7 @@ function applyTheme() {
     root.classList.toggle('darkmode', isDark);
     const themeBtns = settingsModal.querySelectorAll('.theme-btn');
     themeBtns.forEach(btn => {
-        const isActive = btn.dataset.theme === theme;
+        const isActive = btn.dataset.theme === appSettings.theme;
         btn.classList.toggle('active', isActive);
         btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
@@ -1036,35 +1050,34 @@ function renderDetailView() {
         }
        
         function openSettingsModal() {
-            settingsModal.querySelector(`input[value="${appSettings.flashcardFront}"]`).checked = true;
-            settingsModal.querySelectorAll('.theme-btn').forEach(btn => btn.onclick = () => {
-                appSettings.theme = btn.dataset.theme;
-                applyTheme();
+            settingsModal.querySelector(`input[name="flashcard_front"][value="${appSettings.flashcardFront}"]`).checked = true;
+            
+            const themeBtns = settingsModal.querySelectorAll('.theme-btn');
+            themeBtns.forEach(btn => {
+                const isActive = btn.dataset.theme === appSettings.theme;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
             });
-            settingsModal.classList.remove('hidden');
-            setTimeout(() => {
-                settingsModal.classList.remove('opacity-0');
-                settingsModal.querySelector('.modal-content').classList.remove('scale-95');
-            }, 10);
+            themeBtns.forEach(btn => {
+                btn.onclick = () => {
+                    appSettings.theme = btn.dataset.theme;
+                    applyTheme();
+                };
+            });
+            openModal(settingsModal);
         }
+
         function closeSettingsModal() {
             appSettings.flashcardFront = settingsModal.querySelector('input[name="flashcard_front"]:checked').value;
             saveSettings();
-            settingsModal.classList.add('opacity-0');
-            settingsModal.querySelector('.modal-content').classList.add('scale-95');
-            setTimeout(() => settingsModal.classList.add('hidden'), 300);
+            closeModal(settingsModal);
         }
+        
         function openConfirmModal() {
-            confirmModal.classList.remove('hidden');
-            setTimeout(() => {
-                confirmModal.classList.remove('opacity-0');
-                confirmModal.querySelector('.modal-content').classList.remove('scale-95');
-            }, 10);
+            openModal(confirmModal);
         }
         function closeConfirmModal() {
-            confirmModal.classList.add('opacity-0');
-            confirmModal.querySelector('.modal-content').classList.add('scale-95');
-            setTimeout(() => confirmModal.classList.add('hidden'), 300);
+            closeModal(confirmModal);
         }
        
         
@@ -1095,7 +1108,7 @@ function renderDetailView() {
             });
             
             renderVocabQuizFilterModal();
-            document.getElementById('vocab-quiz-filter-modal').classList.remove('hidden');
+            openModal(document.getElementById('vocab-quiz-filter-modal'));
         }
         
         function renderVocabQuizFilterModal() {
@@ -1210,7 +1223,7 @@ function renderDetailView() {
             if (targetId === 'vocab-quiz-filter-btn') {
                 openVocabFilterModal();
             } else if (targetId === 'close-vocab-quiz-filter-btn') {
-                document.getElementById('vocab-quiz-filter-modal').classList.add('hidden');
+                closeModal(document.getElementById('vocab-quiz-filter-modal'));
             } else if (targetId === 'vocab-quiz-filter-selectall-btn') {
                 document.querySelectorAll('.vocab-quiz-filter-checkbox').forEach(cb => {
                     cb.checked = true;
@@ -1234,7 +1247,7 @@ function renderDetailView() {
                     });
                 }
                 
-                document.getElementById('vocab-quiz-filter-modal').classList.add('hidden');
+                closeModal(document.getElementById('vocab-quiz-filter-modal'));
                 updateQuizButtonState();
             }
         });
@@ -1407,23 +1420,9 @@ function renderDetailView() {
             const closeHelpBtn = document.getElementById('close-help-modal-btn');
             const closeAuthorBtn = document.getElementById('close-author-modal-btn');
             
-            const openModal = (modal) => {
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.querySelector('.modal-content').classList.remove('scale-95');
-                }, 10);
-            };
-
-            const closeModal = (modal) => {
-                modal.classList.add('opacity-0');
-                modal.querySelector('.modal-content').classList.add('scale-95');
-                setTimeout(() => modal.classList.add('hidden'), 300);
-            };
-
             helpBtn?.addEventListener('click', () => openModal(helpModal));
             authorBtn?.addEventListener('click', () => openModal(authorModal));
-            settingsBtnFab?.addEventListener('click', () => openModal(settingsModal));
+            settingsBtnFab?.addEventListener('click', openSettingsModal);
 
             closeHelpBtn?.addEventListener('click', () => closeModal(helpModal));
             closeAuthorBtn?.addEventListener('click', () => closeModal(authorModal));
@@ -1435,7 +1434,7 @@ function renderDetailView() {
                 if (e.target === authorModal) closeModal(authorModal);
             });
              settingsModal?.addEventListener('click', (e) => {
-                if(e.target === settingsModal) closeModal(settingsModal);
+                if(e.target === settingsModal) closeSettingsModal();
             });
             
              // Close FAB menu when clicking outside
