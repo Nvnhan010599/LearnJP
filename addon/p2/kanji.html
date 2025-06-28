@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="vi" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Hán Tự N5</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- CẤU HÌNH BIẾN MÀU (THEME) --- */
+        :root {
+            /* Redesigned light mode colors for better contrast and clarity */
+            --bg-main: #f6f8fa;
+            --bg-container: #ffffff;
+            --bg-feature-card: linear-gradient(135deg, #f3f4f6 0%, #fdf6fb 100%);
+            --bg-icon-container: #f3f4f6;
+            --bg-icon-inner-purple: #ede9fe;
+            --bg-icon-inner-indigo: #e0e7ff;
+            --icon-color-purple: #7c3aed;
+            --icon-color-indigo: #2563eb;
+            --text-heading: #1e293b;
+            --text-subheading: #475569;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --border-primary: #e2e8f0;
+            --border-secondary: #cbd5e1;
+            --border-hover: #6366f1;
+            --button-hv-quiz-bg: #6366f1;
+            --button-hv-quiz-text: #fff;
+            --button-hv-quiz-border: #6366f1;
+            --button-hv-quiz-bg-hover: #4f46e5;
+            --modal-bg: #fff;
+            --modal-shadow: 0 8px 40px 0 rgba(30,41,59,0.18);
+            --tab-group-bg: #f1f5f9;
+            --tab-active-bg: #6366f1;
+            --tab-active-text: #fff;
+            --tab-inactive-text: #64748b;
+            --bg-learned: #e0f7fa;
+            --border-learned: #38bdf8;
+            --text-learned-char: #0ea5e9;
+            --text-learned-name: #0369a1;
+            --checkmark-bg: #22c55e;
+
+            --shadow-main: rgba(99, 102, 241, 0.08);
+            --shadow-main-dark: rgba(0,0,0,0.04);
+            --feature-card-border-dark: rgba(99,102,241,0.08);
+            --shadow-cell: rgba(30,41,59,0.06);
+            --shadow-cell-hover: rgba(99,102,241,0.12);
+            --checkmark-shadow: rgba(34,197,94,0.12);
+
+            --flashcard-front-bg: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+            --flashcard-front-color: #fff;
+            --flashcard-back-bg: #fff;
+            --flashcard-back-color: #1e293b;
+            --flashcard-back-border: #e2e8f0;
+
+            --kanji-char-color: #1e293b;
+            --kanji-char-color-dark: #fff;
+            --kanji-char-shadow-dark: 0 1px 8px #6366f1cc, 0 0px 2px #000a;
+            --tab-active-bg-custom: #ede9fe;
+            --tab-active-text-custom: #7c3aed;
+            --tab-active-border-custom: #a78bfa;
+            --tab-hover-bg-custom: #f3f4f6;
+            --tab-hover-text-custom: #6366f1;
+            --tab-hover-border-custom: #c7d2fe;
+            --back-btn-bg: #f3f4f6;
+            --back-btn-color: #334155;
+            --back-btn-border: #e2e8f0;
+            --back-btn-bg-hover: #e0e7ef;
+            --back-btn-color-hover: #6366f1;
+
+            --quiz-option-selected-border: #6366f1;
+            --quiz-option-selected-bg: #ede9fe;
+            --quiz-option-selected-text: #7c3aed;
+            --quiz-option-selected-shadow: 0 2px 8px 0 #6366f11a;
+            --quiz-option-correct-border: #22c55e;
+            --quiz-option-correct-bg: #dcfce7;
+            --quiz-option-correct-text: #166534;
+            --quiz-option-incorrect-border: #ef4444;
+            --quiz-option-incorrect-bg: #fee2e2;
+            --quiz-option-incorrect-text: #991b1b;
+
+            /* Dark mode quiz option variables for fallback in CSS */
+            --quiz-option-selected-border-dark: #a78bfa;
+            --quiz-option-selected-bg-dark: #312e81;
+            --quiz-option-selected-text-dark: #c4b5fd;
+            --quiz-option-selected-shadow-dark: 0 2px 8px 0 #a78bfa1a;
+            --quiz-option-correct-border-dark: #22d3ee;
+            --quiz-option-correct-bg-dark: #134e4a;
+            --quiz-option-correct-text-dark: #67e8f9;
+            --quiz-option-incorrect-border-dark: #f87171;
+            --quiz-option-incorrect-bg-dark: #7f1d1d;
+            --quiz-option-incorrect-text-dark: #fecaca;
+
+            --fc-btn-bg: #f3f4f6;
+            --fc-btn-bg-hover: #e0e7ef;
+            --fc-btn-text: #6366f1;
+            --fc-btn-icon: #6366f1;
+            --fc-btn-shadow: 0 2px 8px 0 #e0e7ef1a;
+
+            --settings-btn-color: #94a3b8;
+            --settings-btn-hover: #6366f1;
+            --settings-btn-dark: #fbbf24;
+            --settings-btn-dark-hover: #f59e42;
+            --btn-hoc-bg: #fb923c;
+            --btn-hoc-hover: #f97316;
+            --btn-batdau-bg: #bbf7d0; /* xanh lá nhạt */
+            --btn-batdau-hover: #4ade80; /* xanh lá tươi hơn khi hover */
+        }
+        .darkmode {
+            /* Improved dark mode colors for better contrast and readability */
+            --bg-main: #181c24;
+            --bg-container: #232936;
+            --bg-feature-card: linear-gradient(135deg, #232936 0%, #232936 100%);
+            --bg-icon-container: #232936;
+            --bg-icon-inner-purple: #2d2540;
+            --bg-icon-inner-indigo: #232e4a;
+            --icon-color-purple: #c084fc;
+            --icon-color-indigo: #60a5fa;
+            --text-heading: #f3f4f6;
+            --text-subheading: #b6c2d1;
+            --text-primary: #f3f4f6;
+            --text-secondary: #b6c2d1;
+            --border-primary: #334155;
+            --border-secondary: #475569;
+            --border-hover: #818cf8;
+            --button-hv-quiz-bg: #232e4a;
+            --button-hv-quiz-text: #e0e7ef;
+            --button-hv-quiz-border: #6366f1;
+            --button-hv-quiz-bg-hover: #334155;
+            --modal-bg: #232936;
+            --modal-shadow: 0 8px 40px 0 rgba(0,0,0,0.55);
+            --tab-group-bg: #232936;
+            --tab-active-bg: #6366f1;
+            --tab-active-text: #fff;
+            --tab-inactive-text: #b6c2d1;
+            --bg-learned: #1e293b;
+            --border-learned: #38bdf8;
+            --text-learned-char: #38bdf8;
+            --text-learned-name: #bae6fd;
+            --checkmark-bg: #22d3ee;
+
+            --shadow-main: rgba(0,0,0,0.5);
+            --feature-card-border-dark: #232936;
+            --shadow-cell: rgba(30,41,59,0.12);
+            --shadow-cell-hover: rgba(99,102,241,0.18);
+            --checkmark-shadow: rgba(34,211,238,0.18);
+
+            --flashcard-front-bg: linear-gradient(135deg, #6366f1 0%, #0ea5e9 100%);
+            --flashcard-front-color: #fff;
+            --flashcard-back-bg: #232936;
+            --flashcard-back-color: #f3f4f6;
+            --flashcard-back-border: #334155;
+
+            --fc-btn-bg: #232936;
+            --fc-btn-bg-hover: #334155;
+            --fc-btn-text: #f3f4f6;
+            --fc-btn-icon: #c7d2fe;
+            --fc-btn-shadow: 0 2px 8px 0 #23293680;
+
+            --settings-btn-color: #fbbf24;
+            --settings-btn-hover: #f59e42;
+        }
+
+        /* --- STYLE CHUNG --- */
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-subheading); transition: background-color 0.3s ease; }
+        .main-container { background-color: var(--bg-container); border: 1px solid var(--border-primary); box-shadow: 0 25px 50px -12px var(--shadow-main); }
+        html.dark .main-container { box-shadow: 0 25px 50px -12px var(--shadow-main-dark); }
+        .feature-card { background: var(--bg-feature-card); border: 1px solid var(--bg-container); }
+        html.dark .feature-card { border: 1px solid var(--feature-card-border-dark); }
+        .icon-container { background-color: var(--bg-icon-container); }
+        .icon-container-inner-purple { background-color: var(--bg-icon-inner-purple); }
+        .icon-container-inner-indigo { background-color: var(--bg-icon-inner-indigo); }
+        .icon-color-purple { color: var(--icon-color-purple); }
+        .icon-color-indigo { color: var(--icon-color-indigo); }
+        .text-heading { color: var(--text-heading); }
+        .text-subheading { color: var(--text-subheading); }
+        .kanji-char {
+            color: var(--kanji-char-color) !important;
+            font-weight: 700;
+            /* Đậm hơn và sáng hơn ở darkmode */
+        }
+        .darkmode .kanji-char {
+            color: var(--kanji-char-color-dark) !important;
+            text-shadow: var(--kanji-char-shadow-dark);
+        }
+        .kanji-cell .kanji-name {
+            color: var(--kanji-name-color) !important;
+        }
+        .kanji-cell {
+            background-color: var(--bg-container);
+            border: 2px solid var(--border-primary);
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px 0 var(--shadow-cell);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 6rem;
+            padding: 0.5rem 0.25rem;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+            position: relative;
+        }
+        .kanji-cell:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 4px 16px 0 var(--shadow-cell-hover);
+            transform: translateY(-2px) scale(1.03);
+            z-index: 1;
+        }
+        .kanji-cell-learned {
+            background-color: var(--bg-learned) !important;
+            border-color: var(--border-learned) !important;
+            position: relative;
+        }
+        .kanji-cell-learned .kanji-char { color: var(--text-learned-char); }
+        .kanji-cell-learned .kanji-name { color: var(--text-learned-name); }
+        .checkmark {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: var(--checkmark-bg);
+            color: white;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            box-shadow: 0 2px 6px 0 var(--checkmark-shadow);
+        }
+        /* --- FLASHCARD FLIP EFFECT --- */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .flashcard-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.35s cubic-bezier(.4,1.2,.6,1);
+            transform-style: preserve-3d;
+        }
+        .flashcard-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            backface-visibility: hidden;
+            border-radius: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 2rem;
+            transition: background 0.3s;
+        }
+        .flashcard-front {
+            background: var(--flashcard-front-bg);
+            color: var(--flashcard-front-color);
+            z-index: 2;
+        }
+        html.dark .flashcard-front {
+            background: var(--flashcard-front-bg-dark);
+            color: var(--flashcard-front-color-dark);
+        }
+        .flashcard-back {
+            background: var(--flashcard-back-bg);
+            color: var(--flashcard-back-color);
+            border: 2px solid var(--flashcard-back-border);
+            transform: rotateY(180deg);
+            z-index: 3;
+        }
+        html.dark .flashcard-back {
+            background: var(--flashcard-back-bg-dark);
+            color: var(--flashcard-back-color-dark);
+            border: 2px solid var(--flashcard-back-border-dark);
+        }
+        /* --- TAB NAVIGATION --- */
+        #tab-nav {
+            background: var(--tab-group-bg);
+        }
+        #tab-nav .tab-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            color: var(--tab-inactive-text);
+            background: transparent;
+            border: 2px solid transparent;
+            font-weight: 600;
+        }
+        #tab-nav .tab-btn.active-tab {
+            background: var(--tab-active-bg-custom);
+            color: var(--tab-active-text-custom);
+            border: 2px solid var(--tab-active-border-custom);
+            box-shadow: 0 2px 8px 0 var(--tab-active-bg-custom);
+        }
+        #tab-nav .tab-btn:not(.active-tab):hover {
+            background: var(--tab-hover-bg-custom);
+            color: var(--tab-hover-text-custom);
+            border: 2px solid var(--tab-hover-border-custom);
+        }
+        /* --- BUTTONS --- */
+        button {
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        /* Nút quay lại */
+        #back-to-grid-from-detail,
+        #back-to-grid-from-fc,
+        #back-to-grid-from-quiz {
+            background: var(--back-btn-bg) !important;
+            color: var(--back-btn-color) !important;
+            border: 1px solid var(--back-btn-border) !important;
+            box-shadow: 0 1px 4px 0 #e0e7ef1a;
+        }
+        #back-to-grid-from-detail:hover,
+        #back-to-grid-from-fc:hover,
+        #back-to-grid-from-quiz:hover {
+            background: var(--back-btn-bg-hover) !important;
+            color: var(--back-btn-color-hover) !important;
+        }
+
+        /* --- QUIZ OPTION BUTTONS --- */
+        .quiz-option {
+            min-width: 120px;
+            min-height: 48px;
+            border-radius: 0.75rem !important;
+            border: 2px solid var(--border-primary);
+            background: var(--bg-container);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .darkmode .quiz-option {
+            background: var(--bg-container);
+            color: var(--text-primary);
+            border-color: var(--border-primary);
+        }
+        .quiz-option.selected {
+            border-color: var(--quiz-option-selected-border);
+            background: var(--quiz-option-selected-bg);
+            color: var(--quiz-option-selected-text);
+            box-shadow: var(--quiz-option-selected-shadow);
+        }
+        .darkmode .quiz-option.selected {
+            border-color: #a78bfa;
+            background: #312e81;
+            color: #c4b5fd;
+        }
+        .quiz-option.correct {
+            border-color: var(--quiz-option-correct-border) !important;
+            background: var(--quiz-option-correct-bg) !important;
+            color: var(--quiz-option-correct-text) !important;
+        }
+        .darkmode .quiz-option.correct {
+            border-color: #22d3ee !important;
+            background: #134e4a !important;
+            color: #67e8f9 !important;
+        }
+        .quiz-option.incorrect {
+            border-color: var(--quiz-option-incorrect-border) !important;
+            background: var(--quiz-option-incorrect-bg) !important;
+            color: var(--quiz-option-incorrect-text) !important;
+        }
+        .darkmode .quiz-option.incorrect {
+            border-color: #f87171 !important;
+            background: #7f1d1d !important;
+            color: #fecaca !important;
+        }
+        .quiz-option:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* --- QUIZ "THOÁT" BUTTON --- */
+        #back-to-grid-from-quiz {
+            min-width: 140px;
+            min-height: 48px;
+            border-radius: 0.75rem !important;
+            background: var(--back-btn-bg) !important;
+            color: var(--back-btn-color) !important;
+            border: 1px solid var(--back-btn-border) !important;
+            box-shadow: 0 1px 4px 0 #e0e7ef1a;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        #back-to-grid-from-quiz:hover {
+            background: var(--back-btn-bg-hover) !important;
+            color: var(--back-btn-color-hover) !important;
+        }
+
+        /* --- MODAL CONTENT SHADOW --- */
+        .modal-content {
+            background: var(--modal-bg);
+            box-shadow: var(--modal-shadow) !important;
+        }
+
+        /* --- THEME BUTTON ACTIVE --- */
+        .theme-btn.active, .theme-btn[aria-pressed="true"] {
+            border: 2px solid var(--tab-active-border-custom) !important;
+            background: var(--tab-active-bg-custom) !important;
+            color: var(--tab-active-text-custom) !important;
+            box-shadow: 0 2px 8px 0 var(--tab-active-bg-custom);
+            z-index: 1;
+        }
+        .theme-btn:not(.active):hover {
+            border: 2px solid var(--tab-hover-border-custom) !important;
+            background: var(--tab-hover-bg-custom) !important;
+            color: var(--tab-hover-text-custom) !important;
+        }
+
+        /* --- RESET BUTTON COLOR --- */
+        #reset-progress-btn {
+            background: var(--reset-btn-bg, #fef2f2) !important;
+            color: var(--reset-btn-color, #dc2626) !important;
+            border: none;
+        }
+        #reset-progress-btn:hover {
+            background: var(--reset-btn-bg-hover, #fecaca) !important;
+        }
+        html.dark #reset-progress-btn {
+            --reset-btn-bg: #7f1d1d;
+            --reset-btn-bg-hover: #991b1b;
+            --reset-btn-color: #fca5a5;
+        }
+
+        #fc-prev-btn,
+        #fc-next-btn {
+            background: var(--fc-btn-bg) !important;
+            color: var(--fc-btn-text) !important;
+            box-shadow: var(--fc-btn-shadow);
+            border: none;
+            transition: background 0.2s, color 0.2s;
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        #fc-prev-btn:hover,
+        #fc-next-btn:hover {
+            background: var(--fc-btn-bg-hover) !important;
+            color: var(--fc-btn-text) !important;
+        }
+        #fc-prev-btn svg,
+        #fc-next-btn svg {
+            width: 28px;
+            height: 28px;
+            color: var(--fc-btn-icon);
+            stroke: var(--fc-btn-icon);
+            stroke-width: 2.5;
+        }
+        #fc-prev-btn:disabled,
+        #fc-next-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Nút setting */
+        #settings-btn {
+            color: var(--settings-btn-color) !important;
+            transition: color 0.2s;
+        }
+        #settings-btn:hover {
+            color: var(--settings-btn-hover) !important;
+        }
+        .darkmode #settings-btn {
+            color: var(--settings-btn-dark) !important;
+        }
+        .darkmode #settings-btn:hover {
+            color: var(--settings-btn-dark-hover) !important;
+        }
+
+        /* Nút Học (cam, không đổ bóng sáng) */
+        #start-flashcard-btn {
+            background: var(--btn-hoc-bg) !important;
+            color: #fff !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        #start-flashcard-btn:hover {
+            background: var(--btn-hoc-hover) !important;
+        }
+
+        /* Nút Bắt đầu (xanh lá nhạt, không đổ bóng sáng) */
+        #start-vocab-quiz-btn {
+            background: var(--btn-batdau-bg) !important;
+            color: #166534 !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        #start-vocab-quiz-btn:hover {
+            background: var(--btn-batdau-hover) !important;
+            color: #166534 !important;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6">
+
+    <div class="w-full max-w-4xl mx-auto">
+        <!-- Grid View -->
+        <div id="grid-view" class="main-container p-6 sm:p-8 rounded-3xl space-y-8">
+            <header class="text-center relative">
+                <button id="settings-btn" class="absolute top-0 right-0 p-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </button>
+                <h1 class="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent py-2">Học Hán Tự N5</h1>
+                <p class="text-subheading mt-2">Chọn một Hán tự để học hoặc làm bài tập kiểm tra kiến thức của bạn</p>
+            </header>
+            
+            <div id="main-features" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="feature-card text-center p-6 rounded-2xl">
+                     <div class="icon-container backdrop-blur-sm p-3 rounded-full inline-block shadow-md"><div class="icon-container-inner-purple p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 icon-color-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg></div></div>
+                     <h2 class="text-2xl mt-4 font-bold text-heading">Flashcard Hán-Việt</h2>
+                     <p class="text-subheading mt-1 mb-6 text-sm">Học nhanh Hán tự và âm Hán-Việt</p>
+                     <div class="flex gap-3 justify-center">
+                         <button id="start-flashcard-btn" class="flex-1 font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"><span>Học</span></button>
+                         <button id="start-hv-quiz-btn" class="flex-1 font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105" style="background-color: var(--button-hv-quiz-bg); color: var(--button-hv-quiz-text); border: 2px solid var(--button-hv-quiz-border); --tw-shadow-color: var(--button-hv-quiz-border); box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);"><span>Kiểm tra</span></button>
+                     </div>
+                </div>
+                <div class="feature-card text-center p-6 rounded-2xl">
+                     <div class="icon-container backdrop-blur-sm p-3 rounded-full inline-block shadow-md"><div class="icon-container-inner-indigo p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 icon-color-indigo" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div></div>
+                     <h2 class="text-2xl mt-4 font-bold text-heading">Bài tập Từ vựng</h2>
+                     <p id="quiz-prompt-text" class="text-subheading mt-1 mb-6 text-sm">Học ít nhất 4 từ vựng để bắt đầu bài kiểm tra.</p>
+                     <button id="start-vocab-quiz-btn" class="font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center mx-auto space-x-2"><span>Bắt đầu</span></button>
+                </div>
+            </div>
+            
+            <!-- Progress bar and progress text -->
+            <div class="my-4 flex items-center gap-4">
+                <div class="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-3 bg-gradient-to-r from-blue-500 to-violet-500 transition-all duration-300" style="width:0%"></div>
+                </div>
+                <span id="progress-text" class="text-sm font-semibold text-secondary"></span>
+            </div>
+            
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-heading">Danh sách Hán tự</h2>
+                    <span id="learned-counter-pill" class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full"></span>
+                </div>
+                <div id="kanji-grid-container" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-8 gap-3 sm:gap-4"></div>
+            </div>
+        </div>
+
+        <main id="detail-view" class="main-container p-6 rounded-3xl hidden"></main>
+        <div id="quiz-view" class="main-container p-6 sm:p-8 rounded-2xl hidden"></div>
+        <div id="flashcard-view" class="bg-transparent hidden"></div>
+    </div>
+
+    <!-- Modal Cài đặt -->
+    <div id="settings-modal" class="fixed inset-0 [background-color:var(--modal-bg)] flex items-center justify-center p-4 z-50 hidden opacity-0">
+         <div class="modal-content p-6 sm:p-8 rounded-2xl w-full max-w-lg transform scale-95 transition-all duration-300">
+            <div class="flex justify-between items-center">
+                <h3 class="text-2xl font-bold text-primary">Cài đặt</h3>
+                <button id="close-settings-btn" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">&times;</button>
+            </div>
+            <div class="mt-6 border-t border-border-primary pt-6 space-y-6">
+                <div>
+                    <h4 class="text-lg font-semibold text-primary">Giao diện</h4>
+                    <p class="text-sm text-secondary mb-3">Chọn giao diện ưa thích của bạn.</p>
+                    <div class="theme-btn-group flex p-1 rounded-lg">
+                        <button data-theme="light" class="theme-btn flex-1 p-2 rounded-md font-semibold">Sáng</button>
+                        <button data-theme="dark" class="theme-btn flex-1 p-2 rounded-md font-semibold">Tối</button>
+                        <button data-theme="system" class="theme-btn flex-1 p-2 rounded-md font-semibold">Hệ thống</button>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary">Flashcard Hán-Việt</h4>
+                    <p class="text-sm text-secondary mb-3">Chọn nội dung hiển thị ở mặt trước của thẻ.</p>
+                    <div class="flex gap-4">
+                        <label class="flex-1 p-3 border-2 border-border-primary rounded-lg cursor-pointer flex items-center gap-3"><input type="radio" name="flashcard_front" value="kanji" class="form-radio h-5 w-5 text-indigo-500 bg-slate-200 dark:bg-slate-600 border-slate-300 dark:border-slate-500 focus:ring-indigo-500"><span>Hán tự</span></label>
+                        <label class="flex-1 p-3 border-2 border-border-primary rounded-lg cursor-pointer flex items-center gap-3"><input type="radio" name="flashcard_front" value="hanviet" class="form-radio h-5 w-5 text-indigo-500 bg-slate-200 dark:bg-slate-600 border-slate-300 dark:border-slate-500 focus:ring-indigo-500"><span>Hán Việt</span></label>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary">Quản lý dữ liệu</h4>
+                    <p class="text-sm text-secondary mb-3">Hành động này sẽ xóa vĩnh viễn tiến trình học của bạn.</p>
+                    <button id="reset-progress-btn" class="w-full font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        Xóa toàn bộ tiến trình
+                    </button>
+                </div>
+            </div>
+            <div class="mt-8 text-right">
+                 <button id="save-settings-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-lg">Lưu & Đóng</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal xác nhận xóa -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0">
+        <div class="modal-content p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center transform scale-95 transition-all duration-300">
+            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-900/30">
+                <svg class="h-6 w-6 text-rose-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-primary mt-5">Xóa tiến trình học?</h3>
+            <p class="mt-2 text-secondary text-sm">Hành động này không thể hoàn tác. Tất cả dữ liệu học tập của bạn sẽ bị xóa vĩnh viễn.</p>
+            <div class="mt-8 flex flex-col-reverse sm:flex-row gap-3">
+                <button id="cancel-delete-btn" class="w-full sm:flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-bold py-3 px-6 rounded-lg transition-colors">Hủy bỏ</button>
+                <button id="confirm-delete-btn" class="w-full sm:flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Vâng, xóa đi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toàn bộ JavaScript giữ nguyên
+        const kanjiData = [
+          { "char": "一", "name": "NHẤT", "kunyomi": "ひと", "onyomi": "イチ", "vocab": [ { "word": "一日", "reading": "ついたち", "meaning": "mồng 1" }, { "word": "一人で", "reading": "ひとりで", "meaning": "một mình" }, { "word": "一人", "reading": "ひとり", "meaning": "một người" }, { "word": "一つ", "reading": "ひとつ", "meaning": "một cái" }, { "word": "一番", "reading": "いちばん", "meaning": "nhất" }, { "word": "一緒に", "reading": "いっしょに", "meaning": "cùng nhau" }, { "word": "一度", "reading": "いちど", "meaning": "một lần" }, { "word": "一度も", "reading": "いちども", "meaning": "chưa lần nào" }, { "word": "一生懸命", "reading": "いっしょうけんめい", "meaning": "Sự cố gắng hết sức" } ] },
+          { "char": "二", "name": "NHỊ", "kunyomi": "ふた", "onyomi": "ニ", "vocab": [ { "word": "二日", "reading": "ふつか", "meaning": "mồng 2" }, { "word": "二人", "reading": "ふたり", "meaning": "hai người" }, { "word": "二つ", "reading": "ふたつ", "meaning": "hai cái" } ] },
+          { "char": "三", "name": "TAM", "kunyomi": "みっ", "onyomi": "サン", "vocab": [ { "word": "三日", "reading": "みっか", "meaning": "mồng 3" }, { "word": "三つ", "reading": "みっつ", "meaning": "ba cái" } ] },
+          { "char": "四", "name": "TỨ", "kunyomi": "よん、よっ、よ", "onyomi": "シ", "vocab": [ { "word": "四日", "reading": "よっか", "meaning": "mồng 4" }, { "word": "二十四日", "reading": "にじゅうよっか", "meaning": "ngày 24" }, { "word": "四つ", "reading": "よっつ", "meaning": "bốn cái" } ] },
+          { "char": "五", "name": "NGŨ", "kunyomi": "いつ", "onyomi": "ゴ", "vocab": [ { "word": "五日", "reading": "いつか", "meaning": "mồng 5" }, { "word": "五つ", "reading": "いつつ", "meaning": "năm cái" } ] },
+          { "char": "六", "name": "LỤC", "kunyomi": "むい、むっ", "onyomi": "ロク", "vocab": [ { "word": "六日", "reading": "むいか", "meaning": "mồng 6" }, { "word": "六つ", "reading": "むっつ", "meaning": "sáu cái" } ] },
+          { "char": "七", "name": "THẤT", "kunyomi": "なな、なの", "onyomi": "シチ", "vocab": [ { "word": "七日", "reading": "なのか", "meaning": "mồng 7" }, { "word": "七つ", "reading": "ななつ", "meaning": "bảy cái" } ] },
+          { "char": "八", "name": "BÁT", "kunyomi": "やっ、よう", "onyomi": "ハチ", "vocab": [ { "word": "八日", "reading": "ようか", "meaning": "mồng 8" }, { "word": "八つ", "reading": "やっつ", "meaning": "tám cái" } ] },
+          { "char": "九", "name": "CỬU", "kunyomi": "ここの", "onyomi": "ク、キュウ", "vocab": [ { "word": "九日", "reading": "ここのか", "meaning": "mồng 9" }, { "word": "九つ", "reading": "ここのつ", "meaning": "chín cái" } ] },
+          { "char": "十", "name": "THẬP", "kunyomi": "とお", "onyomi": "ジュウ、ジッ", "vocab": [ { "word": "十日", "reading": "とおか", "meaning": "mồng 10" }, { "word": "十四日", "reading": "じゅうよっか", "meaning": "ngày 14" }, { "word": "二十日", "reading": "はつか", "meaning": "ngày 20" }, { "word": "十", "reading": "とお", "meaning": "mười cái" } ] },
+          { "char": "百", "name": "BÁCH", "kunyomi": "-", "onyomi": "ヒャク、ヒャッ-、ピャク、ビャク", "vocab": [] },
+          { "char": "千", "name": "THIÊN", "kunyomi": "-", "onyomi": "セン、ゼン", "vocab": [] },
+          { "char": "万", "name": "VẠN", "kunyomi": "-", "onyomi": "マン、バン", "vocab": [] },
+          { "char": "円", "name": "VIÊN", "kunyomi": "-", "onyomi": "エン", "vocab": [ { "word": "円", "reading": "えん", "meaning": "yên" } ] },
+          { "char": "日", "name": "NHẬT", "kunyomi": "ひ、び、か", "onyomi": "ニチ、ジツ", "vocab": [ { "word": "日曜日", "reading": "にちようび", "meaning": "chủ nhật" }, { "word": "何曜日", "reading": "なんようび", "meaning": "thứ mấy" }, { "word": "昨日", "reading": "きのう", "meaning": "hôm qua" }, { "word": "今日", "reading": "きょう", "meaning": "hôm nay" }, { "word": "明日", "reading": "あした", "meaning": "ngày mai" }, { "word": "毎日", "reading": "まいにち", "meaning": "mỗi ngày" }, { "word": "何日", "reading": "なんにち", "meaning": "ngày mấy" }, { "word": "誕生日", "reading": "たんじょうび", "meaning": "sinh nhật" }, { "word": "日記", "reading": "にっき", "meaning": "nhật kí" }, { "word": "日本", "reading": "にほん", "meaning": "Nhật Bản" }, { "word": "日本酒", "reading": "にほんしゅ", "meaning": "Rượu Nhật" }, { "word": "日", "reading": "ひ", "meaning": "ngày" }, { "word": "日本製", "reading": "にほんせい", "meaning": "hàng Nhật" } ] },
+          { "char": "月", "name": "NGUYỆT", "kunyomi": "つき", "onyomi": "ゲツ、ガツ", "vocab": [ { "word": "月曜日", "reading": "げつようび", "meaning": "thứ hai" }, { "word": "先月", "reading": "せんげつ", "meaning": "tháng trước" }, { "word": "今月", "reading": "こんげつ", "meaning": "tháng này" }, { "word": "来月", "reading": "らいげつ", "meaning": "tháng sau" }, { "word": "何月", "reading": "なんがつ", "meaning": "tháng mấy" }, { "word": "毎月", "reading": "まいげつ", "meaning": "mỗi tháng" }, { "word": "~ヶ月", "reading": "~かげつ", "meaning": "~ tháng" } ] },
+          { "char": "火", "name": "HỎA", "kunyomi": "ひ", "onyomi": "カ", "vocab": [ { "word": "火曜日", "reading": "かようび", "meaning": "thứ ba" } ] },
+          { "char": "水", "name": "THỦY", "kunyomi": "みず", "onyomi": "スイ", "vocab": [ { "word": "水曜日", "reading": "すいようび", "meaning": "thứ tư" }, { "word": "水", "reading": "みず", "meaning": "nước" } ] },
+          { "char": "木", "name": "MỘC", "kunyomi": "き", "onyomi": "ボク、モク", "vocab": [ { "word": "木曜日", "reading": "もくようび", "meaning": "thứ năm" }, { "word": "木", "reading": "き", "meaning": "cây, gỗ" } ] },
+          { "char": "金", "name": "KIM", "kunyomi": "かね", "onyomi": "キン", "vocab": [ { "word": "金曜日", "reading": "きんようび", "meaning": "thứ sáu" }, { "word": "お金", "reading": "おかね", "meaning": "tiền" }, { "word": "現金", "reading": "げんきん", "meaning": "tiền mặt" }, { "word": "細かいお金", "reading": "こまかいおかね", "meaning": "tiền lẻ" }, { "word": "貯金箱", "reading": "ちょきんばこ", "meaning": "Hộp tiết kiệm" } ] },
+          { "char": "土", "name": "THỔ", "kunyomi": "つち", "onyomi": "ド", "vocab": [ { "word": "土曜日", "reading": "どようび", "meaning": "thứ bảy" } ] },
+          { "char": "人", "name": "NHÂN", "kunyomi": "ひと", "onyomi": "ジン、ニン", "vocab": [ { "word": "あの人", "reading": "あのひと", "meaning": "người đó" }, { "word": "~人", "reading": "~じん", "meaning": "người (nước)" }, { "word": "人", "reading": "ひと", "meaning": "người" }, { "word": "男の人", "reading": "おとこのひと", "meaning": "người đàn ông" }, { "word": "女の人", "reading": "おんなのひと", "meaning": "người phụ nữ" }, { "word": "[人が~]多い", "reading": "[ひとが~]おおい", "meaning": "nhiều [người]" }, { "word": "[人が~]少ない", "reading": "[ひとが~]すくない", "meaning": "ít [người]" }, { "word": "恋人", "reading": "こいびと", "meaning": "người yêu" } ] },
+          { "char": "先", "name": "TIÊN", "kunyomi": "さき", "onyomi": "セン", "vocab": [ { "word": "先生", "reading": "せんせい", "meaning": "thầy/cô" }, { "word": "先週", "reading": "せんしゅう", "meaning": "tuần trước" } ] },
+          { "char": "生", "name": "SINH", "kunyomi": "い・きる、う・まれる", "onyomi": "セイ、ショウ", "vocab": [ { "word": "学生", "reading": "がくせい", "meaning": "học sinh" }, { "word": "留学生", "reading": "りゅうがくせい", "meaning": "du học sinh" }, { "word": "生活", "reading": "せいかつ", "meaning": "cuộc sống" }, { "word": "生まれます", "reading": "うまれる", "meaning": "được sinh ra" } ] },
+          { "char": "学", "name": "HỌC", "kunyomi": "まな・ぶ", "onyomi": "ガク", "vocab": [ { "word": "大学", "reading": "だいがく", "meaning": "đại học" }, { "word": "学校", "reading": "がっこう", "meaning": "trường học" }, { "word": "見学します", "reading": "けんがくする", "meaning": "tham quan học tập" }, { "word": "留学します", "reading": "りゅうがくする", "meaning": "du học" } ] },
+          { "char": "方", "name": "PHƯƠNG", "kunyomi": "かた（がた）", "onyomi": "ホウ", "vocab": [ { "word": "(あの方)", "reading": "(あのかた)", "meaning": "vị kia" }, { "word": "夕方", "reading": "ゆうがた", "meaning": "buổi chiều" }, { "word": "~方", "reading": "~かた", "meaning": "cách ~" }, { "word": "読み方", "reading": "よみかた", "meaning": "cách đọc" }, { "word": "仕方がない", "reading": "しかたがない", "meaning": "không còn cách nào khác" } ] },
+          { "char": "何", "name": "HÀ", "kunyomi": "なん、なに", "onyomi": "カ", "vocab": [ { "word": "何", "reading": "なん", "meaning": "cái gì" }, { "word": "何時", "reading": "なんじ", "meaning": "mấy giờ" }, { "word": "何分", "reading": "なんぷん", "meaning": "mấy phút" }, { "word": "何", "reading": "なに", "meaning": "cái gì, gì" } ] },
+          { "char": "今", "name": "KIM", "kunyomi": "いま", "onyomi": "コン", "vocab": [ { "word": "今", "reading": "いま", "meaning": "bây giờ" }, { "word": "今朝", "reading": "けさ", "meaning": "sáng nay" }, { "word": "今晩", "reading": "こんばん", "meaning": "tối nay" }, { "word": "今夜", "reading": "こんや", "meaning": "đêm nay" }, { "word": "今週", "reading": "こんしゅう", "meaning": "tuần này" }, { "word": "今年", "reading": "ことし", "meaning": "năm nay" } ] },
+          { "char": "分", "name": "PHÂN", "kunyomi": "わ・かる、わ・ける", "onyomi": "ブン、フン、プン", "vocab": [ { "word": "分かります", "reading": "わかります", "meaning": "hiểu" }, { "word": "自分で", "reading": "じぶんで", "meaning": "tự mình" } ] },
+          { "char": "半", "name": "BÁN", "kunyomi": "-", "onyomi": "ハン", "vocab": [ { "word": "半", "reading": "はん", "meaning": "rưỡi, nửa" } ] },
+          { "char": "時", "name": "THỜI", "kunyomi": "とき", "onyomi": "ジ", "vocab": [ { "word": "時計", "reading": "とけい", "meaning": "đồng hồ" }, { "word": "時々", "reading": "ときどき", "meaning": "thỉnh thoảng" }, { "word": "時間", "reading": "じかん", "meaning": "thời gian" }, { "word": "~時間", "reading": "~じかん", "meaning": "~ tiếng" }, { "word": "時刻表", "reading": "じこくひょう", "meaning": "bảng giờ tàu chạy" } ] },
+          { "char": "年", "name": "NIÊN", "kunyomi": "とし", "onyomi": "ネン", "vocab": [ { "word": "去年", "reading": "きょねん", "meaning": "năm ngoái" }, { "word": "来年", "reading": "らいねん", "meaning": "năm sau" }, { "word": "毎年", "reading": "まいとし", "meaning": "mỗi năm" }, { "word": "~年", "reading": "~ねん", "meaning": "~ năm" } ] },
+          { "char": "本", "name": "BẢN", "kunyomi": "もと", "onyomi": "ホン、ポン", "vocab": [ { "word": "本", "reading": "ほん", "meaning": "sách" }, { "word": "本の気持ち", "reading": "ほんのきもち", "meaning": "chút lòng thành" }, { "word": "本社", "reading": "ほんしゃ", "meaning": "Trụ sở chính" }, { "word": "本屋", "reading": "ほんや", "meaning": "hiệu sách" }, { "word": "本棚", "reading": "ほんだな", "meaning": "giá sách" }, { "word": "本当に", "reading": "ほんとうに", "meaning": "thật sự" } ] },
+          { "char": "休", "name": "HƯU", "kunyomi": "やす・みます", "onyomi": "キュウ", "vocab": [ { "word": "休み", "reading": "やすみ", "meaning": "ngày nghỉ" }, { "word": "昼休み", "reading": "ひるやすみ", "meaning": "nghỉ trưa" }, { "word": "休みます", "reading": "やすみます", "meaning": "nghỉ ngơi" }, { "word": "休む", "reading": "やすむ", "meaning": "nghỉ ngơi" } ] },
+          { "char": "校", "name": "HIỆU", "kunyomi": "-", "onyomi": "コウ", "vocab": [ { "word": "校長", "reading": "こうちょう", "meaning": "hiệu trưởng" }, { "word": "高校", "reading": "こうこう", "meaning": "trường THPT" } ] },
+          { "char": "帰", "name": "QUY", "kunyomi": "かえ・ります", "onyomi": "キ", "vocab": [ { "word": "帰ります", "reading": "かえります", "meaning": "về" } ] },
+          { "char": "行", "name": "HÀNH", "kunyomi": "い・きます、おこな・います", "onyomi": "コウ、ギョウ", "vocab": [ { "word": "銀行員", "reading": "ぎんこういん", "meaning": "nhân viên ngân hàng" }, { "word": "銀行", "reading": "ぎんこう", "meaning": "ngân hàng" }, { "word": "行きます", "reading": "いきます", "meaning": "đi" }, { "word": "飛行機", "reading": "ひこうき", "meaning": "máy bay" }, { "word": "旅行します", "reading": "りょこうする", "meaning": "du lịch" }, { "word": "持って行きます", "reading": "もっていく", "meaning": "mang đi" } ] },
+          { "char": "来", "name": "LAI", "kunyomi": "き・ます、く・る", "onyomi": "ライ", "vocab": [ { "word": "~から来ました", "reading": "~からきました", "meaning": "đến từ ~" }, { "word": "来ます", "reading": "きます", "meaning": "đến" }, { "word": "持って来ます", "reading": "もってくる", "meaning": "mang đến" }, { "word": "将来", "reading": "しょうらい", "meaning": "tương lai" } ] },
+          { "char": "車", "name": "XA", "kunyomi": "くるま", "onyomi": "シャ", "vocab": [ { "word": "運転手", "reading": "うんてんしゅ", "meaning": "tài xế" }, { "word": "車", "reading": "くるま", "meaning": "ô tô" }, { "word": "電車", "reading": "でんしゃ", "meaning": "tàu điện" }, { "word": "自転車", "reading": "じてんしゃ", "meaning": "xe đạp" }, { "word": "地下鉄", "reading": "ちかてつ", "meaning": "tàu điện ngầm" }, { "word": "運転します", "reading": "うんてんする", "meaning": "lái xe" } ] },
+          { "char": "書", "name": "THƯ", "kunyomi": "か・きます", "onyomi": "ショ", "vocab": [ { "word": "辞書", "reading": "じしょ", "meaning": "từ điển" }, { "word": "図書館", "reading": "としょかん", "meaning": "thư viện" }, { "word": "書きます", "reading": "かきます", "meaning": "viết" }, { "word": "葉書", "reading": "はがき", "meaning": "bưu thiếp" }, { "word": "電子辞書", "reading": "でんしじしょ", "meaning": "kim từ điển" } ] },
+          { "char": "食", "name": "THỰC", "kunyomi": "た・べます", "onyomi": "ショク", "vocab": [ { "word": "食堂", "reading": "しょくどう", "meaning": "nhà ăn" }, { "word": "食べ物", "reading": "たべもの", "meaning": "đồ ăn" }, { "word": "食べます", "reading": "たべます", "meaning": "ăn" }, { "word": "食事します", "reading": "しょくじする", "meaning": "dùng bữa" }, { "word": "夕食", "reading": "ゆうしょく", "meaning": "cơm chiều" } ] },
+          { "char": "飲", "name": "ẨM", "kunyomi": "の・みます", "onyomi": "イン", "vocab": [ { "word": "飲みます", "reading": "のみます", "meaning": "uống" }, { "word": "飲み物", "reading": "のみもの", "meaning": "đồ uống" } ] },
+          { "char": "見", "name": "KIẾN", "kunyomi": "み・ます", "onyomi": "ケン", "vocab": [ { "word": "[お]花見", "reading": "[お]はなみ", "meaning": "ngắm hoa anh đào" }, { "word": "見ます", "reading": "みます", "meaning": "xem, nhìn" }, { "word": "見せます", "reading": "みせる", "meaning": "cho xem" }, { "word": "意見", "reading": "いけん", "meaning": "ý kiến" } ] },
+          { "char": "聞", "name": "VĂN", "kunyomi": "き・きます", "onyomi": "ブン", "vocab": [ { "word": "新聞", "reading": "しんぶん", "meaning": "báo" }, { "word": "聞きます", "reading": "ききます", "meaning": "nghe" }, { "word": "[先生に~]聞きます", "reading": "[せんせいに~]きく", "meaning": "hỏi [giáo viên]" } ] },
+          { "char": "新", "name": "TÂN", "kunyomi": "あたら・しい", "onyomi": "シン", "vocab": [ { "word": "新しい", "reading": "あたらしい", "meaning": "mới" } ] },
+          { "char": "肉", "name": "NHỤC", "kunyomi": "-", "onyomi": "ニク", "vocab": [ { "word": "肉", "reading": "にく", "meaning": "thịt" } ] },
+          { "char": "魚", "name": "NGƯ", "kunyomi": "うお、さかな", "onyomi": "ギョ", "vocab": [ { "word": "魚", "reading": "さかな", "meaning": "cá" } ] },
+          { "char": "牛", "name": "NGƯU", "kunyomi": "うし", "onyomi": "ギュウ", "vocab": [ { "word": "牛肉", "reading": "ぎゅうにく", "meaning": "thịt bò" }, { "word": "牛丼", "reading": "ぎゅうどん", "meaning": "cơm thịt bò" }, { "word": "牛乳", "reading": "ぎゅうにゅう", "meaning": "sữa" } ] },
+          { "char": "茶", "name": "TRÀ", "kunyomi": "-", "onyomi": "チャ、サ", "vocab": [ { "word": "お茶", "reading": "おちゃ", "meaning": "trà" }, { "word": "喫茶店", "reading": "きっさてん", "meaning": "quán cà phê" }, { "word": "お茶碗", "reading": "おちゃわん", "meaning": "bát" }, { "word": "茶道", "reading": "さどう", "meaning": "trà đạo" } ] },
+          { "char": "物", "name": "VẬT", "kunyomi": "もの", "onyomi": "ブツ、モツ", "vocab": [ { "word": "物価", "reading": "ぶっか", "meaning": "vật giá" }, { "word": "買い物します", "reading": "かいものする", "meaning": "mua sắm" }, { "word": "物", "reading": "もの", "meaning": "vật, đồ vật" }, { "word": "動物", "reading": "どうぶつ", "meaning": "động vật" }, { "word": "荷物", "reading": "にもつ", "meaning": "hành lý" } ] },
+          { "char": "花", "name": "HOA", "kunyomi": "はな", "onyomi": "カ", "vocab": [ { "word": "花", "reading": "はな", "meaning": "hoa" } ] },
+          { "char": "買", "name": "MÃI", "kunyomi": "か・います", "onyomi": "バイ", "vocab": [ { "word": "買います", "reading": "かいます", "meaning": "mua" } ] },
+          { "char": "読", "name": "ĐỘC", "kunyomi": "よ・みます", "onyomi": "ドク", "vocab": [ { "word": "読みます", "reading": "よみます", "meaning": "đọc" } ] },
+          { "char": "手", "name": "THỦ", "kunyomi": "て", "onyomi": "ズ、シュ", "vocab": [ { "word": "手帳", "reading": "てちょう", "meaning": "sổ tay" }, { "word": "お手洗い", "reading": "おてあらい", "meaning": "phòng vệ sinh" }, { "word": "上手", "reading": "じょうず[な]", "meaning": "giỏi, khéo" }, { "word": "下手", "reading": "へた[な]", "meaning": "kém" }, { "word": "手", "reading": "て", "meaning": "tay" }, { "word": "手紙", "reading": "てがみ", "meaning": "thư" }, { "word": "手伝う", "reading": "てつだいます", "meaning": "giúp đỡ" } ] },
+          { "char": "少", "name": "THIỂU", "kunyomi": "すく・ない、すこ・し", "onyomi": "ショウ", "vocab": [ { "word": "少し", "reading": "すこし", "meaning": "một ít" }, { "word": "もう少し", "reading": "もうすこし", "meaning": "thêm một chút" } ] },
+          { "char": "間", "name": "GIAN", "kunyomi": "あいだ、ま", "onyomi": "カン", "vocab": [ { "word": "この間", "reading": "このあいだ", "meaning": "vừa rồi" }, { "word": "間", "reading": "あいだ", "meaning": "giữa" } ] },
+          { "char": "内", "name": "NỘI", "kunyomi": "うち", "onyomi": "ナイ", "vocab": [ { "word": "家内", "reading": "かない", "meaning": "vợ (mình)" }, { "word": "案内します", "reading": "あんないする", "meaning": "hướng dẫn" } ] },
+          { "char": "田", "name": "ĐIỀN", "kunyomi": "た(だ)", "onyomi": "-", "vocab": [ { "word": "田舎", "reading": "いなか", "meaning": "quê, nông thôn" } ] },
+          { "char": "町", "name": "ĐINH", "kunyomi": "まち", "onyomi": "チョウ", "vocab": [ { "word": "町", "reading": "まち", "meaning": "thị trấn" } ] },
+          { "char": "電", "name": "ĐIỆN", "kunyomi": "-", "onyomi": "デン", "vocab": [ { "word": "電話", "reading": "でんわ", "meaning": "điện thoại" }, { "word": "電気", "reading": "でんき", "meaning": "điện" }, { "word": "電話番号", "reading": "でんわばんごう", "meaning": "số điện thoại" }, { "word": "電池", "reading": "でんち", "meaning": "pin" }, { "word": "電話します", "reading": "でんわする", "meaning": "gọi điện thoại" } ] },
+          { "char": "気", "name": "KHÍ", "kunyomi": "-", "onyomi": "キ", "vocab": [ { "word": "元気", "reading": "げんき[な]", "meaning": "khỏe mạnh" }, { "word": "天気", "reading": "てんき", "meaning": "thời tiết" }, { "word": "病気", "reading": "びょうき", "meaning": "bệnh" }, { "word": "気をつける", "reading": "きをつけます", "meaning": "chú ý" } ] },
+          { "char": "山", "name": "SƠN", "kunyomi": "やま", "onyomi": "サン", "vocab": [ { "word": "山", "reading": "やま", "meaning": "núi" }, { "word": "富士山", "reading": "ふじさん", "meaning": "núi Phú Sĩ" }, { "word": "[山に~]登る", "reading": "[やまに~]のぼる", "meaning": "leo [núi]" } ] },
+          { "char": "川", "name": "XUYÊN", "kunyomi": "かわ", "onyomi": "-", "vocab": [ { "word": "川", "reading": "かわ", "meaning": "sông" } ] },
+          { "char": "中", "name": "TRUNG", "kunyomi": "なか", "onyomi": "チュウ、ジュウ", "vocab": [ { "word": "中国", "reading": "ちゅうごく", "meaning": "Trung Quốc" }, { "word": "中", "reading": "なか", "meaning": "trong, giữa" }, { "word": "会議中", "reading": "かいぎちゅう", "meaning": "đang họp" }, { "word": "勉強", "reading": "べんきょう", "meaning": "việc học" }, { "word": "勉強します", "reading": "べんきょうします", "meaning": "học" } ] },
+          { "char": "外", "name": "NGOẠI", "kunyomi": "そと、はか・す、はず・します", "onyomi": "ガイ", "vocab": [ { "word": "外国", "reading": "がいこく", "meaning": "nước ngoài" }, { "word": "そと", "meaning": "ngoài" } ] },
+          { "char": "下", "name": "HẠ", "kunyomi": "した、さ・がります、お・ります、お・ろします", "onyomi": "カ、ゲ", "vocab": [ { "word": "靴下", "reading": "くつした", "meaning": "tất" }, { "word": "地下", "reading": "ちか", "meaning": "tầng hầm" }, { "word": "下", "reading": "した", "meaning": "dưới" }, { "word": "下着", "reading": "したぎ", "meaning": "áo lót" } ] },
+          { "char": "上", "name": "THƯỢNG", "kunyomi": "うえ、うわ、あ・がります、あ・げます、のぼ・ります", "onyomi": "ジョウ", "vocab": [ { "word": "上", "reading": "うえ", "meaning": "trên" }, { "word": "上着", "reading": "うわぎ", "meaning": "áo khoác" } ] },
+          { "char": "左", "name": "TẢ", "kunyomi": "ひだり", "onyomi": "サ", "vocab": [ { "word": "左", "reading": "ひだり", "meaning": "trái" } ] },
+          { "char": "右", "name": "HỮU", "kunyomi": "みぎ", "onyomi": "ウ", "vocab": [ { "word": "右", "reading": "みぎ", "meaning": "phải" }, { "word": "[右へ~]曲がる", "reading": "[みぎへ~]まがる", "meaning": "rẽ [phải]" } ] },
+          { "char": "大", "name": "ĐẠI", "kunyomi": "おお・きい", "onyomi": "ダイ、タイ", "vocab": [ { "word": "大きい", "reading": "おおきい", "meaning": "to, lớn" }, { "word": "大切", "reading": "たいせつ[な]", "meaning": "quan trọng" }, { "word": "大丈夫", "reading": "だいじょうぶ[な]", "meaning": "không sao" }, { "word": "大変", "reading": "たいへん[な]", "meaning": "vất vả" }, { "word": "大使館", "reading": "たいしかん", "meaning": "đại sứ quán" }, { "word": "大体", "reading": "だいたい", "meaning": "đại khái" }, { "word": "大阪城", "reading": "おおさかじょう", "meaning": "lâu đài Osaka" } ] },
+          { "char": "小", "name": "TIỂU", "kunyomi": "ちい・さい", "onyomi": "ショウ", "vocab": [ { "word": "小さい", "reading": "ちいさい", "meaning": "nhỏ, bé" } ] },
+          { "char": "古", "name": "CỔ", "kunyomi": "ふる・い", "onyomi": "コ", "vocab": [ { "word": "古い", "reading": "ふるい", "meaning": "cũ" } ] },
+          { "char": "高", "name": "CAO", "kunyomi": "たか・い", "onyomi": "コウ", "vocab": [ { "word": "高い", "reading": "たかい", "meaning": "đắt, cao" }, { "word": "背が高い", "reading": "せがたかい", "meaning": "cao (người)" } ] },
+          { "char": "安", "name": "AN", "kunyomi": "やす・い", "onyomi": "アン", "vocab": [ { "word": "安い", "reading": "やすい", "meaning": "rẻ" } ] },
+          { "char": "多", "name": "ĐA", "kunyomi": "おお・い", "onyomi": "タ", "vocab": [ { "word": "多分", "reading": "たぶん", "meaning": "có lẽ" } ] },
+          { "char": "男", "name": "NAM", "kunyomi": "おとこ", "onyomi": "ダン、ナン", "vocab": [ { "word": "男の子", "reading": "おとこのこ", "meaning": "cậu bé" } ] },
+          { "char": "女", "name": "NỮ", "kunyomi": "おんな", "onyomi": "ジョ", "vocab": [ { "word": "彼女", "reading": "かのじょ", "meaning": "cô ấy, bạn gái" }, { "word": "女の子", "reading": "おんなのこ", "meaning": "cô bé" } ] },
+          { "char": "子", "name": "TỬ", "kunyomi": "こ、ご", "onyomi": "シ、ス", "vocab": [ { "word": "子供", "reading": "こども", "meaning": "trẻ con" }, { "word": "[子供が~]居る", "reading": "[こどもが~]いる", "meaning": "có [con]" }, { "word": "椅子", "reading": "いす", "meaning": "ghế" }, { "word": "帽子", "reading": "ぼうし", "meaning": "mũ" }, { "word": "お菓子", "reading": "[お]かし", "meaning": "bánh kẹo" }, { "word": "調子", "reading": "ちょうし", "meaning": "tình trạng" } ] },
+          { "char": "父", "name": "PHỤ", "kunyomi": "ちち", "onyomi": "フ", "vocab": [ { "word": "父", "reading": "ちち", "meaning": "bố (mình)" }, { "word": "お父さん", "reading": "おとうさん", "meaning": "bố" }, { "word": "お祖父さん", "reading": "おじいさん", "meaning": "ông" } ] },
+          { "char": "母", "name": "MẪU", "kunyomi": "はは", "onyomi": "ボ", "vocab": [ { "word": "母", "reading": "はは", "meaning": "mẹ (mình)" }, { "word": "お母さん", "reading": "おかあさん", "meaning": "mẹ" }, { "word": "お祖母さん", "reading": "おばあさん", "meaning": "bà" } ] },
+          { "char": "友", "name": "HỮU", "kunyomi": "とも", "onyomi": "ユウ", "vocab": [ { "word": "友達", "reading": "ともだち", "meaning": "bạn bè" } ] },
+          { "char": "名", "name": "DANH", "kunyomi": "な", "onyomi": "メイ、ミョウ", "vocab": [ { "word": "有名", "reading": "ゆうめい[な]", "meaning": "nổi tiếng" }, { "word": "名刺", "reading": "めいし", "meaning": "danh thiếp" }, { "word": "名前", "reading": "なまえ", "meaning": "tên" } ] },
+          { "char": "音", "name": "ÂM", "kunyomi": "おと、ね", "onyomi": "オン", "vocab": [ { "word": "音楽", "reading": "おんがく", "meaning": "âm nhạc" }, { "word": "音", "reading": "おと", "meaning": "âm thanh" } ] },
+          { "char": "字", "name": "TỰ", "kunyomi": "-", "onyomi": "ジ", "vocab": [ { "word": "字", "reading": "じ", "meaning": "chữ" }, { "word": "漢字", "reading": "かんじ", "meaning": "chữ Hán" } ] },
+          { "char": "雨", "name": "VŨ", "kunyomi": "あめ", "onyomi": "ウ", "vocab": [ { "word": "雨", "reading": "あめ", "meaning": "mưa" }, { "word": "[雨が~]降る", "reading": "[あめが~]ふる", "meaning": "mưa" } ] },
+          { "char": "寺", "name": "TỰ", "kunyomi": "てら", "onyomi": "ジ", "vocab": [ { "word": "お寺", "reading": "おてら", "meaning": "Chùa" }, { "word": "[お]寺", "reading": "[お]てら", "meaning": "chùa" } ] },
+          { "char": "米", "name": "MỄ", "kunyomi": "こめ", "onyomi": "マイ", "vocab": [] },
+          { "char": "出", "name": "XUẤT", "kunyomi": "で・ます、で・かける、だ・します", "onyomi": "シュツ", "vocab": [ { "word": "出身", "reading": "しゅっしん", "meaning": "xuất thân" }, { "word": "出かける", "reading": "でかけます", "meaning": "ra ngoài" }, { "word": "[喫茶店を~]出る", "reading": "[きっさてんを~]でる", "meaning": "ra khỏi [quán]" }, { "word": "[大学を~]出る", "reading": "[だいがくを~]でる", "meaning": "tốt nghiệp [đại học]" }, { "word": "[レポートを~]出す", "reading": "[レポートを~]だす", "meaning": "nộp [báo cáo]" }, { "word": "出張します", "reading": "しゅっちょうする", "meaning": "đi công tác" } ] },
+          { "char": "入", "name": "NHẬP", "kunyomi": "い・れます、はい・ります、い・る", "onyomi": "ニュウ", "vocab": [ { "word": "[喫茶店に~]入る", "reading": "[きっさてんに~]はいる", "meaning": "vào [quán]" }, { "word": "入れる", "reading": "いれます", "meaning": "cho vào" }, { "word": "[大学に~]入る", "reading": "[だいがくに~]はいる", "meaning": "nhập học [đại học]" }, { "word": "入る", "reading": "はいります", "meaning": "vào" }, { "word": "押入れ", "reading": "おしいれ", "meaning": "tủ âm tường" }, { "word": "[コーヒーを~]入れる", "reading": "[コーヒーを~]いれる", "meaning": "pha [cà phê]" } ] },
+          { "char": "立", "name": "LẬP", "kunyomi": "た・ちます", "onyomi": "リツ、リッ", "vocab": [ { "word": "立ちます", "reading": "たちます", "meaning": "đứng" }, { "word": "役に立つ", "reading": "やくにたちます", "meaning": "giúp ích" } ] },
+          { "char": "言", "name": "NGÔN", "kunyomi": "い・います、こと", "onyomi": "ゲン、ゴン", "vocab": [ { "word": "言います", "reading": "いいます", "meaning": "nói" }, { "word": "言葉", "reading": "ことば", "meaning": "từ, tiếng" } ] },
+          { "char": "話", "name": "THOẠI", "kunyomi": "はな・します、はなし", "onyomi": "ワ", "vocab": [ { "word": "会話", "reading": "かいわ", "meaning": "hội thoại" }, { "word": "話します", "reading": "はなします", "meaning": "nói chuyện" }, { "word": "[お]話", "reading": "[お]はなし", "meaning": "câu chuyện" }, { "word": "お話します", "reading": "おはなしします", "meaning": "Kể chuyện" } ] },
+          { "char": "力", "name": "LỰC", "kunyomi": "ちから", "onyomi": "リョク", "vocab": [] },
+          { "char": "長", "name": "TRƯỜNG", "kunyomi": "なが・い", "onyomi": "チョウ", "vocab": [ { "word": "校長", "reading": "こうちょう", "meaning": "hiệu trưởng" }, { "word": "課長", "reading": "かちょう", "meaning": "tổ trưởng" }, { "word": "部長", "reading": "ぶちょう", "meaning": "trưởng phòng" }, { "word": "社長", "reading": "しゃちょう", "meaning": "giám đốc" }, { "word": "長い", "reading": "ながい", "meaning": "dài" } ] },
+          { "char": "明", "name": "MINH", "kunyomi": "あか・るい、あ・ける", "onyomi": "メイ", "vocab": [ { "word": "明るい", "reading": "あかるい", "meaning": "sáng sủa" }, { "word": "説明します", "reading": "せつめいする", "meaning": "giải thích" } ] },
+          { "char": "暗", "name": "ÁM", "kunyomi": "くら・い", "onyomi": "アン", "vocab": [ { "word": "暗い", "reading": "くらい", "meaning": "tối" } ] },
+          { "char": "元", "name": "NGUYÊN", "kunyomi": "もと", "onyomi": "ゲン、ガン", "vocab": [] },
+          { "char": "好", "name": "HẢO", "kunyomi": "す・きな", "onyomi": "コウ", "vocab": [ { "word": "好き", "reading": "すき[な]", "meaning": "thích" } ] },
+          { "char": "足", "name": "TÚC", "kunyomi": "あし、た・ります", "onyomi": "ソク", "vocab": [ { "word": "足", "reading": "あし", "meaning": "chân" }, { "word": "足りる", "reading": "たります", "meaning": "đủ" } ] },
+          { "char": "東", "name": "ĐÔNG", "kunyomi": "ひがし", "onyomi": "トウ", "vocab": [] },
+          { "char": "西", "name": "TÂY", "kunyomi": "にし", "onyomi": "セイ", "vocab": [] },
+          { "char": "南", "name": "NAM", "kunyomi": "みなみ", "onyomi": "ナン", "vocab": [] },
+          { "char": "北", "name": "BẮC", "kunyomi": "きた", "onyomi": "ホク", "vocab": [] },
+          { "char": "夕", "name": "TỊCH", "kunyomi": "-", "onyomi": "ユウ", "vocab": [] },
+          { "char": "石", "name": "THẠCH", "kunyomi": "いし", "onyomi": "セキ", "vocab": [] },
+          { "char": "体", "name": "THỂ", "kunyomi": "からだ", "onyomi": "タイ", "vocab": [ { "word": "体", "reading": "からだ", "meaning": "cơ thể" }, { "word": "体にいい", "reading": "からだにいい", "meaning": "tốt cho sức khỏe" } ] },
+          { "char": "目", "name": "MỤC", "kunyomi": "め", "onyomi": "モク", "vocab": [ { "word": "目", "reading": "め", "meaning": "mắt" }, { "word": "~目", "reading": "~め", "meaning": "thứ ~ (thứ tự)" }, { "word": "目が覚める", "reading": "めがさめる", "meaning": "Tỉnh giấc" } ] },
+          { "char": "耳", "name": "NHĨ", "kunyomi": "みみ", "onyomi": "ジ", "vocab": [ { "word": "耳", "reading": "みみ", "meaning": "tai" } ] },
+          { "char": "口", "name": "KHẨU", "kunyomi": "くち", "onyomi": "コウ", "vocab": [ { "word": "口", "reading": "くち", "meaning": "miệng" } ] },
+          { "char": "鳥", "name": "ĐIỂU", "kunyomi": "とり", "onyomi": "チョウ", "vocab": [ { "word": "鳥", "reading": "とり", "meaning": "chim" } ] },
+          { "char": "犬", "name": "KHUYỂN", "kunyomi": "いぬ", "onyomi": "ケン", "vocab": [ { "word": "犬", "reading": "いぬ", "meaning": "chó" } ] },
+          { "char": "竹", "name": "TRÚC", "kunyomi": "たけ", "onyomi": "チク", "vocab": [] },
+          { "char": "貝", "name": "BỐI", "kunyomi": "かい", "onyomi": "バイ", "vocab": [] },
+          { "char": "林", "name": "LÂM", "kunyomi": "はやし", "onyomi": "リン", "vocab": [] },
+          { "char": "森", "name": "SÂM", "kunyomi": "もり", "onyomi": "シン", "vocab": [] },
+          { "char": "畑", "name": "(Không có Hán Việt)", "kunyomi": "はたけ", "onyomi": "-", "vocab": [] },
+          { "char": "門", "name": "MÔN", "kunyomi": "-", "onyomi": "モン", "vocab": [ { "word": "専門", "reading": "せんもん", "meaning": "chuyên môn" } ] },
+          { "char": "岩", "name": "NHAM", "kunyomi": "いわ", "onyomi": "ガン", "vocab": [] }
+        ]
+        
+        // --- GLOBAL STATE & DOM ELEMENTS ---
+        const gridView = document.getElementById('grid-view');
+        const detailView = document.getElementById('detail-view');
+        const quizView = document.getElementById('quiz-view');
+        const flashcardView = document.getElementById('flashcard-view');
+
+        const kanjiGridContainer = document.getElementById('kanji-grid-container');
+        const learnedCounterPill = document.getElementById('learned-counter-pill');
+
+        // Settings Modal
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsBtn = document.getElementById('close-settings-btn');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const resetProgressBtn = document.getElementById('reset-progress-btn');
+        
+        // Confirm Modal
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+
+        // Feature Buttons
+        const startFlashcardBtn = document.getElementById('start-flashcard-btn');
+        const startHVQuizBtn = document.getElementById('start-hv-quiz-btn');
+        const startVocabQuizBtn = document.getElementById('start-vocab-quiz-btn');
+        const quizPromptText = document.getElementById('quiz-prompt-text');
+
+
+        let learnedIndices = [];
+        let currentDetailIndex = -1;
+        let currentFlashcardIndex = 0;
+        let quizItems = [];
+        let currentQuizIndex = 0;
+        
+        // --- LOCAL STORAGE KEYS ---
+        const LEARNED_STORAGE_KEY = 'kanji_learned_indices';
+        const SETTINGS_STORAGE_KEY = 'kanji_app_settings';
+
+        let appSettings = {
+            flashcardFront: 'kanji', // Default setting
+            theme: 'system' // Default theme
+        };
+
+        // --- CORE FUNCTIONS ---
+        function loadData() {
+            const storedLearned = localStorage.getItem(LEARNED_STORAGE_KEY);
+            learnedIndices = storedLearned ? JSON.parse(storedLearned) : [];
+            const storedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+            if (storedSettings) {
+                appSettings = JSON.parse(storedSettings);
+            }
+        }
+        function saveData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+        
+        function updateProgressUI() {
+            const learnedCount = learnedIndices.length;
+            const totalCount = kanjiData.length;
+            const percentage = totalCount > 0 ? (learnedCount / totalCount) * 100 : 0;
+            document.getElementById('progress-text').textContent = `${learnedCount}/${totalCount}`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            learnedCounterPill.textContent = `${learnedCount} đã học`;
+        }
+
+        // --- THEME MANAGEMENT ---
+        function applyTheme() {
+            const theme = appSettings.theme;
+            const root = document.documentElement;
+            const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            root.classList.toggle('darkmode', isDark);
+
+            // Update settings modal UI
+            const themeBtns = settingsModal.querySelectorAll('.theme-btn');
+            themeBtns.forEach(btn => {
+                const isActive = btn.dataset.theme === theme;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        }
+        
+        // --- VIEW MANAGEMENT ---
+        function showView(viewId) {
+            [gridView, detailView, quizView, flashcardView].forEach(view => {
+                view.classList.toggle('hidden', view.id !== viewId);
+            });
+        }
+        
+        // --- GRID VIEW ---
+        function renderGridView() {
+            kanjiGridContainer.innerHTML = '';
+            kanjiData.forEach((kanji, index) => {
+                const isLearned = learnedIndices.includes(index);
+                const cell = document.createElement('div');
+                cell.className = `kanji-cell flex flex-col items-center justify-center p-2 rounded-2xl h-24 shadow-sm hover:shadow-lg hover:border-sky-300 dark:hover:border-sky-700 cursor-pointer transform hover:-translate-y-1 transition-all duration-300${isLearned ? ' kanji-cell-learned' : ''}`;
+                cell.setAttribute('data-index', index);
+                cell.innerHTML = `${isLearned ? '<div class="checkmark">✓</div>' : ''}<div class="text-4xl font-bold kanji-char text-slate-800 dark:text-slate-200">${kanji.char}</div><div class="text-sm text-slate-500 dark:text-slate-400 mt-1 kanji-name font-medium">${kanji.name}</div>`;
+                kanjiGridContainer.appendChild(cell);
+            });
+            updateQuizButtonState();
+            updateProgressUI();
+        }
+
+        // --- QUIZ BUTTON STATE ---
+        function updateQuizButtonState() {
+            // Enable/disable vocab quiz button based on learned vocab count
+            const learnedVocab = getLearnedVocab();
+            if (startVocabQuizBtn) {
+                startVocabQuizBtn.disabled = learnedVocab.length < 4;
+            }
+            if (quizPromptText) {
+                quizPromptText.textContent = learnedVocab.length < 4
+                    ? "Học ít nhất 4 từ vựng để bắt đầu bài kiểm tra."
+                    : "Bạn đã đủ điều kiện để làm bài kiểm tra từ vựng!";
+            }
+        }
+
+        // --- GET LEARNED VOCAB ---
+        function getLearnedVocab() {
+            // Trả về mảng các từ vựng đã học (dựa trên các kanji đã đánh dấu đã học)
+            const vocab = [];
+            learnedIndices.forEach(idx => {
+                const kanji = kanjiData[idx];
+                if (kanji && Array.isArray(kanji.vocab)) {
+                    kanji.vocab.forEach(v => vocab.push({ ...v, sourceKanjiIndex: idx }));
+                }
+            });
+            return vocab;
+        }
+
+        // --- DETAIL VIEW ---
+        function renderDetailView() {
+            detailView.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <button id="back-to-grid-from-detail" class="bg-slate-200/70 hover:bg-slate-300/80 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-semibold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>Quay lại</button>
+                    <button id="mark-as-learned-btn" class="font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center"></button>
+                </div>
+                <div class="border-b border-border-primary flex justify-center">
+                  <nav id="tab-nav" class="flex space-x-2 p-1 rounded-full" aria-label="Tabs">
+                    <button class="tab-btn" data-tab="learn">Học</button>
+                    <button class="tab-btn" data-tab="writing">Cách viết</button>
+                    <button class="tab-btn" data-tab="vocab">Từ vựng</button>
+                  </nav>
+                </div>
+                <div id="tab-content" class="mt-6 min-h-[350px]"></div>
+            `;
+            updateDetailContent(currentDetailIndex, 'learn');
+        }
+        function updateDetailContent(index, activeTab) {
+            const kanji = kanjiData[index];
+            const isLearned = learnedIndices.includes(index);
+            const markBtn = detailView.querySelector('#mark-as-learned-btn');
+            markBtn.disabled = isLearned;
+            markBtn.innerHTML = isLearned ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg> Đã học' : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V4zm2 1v1h6V5H7zm6 3H7v1h6V8zm0 2H7v1h6v-1z" /></svg>Đánh dấu đã học';
+            markBtn.className = `font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center transform hover:scale-105 ${isLearned ? 'bg-slate-400 cursor-not-allowed text-white' : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'}`;
+            const tabNav = detailView.querySelector('#tab-nav');
+            // Đặt active tab
+            tabNav.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active-tab', btn.dataset.tab === (activeTab || 'learn'));
+            });
+            const tabContent = detailView.querySelector('#tab-content');
+            const hexCode = kanji.char.charCodeAt(0).toString(16);
+            const gifUrl = `https://raw.githubusercontent.com/mistval/kanji_images/master/gifs/${hexCode}.gif`;
+            tabContent.innerHTML = `
+                <div id="learn-tab" class="tab-panel${(activeTab === 'learn' || !activeTab) ? '' : ' hidden'}"><div class="flex flex-col items-center justify-center text-center p-4"><h2 class="text-9xl font-black text-primary">${kanji.char}</h2><h3 class="text-4xl font-bold text-sky-600 dark:text-sky-400 mt-4">${kanji.name}</h3><div class="mt-8 text-left text-xl space-y-3 bg-secondary p-6 rounded-lg border border-border-primary shadow-inner dark:shadow-slate-900/50"><p><strong>Kun'yomi:</strong> <span class="font-semibold text-rose-600 dark:text-rose-400">${kanji.kunyomi || 'N/A'}</span></p><p><strong>On'yomi:</strong> <span class="font-semibold text-rose-600 dark:text-rose-400">${kanji.onyomi || 'N/A'}</span></p></div></div></div>
+                <div id="writing-tab" class="tab-panel${activeTab === 'writing' ? '' : ' hidden'}"><div class="flex flex-col items-center justify-center p-4"><p class="text-secondary mb-4">Thứ tự các nét viết của chữ Hán.</p><img src="${gifUrl}" class="bg-white rounded-lg shadow-md w-64 h-64 border" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" ><p class="text-rose-500 mt-4 hidden">Không tìm thấy ảnh GIF cho Hán tự này.</p></div></div>
+                <div id="vocab-tab" class="tab-panel${activeTab === 'vocab' ? '' : ' hidden'}"><table class="w-full text-left"><thead class="bg-slate-100/80 dark:bg-slate-700/50"><tr class="border-b-2 border-border-primary"><th class="p-3 font-semibold text-secondary">Từ vựng</th><th class="p-3 font-semibold text-secondary">Cách đọc</th><th class="p-3 font-semibold text-secondary">Nghĩa</th></tr></thead><tbody>${(kanji.vocab && kanji.vocab.length > 0) ? kanji.vocab.map(v => `<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700"><td class="p-3 text-primary font-medium">${v.word}</td><td class="p-3 text-rose-600 dark:text-rose-400">${v.reading}</td><td class="p-3 text-secondary">${v.meaning}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center p-4 text-secondary">Chưa có từ vựng cho Hán tự này.</td></tr>'}</tbody></table></div>
+            `;
+            // Tab click event
+            tabNav.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.onclick = () => {
+                    updateDetailContent(index, btn.dataset.tab);
+                };
+            });
+        }
+
+        // --- FLASHCARD VIEW ---
+        function renderFlashcardView() {
+            currentFlashcardIndex = 0;
+            flashcardView.innerHTML = `
+                 <div class="main-container bg-secondary/60 backdrop-blur-xl p-6 rounded-3xl shadow-2xl shadow-blue-200/40 border border-slate-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <button id="back-to-grid-from-fc" class="bg-slate-200/70 hover:bg-slate-300/80 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-semibold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>Quay lại
+                        </button>
+                        <div id="fc-progress" class="text-secondary font-semibold"></div>
+                    </div>
+                    <div id="fc-card-container" class="w-full h-80 perspective-1000 cursor-pointer">
+                        <div class="flashcard-inner relative w-full h-full">
+                            <div class="flashcard-front"></div>
+                            <div class="flashcard-back"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-6">
+                        <button id="fc-prev-btn" class="p-3 rounded-full shadow-md transition-colors disabled:opacity-50"
+        style="background: var(--fc-btn-bg); color: var(--fc-btn-text);">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <polyline points="15 19 8 12 15 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="text-sm text-secondary">Chạm vào thẻ để lật</div>
+                        <button id="fc-next-btn" class="p-3 rounded-full shadow-md transition-colors"
+        style="background: var(--fc-btn-bg); color: var(--fc-btn-text);">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <polyline points="9 5 16 12 9 19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            updateFlashcard();
+            showView('flashcard-view');
+            const fcCardContainer = flashcardView.querySelector('#fc-card-container');
+            const fcCardInner = flashcardView.querySelector('.flashcard-inner');
+            fcCardContainer.addEventListener('click', function(e) {
+                if (e.target.closest('#fc-prev-btn') || e.target.closest('#fc-next-btn')) return;
+                fcCardInner.classList.toggle('is-flipped');
+            });
+        }
+        function updateFlashcard() {
+            const card = kanjiData[currentFlashcardIndex];
+            const frontEl = flashcardView.querySelector('.flashcard-front');
+            const backEl = flashcardView.querySelector('.flashcard-back');
+            
+            const frontText = appSettings.flashcardFront === 'kanji' ? card.char : card.name;
+            const backText = appSettings.flashcardFront === 'kanji' ? card.name : card.char;
+            
+            frontEl.innerHTML = `<span class="text-7xl sm:text-8xl font-black">${frontText}</span>`;
+            backEl.innerHTML = `<span class="text-5xl sm:text-6xl font-bold">${backText}</span>`;
+
+            flashcardView.querySelector('#fc-progress').textContent = `${currentFlashcardIndex + 1} / ${kanjiData.length}`;
+            flashcardView.querySelector('#fc-prev-btn').disabled = currentFlashcardIndex === 0;
+            flashcardView.querySelector('#fc-next-btn').disabled = currentFlashcardIndex === kanjiData.length - 1;
+            // Đảm bảo mặt trước luôn hiển thị khi chuyển thẻ
+            const fcCardInner = flashcardView.querySelector('.flashcard-inner');
+            fcCardInner.classList.remove('is-flipped');
+        }
+
+        // --- QUIZ VIEW ---
+        function renderQuizView(quizType) {
+            quizView.innerHTML = `
+                <header class="text-center mb-6">
+                    <h1 class="text-3xl font-bold text-primary">${quizType === 'vocab' ? 'Kiểm tra Từ vựng' : 'Kiểm tra Hán-Việt'}</h1>
+                    <p id="quiz-progress-text" class="text-secondary mt-2"></p>
+                </header>
+                <div id="quiz-content" class="min-h-[300px]">
+                    <div class="text-center p-6" style="background: var(--bg-container); color: var(--text-primary); border-radius: 1rem; box-shadow: 0 2px 8px 0 var(--shadow-cell);">
+                        <p id="quiz-question-prompt" class="text-lg text-secondary mb-2" style="color: var(--text-secondary);">${/* text-secondary for subtitle */''}</p>
+                        <h2 id="quiz-question" class="text-6xl font-black" style="color: var(--text-heading);"></h2>
+                    </div>
+                    <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6"></div>
+                </div>
+                <div class="flex justify-center items-center mt-4 h-12 gap-4">
+                    <button id="back-to-grid-from-quiz" class="text-secondary hover:text-primary font-semibold">Thoát</button>
+                    <button id="next-question-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300 hidden">Câu tiếp theo &rarr;</button>
+                    <button id="finish-quiz-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300 hidden">Hoàn thành</button>
+                </div>
+            `;
+            showView('quiz-view');
+        }
+        function displayVocabQuestion() {
+            const questionData = quizItems[currentQuizIndex];
+            quizView.querySelector('#quiz-question').textContent = questionData.word;
+            quizView.querySelector('#quiz-question-prompt').textContent = `Cách đọc của từ này là gì?`;
+            quizView.querySelector('#quiz-progress-text').textContent = `Câu ${currentQuizIndex + 1} / ${quizItems.length}`;
+            
+            const correctAnswer = questionData.reading;
+            const allPossibleAnswers = kanjiData.flatMap(k => k.vocab.map(v => v.reading));
+            const uniqueAnswers = [...new Set(allPossibleAnswers)].filter(Boolean);
+            const distractors = uniqueAnswers.filter(ans => ans !== correctAnswer);
+            
+            displayQuizOptions(correctAnswer, distractors);
+        }
+        function displayHVQuestion() {
+            const questionData = quizItems[currentQuizIndex];
+            quizView.querySelector('#quiz-question').textContent = questionData.char;
+            quizView.querySelector('#quiz-question-prompt').textContent = `Âm Hán-Việt của chữ này là gì?`;
+            quizView.querySelector('#quiz-progress-text').textContent = `Câu ${currentQuizIndex + 1} / ${quizItems.length}`;
+            
+            const correctAnswer = questionData.name;
+            const allPossibleAnswers = kanjiData.map(k => k.name);
+            const distractors = allPossibleAnswers.filter(ans => ans !== correctAnswer);
+            
+            displayQuizOptions(correctAnswer, distractors);
+        }
+        function displayQuizOptions(correctAnswer, distractors) {
+            for (let i = distractors.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [distractors[i], distractors[j]] = [distractors[j], distractors[i]];}
+            const finalOptions = [correctAnswer, ...distractors.slice(0, 3)];
+            for (let i = finalOptions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [finalOptions[i], finalOptions[j]] = [finalOptions[j], finalOptions[i]];}
+
+            const optionsContainer = quizView.querySelector('#quiz-options');
+            optionsContainer.innerHTML = '';
+            finalOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'quiz-option text-left p-4 border-2 rounded-lg';
+                button.textContent = option;
+                if (option === correctAnswer) { button.dataset.correct = 'true'; }
+                button.onclick = function() {
+                    if (optionsContainer.dataset.answered) return;
+                    // Bỏ chọn tất cả
+                    optionsContainer.querySelectorAll('.quiz-option').forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                };
+                optionsContainer.appendChild(button);
+            });
+            optionsContainer.dataset.answered = '';
+        }
+
+        function handleQuizAnswer(e) {
+            const selectedButton = e.target.closest('.quiz-option');
+            if (!selectedButton || selectedButton.parentElement.dataset.answered) return;
+
+            // Đánh dấu đã chọn
+            selectedButton.parentElement.querySelectorAll('.quiz-option').forEach(btn => btn.classList.remove('selected'));
+            selectedButton.classList.add('selected');
+
+            selectedButton.parentElement.dataset.answered = 'true';
+            const isCorrect = selectedButton.dataset.correct === 'true';
+
+            if (isCorrect) {
+                selectedButton.classList.add('correct');
+            } else {
+                selectedButton.classList.add('incorrect');
+                const correctButton = quizView.querySelector('.quiz-option[data-correct="true"]');
+                if (correctButton) correctButton.classList.add('correct');
+                
+                const kanjiToUnlearnIndex = quizItems[currentQuizIndex].sourceKanjiIndex;
+                const indexInLearned = learnedIndices.indexOf(kanjiToUnlearnIndex);
+                if (indexInLearned > -1) {
+                    learnedIndices.splice(indexInLearned, 1);
+                    saveData(LEARNED_STORAGE_KEY, learnedIndices);
+                }
+            }
+
+            // Disable all options after answer
+            selectedButton.parentElement.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
+
+            if (currentQuizIndex < quizItems.length - 1) {
+                quizView.querySelector('#next-question-btn').classList.remove('hidden');
+            } else {
+                quizView.querySelector('#finish-quiz-btn').classList.remove('hidden');
+            }
+        }
+        
+        // --- EVENT LISTENERS ---
+        document.addEventListener('click', (e) => {
+            const target = e.target;
+            const closestButton = target.closest('button');
+            const targetId = target.id || closestButton?.id;
+
+            switch(true) {
+                case target.closest('.kanji-cell') !== null:
+                    const index = parseInt(target.closest('.kanji-cell').dataset.index, 10);
+                    currentDetailIndex = index;
+                    renderDetailView();
+                    showView('detail-view');
+                    break;
+                case targetId === 'settings-btn': openSettingsModal(); break;
+                case targetId === 'back-to-grid-from-detail' || targetId === 'back-to-grid-from-fc' || targetId === 'back-to-grid-from-quiz':
+                    showView('grid-view');
+                    renderGridView(); // Đảm bảo cập nhật lại trạng thái đã học khi quay lại
+                    break;
+                case target.closest('.tab-btn') !== null: switchTab(target.closest('.tab-btn').dataset.tab); break;
+                case targetId === 'mark-as-learned-btn':
+                    if (currentDetailIndex !== -1 && !learnedIndices.includes(currentDetailIndex)) {
+                        learnedIndices.push(currentDetailIndex);
+                        saveData(LEARNED_STORAGE_KEY, learnedIndices);
+                        updateDetailContent(currentDetailIndex);
+                        renderGridView(); // Cập nhật lại grid ngay khi đánh dấu đã học
+                    }
+                    break;
+                case targetId === 'start-flashcard-btn': renderFlashcardView(); break;
+                case target.closest('#fc-card-container') !== null: target.closest('#fc-card-container').classList.toggle('is-flipped'); break;
+                case targetId === 'fc-prev-btn': if (currentFlashcardIndex > 0) { currentFlashcardIndex--; updateFlashcard(); } break;
+                case targetId === 'fc-next-btn': if (currentFlashcardIndex < kanjiData.length - 1) { currentFlashcardIndex++; updateFlashcard(); } break;
+                case targetId === 'start-vocab-quiz-btn':
+                    quizItems = getLearnedVocab();
+                    renderQuizView('vocab');
+                    currentQuizIndex = 0;
+                    displayVocabQuestion();
+                    break;
+                case targetId === 'start-hv-quiz-btn':
+                    quizItems = kanjiData.map((k, i) => ({...k, sourceKanjiIndex: i}));
+                    renderQuizView('hv');
+                    currentQuizIndex = 0;
+                    displayHVQuestion();
+                    break;
+                case target.closest('.quiz-option') !== null: handleQuizAnswer(e); break;
+                case targetId === 'next-question-btn':
+                    currentQuizIndex++;
+                    quizView.querySelector('#next-question-btn').classList.add('hidden');
+                    quizView.querySelector('h1').textContent.includes('Từ vựng') ? displayVocabQuestion() : displayHVQuestion();
+                    break;
+                case targetId === 'finish-quiz-btn': showView('grid-view'); break;
+                case targetId === 'close-settings-btn' || targetId === 'save-settings-btn': closeSettingsModal(); break;
+                case targetId === 'reset-progress-btn': openConfirmModal(); break;
+                case targetId === 'cancel-delete-btn' || target.id === 'confirm-modal': closeConfirmModal(); break;
+                case targetId === 'confirm-delete-btn':
+                    learnedIndices = [];
+                    saveData(LEARNED_STORAGE_KEY, learnedIndices);
+                    renderGridView();
+                    closeConfirmModal();
+                    if(!settingsModal.classList.contains('hidden')) closeSettingsModal();
+                    break;
+            }
+        });
+
+        // --- MODAL & SETTINGS LOGIC ---
+        function openSettingsModal() {
+            settingsModal.querySelector(`input[value="${appSettings.flashcardFront}"]`).checked = true;
+            settingsModal.querySelectorAll('.theme-btn').forEach(btn => btn.onclick = () => {
+                appSettings.theme = btn.dataset.theme;
+                applyTheme();
+            });
+            settingsModal.classList.remove('hidden');
+            setTimeout(() => {
+                settingsModal.classList.remove('opacity-0');
+                settingsModal.querySelector('.modal-content').classList.remove('scale-95');
+            }, 10);
+        }
+        function closeSettingsModal() {
+            appSettings.flashcardFront = settingsModal.querySelector('input[name="flashcard_front"]:checked').value;
+            saveData(SETTINGS_STORAGE_KEY, appSettings);
+            settingsModal.classList.add('opacity-0');
+            settingsModal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => settingsModal.classList.add('hidden'), 300);
+        }
+        function openConfirmModal() {
+            confirmModal.classList.remove('hidden');
+            setTimeout(() => {
+                confirmModal.classList.remove('opacity-0');
+                confirmModal.querySelector('.modal-content').classList.remove('scale-95');
+            }, 10);
+        }
+        function closeConfirmModal() {
+            confirmModal.classList.add('opacity-0');
+            confirmModal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => confirmModal.classList.add('hidden'), 300);
+        }
+        
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            loadData();
+            applyTheme();
+            renderGridView(); // <--- Thêm dòng này để hiển thị danh sách Hán tự
+            showView('grid-view');
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+        };
+    </script>
+</body>
+</html>
