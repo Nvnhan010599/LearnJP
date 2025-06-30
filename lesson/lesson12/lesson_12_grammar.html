@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 12 - Ngữ pháp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .japanese-text, h1, h2, h3, .main-tab, h4 { font-family: 'Noto Sans JP', sans-serif; }
+        rt { color: #c0392b; }
+        .main-tab.active { color: #2563eb; border-color: #2563eb; background-color: #eff6ff; }
+        .main-tab { transition: color 0.2s, border-color 0.2s, background-color 0.2s; }
+        .grammar-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+        .grammar-toggle .arrow-icon { transition: transform 0.3s ease-in-out; }
+        .grammar-toggle.expanded .arrow-icon { transform: rotate(180deg); }
+        /* Notes Section Styles */
+        #note-editor { min-height: 150px; }
+        .note-display-item { border-left: 4px solid #a5b4fc; }
+        .note-source-title { font-size: 0.8rem; font-weight: 600; color: #4338ca; }
+        .note-content p { margin-bottom: 0.5rem; }
+        #note-status, #copy-status { transition: opacity 0.5s ease-out; }
+        .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 0 1px #ccc; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="mb-6 flex items-center justify-between">
+            <div class="w-1/4 text-left">
+                 <a href="../curriculum.html" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors whitespace-nowrap">
+                    &larr; Quay lại
+                </a>
+            </div>
+            <div class="w-1/2 text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-yellow-700 japanese-text">
+                    Bài 12: Anh ấy đẹp trai hơn tôi
+                </h1>
+            </div>
+            <div class="w-1/4"></div>
+        </header>
+
+        <!-- Main Navigation Tabs -->
+        <div class="mb-8 border-b-2 border-gray-200 sticky top-0 bg-gray-100 z-10">
+             <nav class="flex -mb-px" aria-label="Tabs">
+                 <a href="lesson_12_kanji.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Kanji
+                </a>
+                <a href="lesson_12_vocabulary.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Từ vựng
+                </a>
+                <a href="lesson_12_grammar.html" class="main-tab active text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Ngữ pháp
+                </a>
+                <a href="lesson_12_kaiwa.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Hội thoại
+                </a>
+                <a href="lesson_12_practice.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Bài tập
+                </a>
+            </nav>
+        </div>
+
+        <main>
+            <div id="grammar-section" class="space-y-4">
+                <!-- Grammar Point 1 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-blue-600 japanese-text">① Quá khứ của Tính từ và Danh từ</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-blue-100" data-section-title="① Quá khứ của Tính từ và Danh từ" title="Thêm ghi chú"><svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4 space-y-4">
+                        <div class="p-4 bg-gray-50 rounded-md">
+                            <h4 class="font-bold mb-2 text-gray-700">1. Tính từ đuôi な / Danh từ</h4>
+                            <p class="japanese-text mb-1">Khẳng định: <code class="bg-gray-200 p-1 rounded">N/A(な) + でした</code> (Đã...)</p>
+                            <p class="japanese-text">Phủ định: <code class="bg-gray-200 p-1 rounded">N/A(な) + じゃありませんでした</code> (Đã không...)</p>
+                             <ul class="list-disc list-inside space-y-2 mt-3 japanese-text">
+                                <li><ruby>昨日<rt>きのう</rt></ruby>の<ruby>天気<rt>てんき</rt></ruby>は<ruby>雨<rt>あめ</rt></ruby>でした。</li>
+                                <li>ハロン<ruby>湾<rt>わん</rt></ruby>はにぎやかでした。</li>
+                                <li><ruby>昨日<rt>きのう</rt></ruby>の<ruby>試験<rt>しけん</rt></ruby>は<ruby>簡単<rt>かんたん</rt></ruby>じゃありませんでした。</li>
+                             </ul>
+                        </div>
+                         <div class="p-4 bg-gray-50 rounded-md">
+                            <h4 class="font-bold mb-2 text-gray-700">2. Tính từ đuôi い</h4>
+                            <p class="japanese-text mb-1">Khẳng định: <code class="bg-gray-200 p-1 rounded">A<del>い</del> + かったです</code> (Đã...)</p>
+                            <p class="japanese-text">Phủ định: <code class="bg-gray-200 p-1 rounded">A<del>い</del> + くなかったです</code> (Đã không...)</p>
+                             <ul class="list-disc list-inside space-y-2 mt-3 japanese-text">
+                                <li><ruby>昨日<rt>きのう</rt></ruby>、<ruby>涼<rt>すず</rt></ruby>しかったです。</li>
+                                <li><ruby>試験<rt>しけん</rt></ruby>は<ruby>難<rt>むずか</rt></ruby>しくなかったです。</li>
+                                <li><ruby>仕事<rt>しごと</rt></ruby>は<ruby>忙<rt>いそが</rt></ruby>しかったです。</li>
+                             </ul>
+                        </div>
+                        <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>昨日<rt>きのう</rt></ruby>、いい<ruby>天気<rt>てんき</rt></ruby>でしたか。</li>
+                                 <li><ruby>日本<rt>にほん</rt></ruby>の<ruby>生活<rt>せいかつ</rt></ruby>はべんりでしたか。</li>
+                                 <li><ruby>元恋人<rt>もとこいびと</rt></ruby>はきれいでしたか。</li>
+                                 <li><ruby>日本語<rt>にほんご</rt></ruby>はむずかしかったですか。</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+                <!-- Grammar Point 2 -->
+                 <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-green-600 japanese-text">② N1 は N2 より + Tính từ です</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-green-100" data-section-title="② So sánh hơn (~より)" title="Thêm ghi chú"><svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Dùng khi muốn so sánh 2 danh từ với nhau. N1 "tính từ" hơn N2.</p>
+                         <div class="p-4 bg-green-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-green-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                            <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                <li><ruby>飛行機<rt>ひこうき</rt></ruby>はバイクよりずっと<ruby>速<rt>はや</rt></ruby>いです。</li>
+                                <li><ruby>中国<rt>ちゅうごく</rt></ruby>はベトナムよりずっと<ruby>人<rt>ひと</rt></ruby>が<ruby>多<rt>おお</rt></ruby>いです。</li>
+                                <li><ruby>京都<rt>きょうと</rt></ruby>は<ruby>東京<rt>とうきょう</rt></ruby>より<ruby>暖<rt>あたた</rt></ruby>かい<ruby>町<rt>まち</rt></ruby>です。</li>
+                                <li>UyenさんはMinhさんより<ruby>漢字<rt>かんじ</rt></ruby>が<ruby>上手<rt>じょうず</rt></ruby>です。</li>
+                            </ul>
+                        </div>
+                         <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li>なつ / あき / あつい</li>
+                                 <li>りんご / みかん / あまい</li>
+                                 <li>ビール / ワイン / すき</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+                <!-- Grammar Point 3 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-purple-600 japanese-text">③ N1 と N2 と どちらが + Tính từ ですか</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-purple-100" data-section-title="③ So sánh lựa chọn" title="Thêm ghi chú"><svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Dùng khi muốn so sánh 2 danh từ với nhau và đưa ra lựa chọn. "N1 và N2 thì cái nào 'tính từ' hơn?".</p>
+                        <div class="p-4 bg-gray-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-gray-700">Cách trả lời:</h4>
+                            <p class="japanese-text mb-1"><code class="bg-gray-200 p-1 rounded">N1/N2 のほうが tính từ です。</code> (N1/N2 ~ hơn.)</p>
+                            <p class="japanese-text"><code class="bg-gray-200 p-1 rounded">どちらも tính từ です。</code> (Cả hai đều ~.)</p>
+                        </div>
+                        <div class="p-4 bg-purple-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-purple-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                             <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>日本語<rt>にほんご</rt></ruby>と<ruby>英語<rt>えいご</rt></ruby>とどちらが<ruby>難<rt>むずか</rt></ruby>しいですか。→ どちらも<ruby>難<rt>むずか</rt></ruby>しいです。</li>
+                                 <li><ruby>海<rt>うみ</rt></ruby>と<ruby>山<rt>やま</rt></ruby>とどちらが<ruby>好<rt>す</rt></ruby>きですか。→ <ruby>山<rt>やま</rt></ruby>よりうみのほうが<ruby>好<rt>す</rt></ruby>きです。</li>
+                             </ul>
+                        </div>
+                         <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li>アメリカ - <ruby>日本<rt>にほん</rt></ruby> - <ruby>大<rt>おお</rt></ruby>きい</li>
+                                 <li><ruby>中国<rt>ちゅうごく</rt></ruby>の<ruby>料理<rt>りょうり</rt></ruby> - ベトナムの<ruby>料理<rt>りょうり</rt></ruby> - おいしい</li>
+                                 <li><ruby>冬<rt>ふゆ</rt></ruby> - <ruby>夏<rt>なつ</rt></ruby> - <ruby>寒<rt>さむ</rt></ruby>い</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+                 <!-- Grammar Point 4 -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-yellow-600 japanese-text">④ N の中で A が いちばん + Tính từ です</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-yellow-100" data-section-title="④ So sánh nhất" title="Thêm ghi chú"><svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Dùng để nói A là "tính từ" nhất trong phạm vi N.</p>
+                         <div class="p-4 bg-yellow-50 rounded-md mb-4">
+                             <h4 class="font-bold mb-2 text-yellow-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                             <ul class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li>クラスの<ruby>中<rt>なか</rt></ruby>でリンさんがいちばん<ruby>背<rt>せ</rt></ruby>が<ruby>高<rt>たか</rt></ruby>いです。</li>
+                                 <li>ベトナムの<ruby>一年<rt>いちねん</rt></ruby>でいつがいちばん<ruby>暑<rt>あつ</rt></ruby>いですか。→ <ruby>夏<rt>なつ</rt></ruby>がいちばん<ruby>暑<rt>あつ</rt></ruby>いです。</li>
+                                 <li><ruby>日本<rt>にほん</rt></ruby>でどこがいちばんぎやかですか。→ <ruby>東京<rt>とうきょう</rt></ruby>がいちばんにぎやかです。</li>
+                                 <li><ruby>食<rt>た</rt></ruby>べ<ruby>物<rt>もの</rt></ruby>の<ruby>中<rt>なか</rt></ruby>で<ruby>何<rt>なに</rt></ruby>がいちばん<ruby>好<rt>す</rt></ruby>きですか。→ <ruby>寿司<rt>すし</rt></ruby>がいちばん<ruby>好<rt>す</rt></ruby>きです。</li>
+                             </ul>
+                        </div>
+                        <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>季節<rt>きせつ</rt></ruby>の<ruby>中<rt>なか</rt></ruby>で...</li>
+                                 <li>クラスの<ruby>中<rt>なか</rt></ruby>で...</li>
+                                 <li><ruby>会社<rt>かいしゃ</rt></ruby>の<ruby>中<rt>なか</rt></ruby>で...</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+                <!-- Notes Section -->
+                <section class="bg-white p-6 rounded-lg shadow-md mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Ghi chú cá nhân</h2>
+                    <div id="notes-display-area" class="space-y-4"></div>
+                    <div class="flex items-center justify-end mt-4 gap-2">
+                         <span id="copy-status" class="text-green-600 font-semibold opacity-0 mr-4">Đã sao chép!</span>
+                         <button id="copy-all-notes-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Sao chép tất cả</button>
+                         <button id="clear-all-notes-btn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">Xóa tất cả</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+         <footer class="text-center mt-12 py-4 border-t">
+            <p class="text-gray-500">Tạo bởi nvnhan, Dung Mori và Gemini</p>
+        </footer>
+    </div>
+    
+    <!-- Modals and Scripts -->
+    <!-- ... (Modal and script content from lesson 9) ... -->
+     <script>
+        // All JS logic for this page
+        document.querySelectorAll('.grammar-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('expanded');
+                const content = toggle.nextElementSibling;
+                if (content.style.maxHeight) { content.style.maxHeight = null; }
+                else { content.style.maxHeight = content.scrollHeight + "px"; }
+            });
+        });
+    </script>
+</body>
+</html>
