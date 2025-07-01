@@ -47,6 +47,23 @@
         .search-container { position: relative; }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
         
+        /* Hide learned words */
+        .vocab-row.hide-learned { display: none; }
+        
+        /* Stats bar */
+        .stats-bar { display: flex; justify-content: space-between; padding: 8px 12px; background-color: #f3f4f6; border-radius: 8px; margin-bottom: 12px; }
+        .stats-item { display: flex; align-items: center; }
+        .stats-icon { margin-right: 6px; font-size: 1.2rem; }
+        .stats-value { font-weight: bold; }
+        
+        /* Toggle button */
+        .toggle-btn {
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .toggle-btn:active {
+            transform: scale(0.98);
+        }
+        
         @media (max-width: 768px) {
             .main-tab { font-size: 14px; padding: 8px 4px; }
             .mobile-menu-btn { display: block; }
@@ -55,6 +72,8 @@
             .flashcard-face { font-size: 1.5rem; }
             #flashcard { height: 200px; }
             h1 { font-size: 1.5rem; }
+            .stats-bar { flex-direction: column; gap: 8px; }
+            .btn-group { flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -126,16 +145,35 @@
                     <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
                 <div class="collapsible-content border-t mt-4 pt-4">
+                    <!-- Stats Bar -->
+                    <div id="stats-bar" class="stats-bar">
+                        <div class="stats-item">
+                            <i class="fas fa-book stats-icon text-blue-500"></i>
+                            <span>Tổng từ: <span id="total-words" class="stats-value">0</span></span>
+                        </div>
+                        <div class="stats-item">
+                            <i class="fas fa-check-circle stats-icon text-green-500"></i>
+                            <span>Đã học: <span id="learned-words" class="stats-value">0</span></span>
+                        </div>
+                        <div class="stats-item">
+                            <i class="fas fa-eye-slash stats-icon text-purple-500"></i>
+                            <span>Chế độ: <span id="hide-status" class="stats-value">Hiện tất cả</span></span>
+                        </div>
+                    </div>
+                    
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
                         <div class="search-container w-full sm:w-1/2">
                             <i class="fas fa-search search-icon"></i>
                             <input type="text" id="vocab-search" placeholder="Tìm từ vựng..." class="w-full pl-10 py-2 border rounded-lg">
                         </div>
-                        <div class="flex gap-2">
-                            <button id="kanji-toggle-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+                        <div class="flex flex-wrap gap-2 btn-group">
+                            <button id="kanji-toggle-btn" class="toggle-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
                                 <i class="fas fa-kanji mr-1"></i> Hiện Kanji
                             </button>
-                            <button id="reset-learned" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+                            <button id="toggle-learned-btn" class="toggle-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+                                <i class="fas fa-eye-slash mr-1"></i> Ẩn từ đã học
+                            </button>
+                            <button id="reset-learned" class="toggle-btn bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
                                 <i class="fas fa-sync mr-1"></i> Reset
                             </button>
                         </div>
@@ -262,7 +300,36 @@
             
             // --- Vocab Table Logic ---
             const vocabTableBody = document.querySelector('#vocab-table tbody');
-            const learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
+            let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
+            let hideLearned = localStorage.getItem('hideLearned') === 'true';
+            const toggleLearnedBtn = document.getElementById('toggle-learned-btn');
+            const statsBar = document.getElementById('stats-bar');
+            const totalWordsEl = document.getElementById('total-words');
+            const learnedWordsEl = document.getElementById('learned-words');
+            const hideStatusEl = document.getElementById('hide-status');
+            
+            // Initialize stats
+            totalWordsEl.textContent = vocabList.length;
+            learnedWordsEl.textContent = learnedWords.length;
+            hideStatusEl.textContent = hideLearned ? 'Ẩn từ đã học' : 'Hiện tất cả';
+            
+            // Update stats
+            function updateStats() {
+                const learnedCount = learnedWords.length;
+                learnedWordsEl.textContent = learnedCount;
+                hideStatusEl.textContent = hideLearned ? 'Ẩn từ đã học' : 'Hiện tất cả';
+                
+                // Update button text
+                toggleLearnedBtn.innerHTML = hideLearned 
+                    ? '<i class="fas fa-eye mr-1"></i> Hiện từ đã học'
+                    : '<i class="fas fa-eye-slash mr-1"></i> Ẩn từ đã học';
+                
+                // Update button color
+                toggleLearnedBtn.classList.toggle('bg-purple-500', !hideLearned);
+                toggleLearnedBtn.classList.toggle('hover:bg-purple-600', !hideLearned);
+                toggleLearnedBtn.classList.toggle('bg-purple-700', hideLearned);
+                toggleLearnedBtn.classList.toggle('hover:bg-purple-800', hideLearned);
+            }
             
             if (vocabTableBody) {
                 vocabList.forEach((item, index) => {
@@ -270,6 +337,10 @@
                     row.className = 'border-b vocab-row';
                     if (learnedWords.includes(index)) {
                         row.classList.add('learned');
+                    }
+                    
+                    if (hideLearned && learnedWords.includes(index)) {
+                        row.classList.add('hide-learned');
                     }
                     
                     row.innerHTML = `
@@ -282,13 +353,15 @@
                     `;
                     vocabTableBody.appendChild(row);
                 });
+                
+                // Update stats after table is built
+                updateStats();
             }
             
             // Mark word as learned
             document.querySelectorAll('.learned-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     const index = parseInt(this.dataset.index);
-                    let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
                     
                     if (this.checked) {
                         if (!learnedWords.includes(index)) {
@@ -301,18 +374,35 @@
                     }
                     
                     localStorage.setItem('learnedWords', JSON.stringify(learnedWords));
+                    
+                    // Update hidden rows if needed
+                    if (hideLearned) {
+                        if (this.checked) {
+                            this.closest('.vocab-row').classList.add('hide-learned');
+                        } else {
+                            this.closest('.vocab-row').classList.remove('hide-learned');
+                        }
+                    }
+                    
+                    updateStats();
                 });
             });
             
             // Reset learned words
             document.getElementById('reset-learned').addEventListener('click', function() {
+                learnedWords = [];
                 localStorage.removeItem('learnedWords');
+                
                 document.querySelectorAll('.vocab-row').forEach(row => {
                     row.classList.remove('learned');
+                    row.classList.remove('hide-learned');
                 });
+                
                 document.querySelectorAll('.learned-checkbox').forEach(checkbox => {
                     checkbox.checked = false;
                 });
+                
+                updateStats();
             });
             
             // Search vocabulary
@@ -346,11 +436,38 @@
                     kanjiToggleButton.classList.toggle('hover:bg-gray-600');
                 });
             }
+            
+            // Toggle hide learned words
+            toggleLearnedBtn.addEventListener('click', () => {
+                hideLearned = !hideLearned;
+                localStorage.setItem('hideLearned', hideLearned);
+                
+                document.querySelectorAll('.vocab-row.learned').forEach(row => {
+                    if (hideLearned) {
+                        row.classList.add('hide-learned');
+                    } else {
+                        row.classList.remove('hide-learned');
+                    }
+                });
+                
+                updateStats();
+            });
+            
+            // Initialize toggle button state
+            updateStats();
 
             // --- Collapse/Expand Logic ---
-            document.querySelectorAll('.collapsible-toggle').forEach(toggle => {
-                // Expand the first section by default
-                if (toggle.closest('section').querySelector('.collapsible-content')) {
+            document.querySelectorAll('.collapsible-toggle').forEach((toggle, index) => {
+                // For practice sections, start with closed state
+                const isPracticeSection = index > 0;
+                
+                if (isPracticeSection) {
+                    // Close practice sections by default
+                    toggle.classList.remove('expanded');
+                    const content = toggle.nextElementSibling;
+                    content.style.maxHeight = null;
+                } else {
+                    // Expand the first section by default
                     toggle.classList.add('expanded');
                     const content = toggle.nextElementSibling;
                     content.style.maxHeight = content.scrollHeight + "px";
