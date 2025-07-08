@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 16 - Hội thoại</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .japanese-text, h1, h2, h3, .main-tab, .kaiwa-tab { font-family: 'Noto Sans JP', sans-serif; }
+        rt { color: #c0392b; font-weight: 500; }
+        .main-tab { transition: color 0.2s, border-color 0.2s, background-color 0.2s; }
+        .main-tab.active { color: #2563eb; border-color: #2563eb; background-color: #eff6ff; }
+        .kaiwa-tab.active { background-color: #2563eb; color: white; border-color: #2563eb; }
+        .dialogue-line { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="mb-6 flex items-center justify-between">
+            <div class="w-1/4 text-left">
+                 <a href="../curriculum.html" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors whitespace-nowrap">
+                    &larr; Quay lại
+                </a>
+            </div>
+            <div class="w-1/2 text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-red-700 japanese-text">
+                    Bài 16: Liệt kê nhiều hành động
+                </h1>
+            </div>
+            <div class="w-1/4"></div>
+        </header>
+
+        <!-- Main Navigation Tabs -->
+        <div class="mb-8 border-b-2 border-gray-200 sticky top-0 bg-gray-100 z-10">
+             <nav class="flex -mb-px" aria-label="Tabs">
+                 <a href="lesson_16_kanji.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Kanji
+                </a>
+                <a href="lesson_16_vocabulary.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Từ vựng
+                </a>
+                <a href="lesson_16_grammar.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Ngữ pháp
+                </a>
+                <a href="lesson_16_kaiwa.html" class="main-tab active text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Hội thoại
+                </a>
+                <a href="lesson_16_practice.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Bài tập
+                </a>
+            </nav>
+        </div>
+        <main>
+            <section class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center japanese-text">Hội thoại - <ruby>会話<rt>かいわ</rt></ruby></h2>
+                <div id="kaiwa-tabs" class="flex flex-wrap justify-center gap-2 mb-6 border-b pb-4"></div>
+                <div id="kaiwa-display" class="bg-gray-50 p-4 rounded-lg h-80 overflow-y-auto space-y-4 flex flex-col"></div>
+                <div class="flex justify-center gap-4 mt-6">
+                    <button id="next-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">Tiếp theo</button>
+                    <button id="reset-btn" class="bg-gray-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-700 transition-colors">Làm lại</button>
+                </div>
+            </section>
+        </main>
+        <footer class="text-center mt-12 py-4 border-t">
+            <p class="text-gray-500">Tạo bởi nvnhan, Dung Mori và Gemini</p>
+        </footer>
+    </div>
+    <script>
+        // Data for Lesson 16 conversations, extracted from the PDF
+        const kaiwaData = [
+            { 
+                title: "文型 1",
+                lines: [
+                    { speaker: 'A', text: `<ruby>週末<rt>しゅうまつ</rt></ruby>なにをしましたか?` },
+                    { speaker: 'B', text: `<ruby>友達<rt>ともだち</rt></ruby>とご<ruby>飯<rt>はん</rt></ruby>を<ruby>食<rt>た</rt></ruby>べて、<ruby>映画<rt>えいが</rt></ruby>を<ruby>見<rt>み</rt></ruby>て、コーヒーを<ruby>飲<rt>の</rt></ruby>みました。/ なにもしませんでした。` },
+                    { speaker: 'A', text: `<ruby>朝<rt>あさ</rt></ruby>、なにをしますか?` },
+                    { speaker: 'B', text: `<ruby>歯<rt>は</rt></ruby>を<ruby>磨<rt>みが</rt></ruby>いて、<ruby>顔<rt>かお</rt></ruby>を<ruby>洗<rt>あら</rt></ruby>って、<ruby>朝<rt>あさ</rt></ruby>ごはんを<ruby>食<rt>た</rt></ruby>べます。` },
+                    { speaker: 'A', text: `どうやって<ruby>自動販売機<rt>じどうはんばいき</rt></ruby>でジュースを<ruby>買<rt>か</rt></ruby>いますか?` },
+                    { speaker: 'B', text: `まずお<ruby>金<rt>かね</rt></ruby>を<ruby>入<rt>い</rt></ruby>れて、ジュースを<ruby>選<rt>えら</rt></ruby>んで、ボタンを<ruby>押<rt>お</rt></ruby>します。` }
+                ]
+            },
+            { 
+                title: "文型 2",
+                lines: [
+                    { speaker: 'A', text: `うちへ<ruby>帰<rt>かえ</rt></ruby>ってから、なにをしますか?` },
+                    { speaker: 'B', text: `うちへ<ruby>帰<rt>かえ</rt></ruby>ってから、ごはんを<ruby>食<rt>た</rt></ruby>べます。` },
+                    { speaker: 'A', text: `<ruby>仕事<rt>しごと</rt></ruby>が<ruby>終<rt>お</rt></ruby>わってから、なにをしますか?` },
+                    { speaker: 'B', text: `<ruby>友達<rt>ともだち</rt></ruby>とコーヒーを<ruby>飲<rt>の</rt></ruby>みます。/ <ruby>何<rt>なに</rt></ruby>もしません。` },
+                    { speaker: 'A', text: `いつご<ruby>飯<rt>はん</rt></ruby>を<ruby>食<rt>た</rt></ruby>べましたか?` },
+                    { speaker: 'B', text: `<ruby>宿題<rt>しゅくだい</rt></ruby>をしてから、ご<ruby>飯<rt>はん</rt></ruby>を<ruby>食<rt>た</rt></ruby>べました。` }
+                ]
+            },
+            { 
+                title: "文型 3",
+                lines: [
+                    { speaker: 'A', text: `ハノイはバイクが<ruby>多<rt>おお</rt></ruby>いですか?` },
+                    { speaker: 'B', text: `はい、ハノイはバイクがとても<ruby>多<rt>おお</rt></ruby>いです。` },
+                    { speaker: 'A', text: `<ruby>東京<rt>とうきょう</rt></ruby>はバイクが<ruby>多<rt>おお</rt></ruby>いですか?` },
+                    { speaker: 'B', text: `いいえ、<ruby>東京<rt>とうきょう</rt></ruby>はバイクが<ruby>少<rt>すく</rt></ruby>ないです。` },
+                    { speaker: 'A', text: `<ruby>日本<rt>にほん</rt></ruby>は<ruby>食<rt>た</rt></ruby>べ<ruby>物<rt>もの</rt></ruby>がおいしいですか?` },
+                    { speaker: 'B', text: `はい、とてもおいしいです。/ いいえ、あまりおいしくありません。` }
+                ]
+            },
+            { 
+                title: "文型 4",
+                lines: [
+                    { speaker: 'A', text: `<ruby>恋人<rt>こいびと</rt></ruby>はどんな<ruby>人<rt>ひと</rt></ruby>ですか?` },
+                    { speaker: 'B', text: `<ruby>優<rt>やさ</rt></ruby>しくて、ハンサムで、<ruby>背<rt>せ</rt></ruby>が<ruby>高<rt>たか</rt></ruby>い<ruby>人<rt>ひと</rt></ruby>です。` },
+                    { speaker: 'A', text: `どんな<ruby>家<rt>いえ</rt></ruby>に<ruby>住<rt>す</rt></ruby>みたいですか?` },
+                    { speaker: 'B', text: `<ruby>広<rt>ひろ</rt></ruby>くて、<ruby>明<rt>あか</rt></ruby>るくて、きれいな<ruby>家<rt>いえ</rt></ruby>に<ruby>住<rt>す</rt></ruby>みたいです。` },
+                    { speaker: 'A', text: `ゆかさんはどの<ruby>人<rt>ひと</rt></ruby>ですか?` },
+                    { speaker: 'B', text: `ゆかさんですか? あの、<ruby>髪<rt>かみ</rt></ruby>が<ruby>短<rt>みじか</rt></ruby>くて<ruby>可愛<rt>かわい</rt></ruby>い<ruby>人<rt>ひと</rt></ruby>ですよ。` }
+                ]
+            }
+        ];
+
+        let currentKaiwaIndex = 0;
+        let currentLineIndex = 0;
+
+        const kaiwaTabsContainer = document.getElementById('kaiwa-tabs');
+        const kaiwaDisplay = document.getElementById('kaiwa-display');
+        const nextBtn = document.getElementById('next-btn');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // Function to select a conversation and update the UI
+        function selectKaiwa(index) {
+            currentKaiwaIndex = index;
+            resetKaiwa();
+            
+            // Update active state for tabs
+            document.querySelectorAll('.kaiwa-tab').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+        }
+
+        // Function to show the next line of the current conversation
+        function showNextLine() {
+            const currentKaiwa = kaiwaData[currentKaiwaIndex];
+            if (currentLineIndex < currentKaiwa.lines.length) {
+                const lineData = currentKaiwa.lines[currentLineIndex];
+                const wrapper = document.createElement('div');
+                wrapper.className = 'w-full flex';
+
+                const lineElement = document.createElement('div');
+                lineElement.className = 'dialogue-line p-3 rounded-lg max-w-xs md:max-w-md';
+
+                // Style based on the speaker (A or B)
+                if (lineData.speaker === 'A') {
+                    lineElement.classList.add('bg-blue-100', 'text-blue-800', 'mr-auto');
+                    lineElement.innerHTML = `<span class="font-bold">A:</span> ${lineData.text}`;
+                    wrapper.classList.add('justify-start');
+                } else {
+                    lineElement.classList.add('bg-green-100', 'text-green-800', 'ml-auto', 'text-right');
+                    lineElement.innerHTML = `<span class="font-bold">B:</span> ${lineData.text}`;
+                    wrapper.classList.add('justify-end');
+                }
+                
+                wrapper.appendChild(lineElement);
+                kaiwaDisplay.appendChild(wrapper);
+                kaiwaDisplay.scrollTop = kaiwaDisplay.scrollHeight; // Auto-scroll to the bottom
+                currentLineIndex++;
+            }
+
+            // Disable the 'Next' button when the conversation is over
+            if (currentLineIndex >= currentKaiwa.lines.length) {
+                nextBtn.disabled = true;
+                nextBtn.className += ' opacity-50 cursor-not-allowed';
+                const endMessage = document.createElement('p');
+                endMessage.textContent = '--- Hết hội thoại ---';
+                endMessage.className = 'text-center text-gray-500 italic w-full mt-4';
+                kaiwaDisplay.appendChild(endMessage);
+                kaiwaDisplay.scrollTop = kaiwaDisplay.scrollHeight;
+            }
+        }
+
+        // Function to reset the current conversation
+        function resetKaiwa() {
+            currentLineIndex = 0;
+            if (kaiwaDisplay) kaiwaDisplay.innerHTML = '';
+            if (nextBtn) {
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // --- Initialization ---
+        // Create conversation tabs dynamically
+        if (kaiwaTabsContainer) {
+            kaiwaData.forEach((kaiwa, index) => {
+                const tab = document.createElement('button');
+                tab.innerHTML = kaiwa.title;
+                tab.className = 'kaiwa-tab px-4 py-2 font-semibold border-2 border-gray-300 rounded-full transition-colors';
+                tab.onclick = () => selectKaiwa(index);
+                kaiwaTabsContainer.appendChild(tab);
+            });
+        }
+        
+        // Assign click events to buttons
+        if (nextBtn) nextBtn.onclick = showNextLine;
+        if (resetBtn) resetBtn.onclick = resetKaiwa;
+
+        // Select the first conversation by default
+        if (kaiwaTabsContainer && kaiwaTabsContainer.children.length > 0) {
+            selectKaiwa(0);
+        }
+    </script>
+</body>
+</html>

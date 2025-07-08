@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 17 - Ngữ pháp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .japanese-text, h1, h2, h3, .main-tab, h4 { font-family: 'Noto Sans JP', sans-serif; }
+        rt { color: #c0392b; font-weight: 500; }
+        .main-tab.active { color: #2563eb; border-color: #2563eb; background-color: #eff6ff; }
+        .main-tab { transition: color 0.2s, border-color 0.2s, background-color 0.2s; }
+        .grammar-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+        .grammar-toggle .arrow-icon { transition: transform 0.3s ease-in-out; }
+        .grammar-toggle.expanded .arrow-icon { transform: rotate(180deg); }
+        /* Styles for the note-taking feature */
+        #note-editor { min-height: 150px; }
+        .note-display-item { border-left: 4px solid #a5b4fc; }
+        .note-source-title { font-size: 0.8rem; font-weight: 600; color: #4338ca; }
+        .note-content p { margin-bottom: 0.5rem; }
+        #note-status, #copy-status { transition: opacity 0.5s ease-out; }
+        .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 0 1px #ccc; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="mb-6 flex items-center justify-between">
+            <div class="w-1/4 text-left">
+                 <!-- Link quay lại trang chính -->
+                 <a href="../curriculum.html" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors whitespace-nowrap">
+                    &larr; Quay lại
+                </a>
+            </div>
+            <div class="w-1/2 text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-purple-700 japanese-text">
+                    Bài 17: Xin Đừng Quên Tôi
+                </h1>
+            </div>
+            <div class="w-1/4"></div>
+        </header>
+
+        <!-- Main Navigation Tabs with corrected links -->
+        <div class="mb-8 border-b-2 border-gray-200 sticky top-0 bg-white z-10">
+             <nav class="flex -mb-px" aria-label="Tabs">
+                 <a href="lesson_17_kanji.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Kanji
+                </a>
+                <a href="lesson_17_vocabulary.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Từ vựng
+                </a>
+                <a href="lesson_17_grammar.html" class="main-tab active text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Ngữ pháp
+                </a>
+                <a href="lesson_17_kaiwa.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Hội thoại
+                </a>
+                <a href="lesson_17_practice.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Bài tập
+                </a>
+            </nav>
+        </div>
+
+        <main>
+            <div id="grammar-section" class="space-y-4">
+                <!-- Grammar Point 1: V-nai form -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-blue-600 japanese-text">① Cách chia động từ về thể ない</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-blue-100" data-section-title="① Cách chia thể ない" title="Thêm ghi chú"><svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Thể ない là dạng phủ định ngắn của động từ, tương đương với Vません.</p>
+                        <div class="p-4 bg-blue-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-blue-800 japanese-text">NHÓM I</h4>
+                            <p class="japanese-text">Chuyển âm cuối của cột <code class="bg-gray-200 p-1 rounded">い</code> trước ます thành âm tương ứng ở cột <code class="bg-gray-200 p-1 rounded">あ</code> rồi cộng với <code class="bg-gray-200 p-1 rounded">ない</code>.</p>
+                            <p class="japanese-text mt-2">Ví dụ: はらいます → はらわない</p>
+                            <p class="text-sm text-red-600 mt-1 japanese-text">Lưu ý: <code class="bg-gray-200 p-1 rounded">い</code> → <code class="bg-gray-200 p-1 rounded">わ</code> (Ví dụ: かいます → かわない)</p>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-green-800 japanese-text">NHÓM II</h4>
+                            <p class="japanese-text">Bỏ <code class="bg-gray-200 p-1 rounded">ます</code> thêm <code class="bg-gray-200 p-1 rounded">ない</code>.</p>
+                             <p class="japanese-text mt-2">Ví dụ: たべます → たべない</p>
+                        </div>
+                        <div class="p-4 bg-purple-50 rounded-md">
+                            <h4 class="font-bold mb-2 text-purple-800 japanese-text">NHÓM III</h4>
+                            <ul class="list-disc list-inside space-y-2 japanese-text">
+                                <li>します → しない</li>
+                                <li>きます → こない</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Grammar Point 2: Vないでください -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-green-600 japanese-text">② Vないでください</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-green-100" data-section-title="② Vないでください" title="Thêm ghi chú"><svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">"Xin đừng làm V". Dùng để yêu cầu ai đó không làm một việc gì.</p>
+                         <div class="p-4 bg-green-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-green-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                            <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                <li><ruby>今<rt>いま</rt></ruby><ruby>元気<rt>げんき</rt></ruby>ですから、<ruby>心配<rt>しんぱい</rt></ruby>しないでください。</li>
+                                <li>Namさん、ここに<ruby>車<rt>くるま</rt></ruby>を<ruby>止<rt>と</rt></ruby>めないでください。</li>
+                                <li>これは<ruby>危<rt>あぶ</rt></ruby>ないですから、<ruby>食<rt>た</rt></ruby>べないでください。</li>
+                                <li><ruby>美術館<rt>びじゅつかん</rt></ruby>で<ruby>写真<rt>しゃしん</rt></ruby>を<ruby>撮<rt>と</rt></ruby>らないでください。</li>
+                            </ol>
+                        </div>
+                         <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <p class="text-sm text-gray-600 mb-2">Tạo câu yêu cầu "đừng làm" với các gợi ý sau:</p>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li>パスポート - なくします</li>
+                                 <li>でかけます</li>
+                                 <li>しんぱいします</li>
+                                 <li>お<ruby>風呂<rt>ふろ</rt></ruby> - <ruby>入<rt>はい</rt></ruby>ります</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+
+                <!-- Grammar Point 3: Vなければなりません -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-purple-600 japanese-text">③ Vなければなりません</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-purple-100" data-section-title="③ Vなければなりません" title="Thêm ghi chú"><svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">"Phải làm V". Biểu thị một việc bắt buộc phải làm. Có thể thay bằng 「Vないといけません」.</p>
+                         <div class="p-4 bg-purple-50 rounded-md mb-4">
+                            <h4 class="font-bold mb-2 text-purple-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>病気<rt>びょうき</rt></ruby>ですから、<ruby>薬<rt>くすり</rt></ruby>を<ruby>飲<rt>の</rt></ruby>まなければなりません。</li>
+                                 <li><ruby>明日<rt>あした</rt></ruby>テストがありますから、<ruby>今<rt>いま</rt></ruby><ruby>勉強<rt>べんきょう</rt></ruby>しなければなりません。</li>
+                                 <li>Hoaさんは<ruby>病院<rt>びょういん</rt></ruby>に<ruby>行<rt>い</rt></ruby>かなければなりません。</li>
+                                 <li>Q: <ruby>今<rt>いま</rt></ruby><ruby>何<rt>なに</rt></ruby>をしなければなりませんか。 A: レポートを<ruby>書<rt>か</rt></ruby>かなければなりません。</li>
+                             </ol>
+                        </div>
+                         <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <p class="text-sm text-gray-600 mb-2">Tạo câu "phải làm" với các gợi ý sau:</p>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>漢字<rt>かんじ</rt></ruby> - <ruby>覚<rt>おぼ</rt></ruby>えます</li>
+                                 <li><ruby>日本<rt>にほん</rt></ruby> - <ruby>出張<rt>しゅっちょう</rt></ruby>します</li>
+                                 <li><ruby>引<rt>ひ</rt></ruby>っ<ruby>越<rt>こ</rt></ruby>しします</li>
+                                 <li>お<ruby>金<rt>かね</rt></ruby> - <ruby>払<rt>はら</rt></ruby>います</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+
+                 <!-- Grammar Point 4: Vなくてもいいです -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-yellow-600 japanese-text">④ Vなくてもいいです</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-yellow-100" data-section-title="④ Vなくてもいいです" title="Thêm ghi chú"><svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">"Không cần làm V / Không làm V cũng được".</p>
+                         <div class="p-4 bg-yellow-50 rounded-md mb-4">
+                             <h4 class="font-bold mb-2 text-yellow-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>明日<rt>あした</rt></ruby><ruby>来<rt>こ</rt></ruby>なくてもいいです。</li>
+                                 <li>コーヒーに<ruby>砂糖<rt>さとう</rt></ruby>を<ruby>入<rt>い</rt></ruby>れなくてもいいです。</li>
+                                 <li>タクシーを<ruby>呼<rt>よ</rt></ruby>ばなくてもいいです。バスで<ruby>帰<rt>かえ</rt></ruby>りますから。</li>
+                                 <li><ruby>明日<rt>あした</rt></ruby><ruby>残業<rt>ざんぎょう</rt></ruby>しなければなりませんか。→ いいえ、しなくてもいいです。</li>
+                             </ol>
+                        </div>
+                        <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <p class="text-sm text-gray-600 mb-2">Tạo câu "không cần làm" với các gợi ý sau:</p>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li>レポート - <ruby>出<rt>だ</rt></ruby>します</li>
+                                 <li><ruby>本<rt>ほん</rt></ruby> - <ruby>返<rt>かえ</rt></ruby>します</li>
+                                 <li><ruby>車<rt>くるま</rt></ruby> - <ruby>運転<rt>うんてん</rt></ruby>します</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+
+                 <!-- Grammar Point 5: N (Tân ngữ) は -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-red-600 japanese-text">⑤ N (Tân ngữ) は～</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-red-100" data-section-title="⑤ N (Tân ngữ) は～" title="Thêm ghi chú"><svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Đưa tân ngữ lên làm chủ đề của câu bằng trợ từ 「は」 để nhấn mạnh.</p>
+                         <div class="p-4 bg-red-50 rounded-md mb-4">
+                             <h4 class="font-bold mb-2 text-red-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li>ここに<ruby>車<rt>くるま</rt></ruby>を<ruby>止<rt>と</rt></ruby>めないでください。→ <ruby>車<rt>くるま</rt></ruby>はここに<ruby>止<rt>と</rt></ruby>めないでください。</li>
+                                 <li><ruby>昨日<rt>きのう</rt></ruby>キャベツを<ruby>買<rt>か</rt></ruby>いました。→ キャベツは<ruby>昨日<rt>きのう</rt></ruby><ruby>買<rt>か</rt></ruby>いました。</li>
+                                 <li><ruby>薬<rt>くすり</rt></ruby>はご<ruby>飯<rt>はん</rt></ruby>を<ruby>食<rt>た</rt></ruby>べてから、<ruby>飲<rt>の</rt></ruby>まなければなりません。</li>
+                                 <li><ruby>資料<rt>しりょう</rt></ruby>は<ruby>送<rt>おく</rt></ruby>らなくてもいいです。</li>
+                             </ol>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Grammar Point 6: N (Thời gian) までに -->
+                <section class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grammar-toggle flex justify-between items-center cursor-pointer">
+                        <h2 class="text-2xl font-bold text-cyan-600 japanese-text">⑥ N (Thời gian) までに V</h2>
+                        <button class="add-note-btn p-1 rounded-full hover:bg-cyan-100" data-section-title="⑥ N (Thời gian) までに V" title="Thêm ghi chú"><svg class="w-6 h-6 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                    </div>
+                    <div class="grammar-content mt-4">
+                        <p class="italic text-gray-600 mb-4">"Trước (thời điểm) N". Dùng để chỉ thời hạn cuối cùng mà một hành động phải được hoàn thành.</p>
+                         <div class="p-4 bg-cyan-50 rounded-md mb-4">
+                             <h4 class="font-bold mb-2 text-cyan-800 japanese-text"><ruby>例<rt>れい</rt></ruby> (Ví dụ):</h4>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li>レポートは5<ruby>時<rt>じ</rt></ruby>までに<ruby>送<rt>おく</rt></ruby>らなければなりません。</li>
+                                 <li><ruby>日曜日<rt>にちようび</rt></ruby>までに<ruby>先生<rt>せんせい</rt></ruby>に<ruby>連絡<rt>れんらく</rt></ruby>してください。</li>
+                                 <li><ruby>午後<rt>ごご</rt></ruby>6<ruby>時<rt>じ</rt></ruby>までに<ruby>会議<rt>かいぎ</rt></ruby>が<ruby>終<rt>お</rt></ruby>わります。</li>
+                             </ol>
+                        </div>
+                         <div class="p-4 bg-indigo-50 rounded-md">
+                             <h4 class="font-bold mb-2 text-indigo-800 japanese-text">やってみよう！</h4>
+                             <p class="text-sm text-gray-600 mb-2">Trả lời các câu hỏi sau:</p>
+                             <ol class="list-decimal list-inside space-y-2 japanese-text">
+                                 <li><ruby>何時<rt>なんじ</rt></ruby>までに<ruby>寮<rt>りょう</rt></ruby>へ<ruby>帰<rt>かえ</rt></ruby>りますか。(12<ruby>時<rt>じ</rt></ruby>)</li>
+                                 <li><ruby>何曜日<rt>なんようび</rt></ruby>までにその<ruby>本<rt>ほん</rt></ruby>を<ruby>返<rt>かえ</rt></ruby>しますか。(<ruby>水曜日<rt>すいようび</rt></ruby>)</li>
+                                 <li><ruby>いつ<rt>いつ</rt></ruby>までに<ruby>宿題<rt>しゅくだい</rt></ruby>を<ruby>出<rt>だ</rt></ruby>しますか。(あさって)</li>
+                             </ol>
+                         </div>
+                    </div>
+                </section>
+
+                <!-- Aggregate Notes Section -->
+                <section class="bg-white p-6 rounded-lg shadow-md mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Ghi chú cá nhân</h2>
+                    <div id="notes-display-area" class="space-y-4">
+                        <!-- Saved notes will be rendered here by JavaScript -->
+                    </div>
+                    <div class="flex items-center justify-end mt-4 gap-2">
+                         <span id="copy-status" class="text-green-600 font-semibold opacity-0 mr-4">Đã sao chép!</span>
+                         <button id="copy-all-notes-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Sao chép tất cả</button>
+                         <button id="clear-all-notes-btn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">Xóa tất cả</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+         <footer class="text-center mt-12 py-4 border-t">
+            <p class="text-gray-500">Tạo bởi nvnhan, Dung Mori và Gemini</p>
+        </footer>
+    </div>
+    
+    <!-- Note Editor Modal -->
+    <div id="note-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <h3 id="modal-title" class="text-xl leading-6 font-medium text-gray-900 mb-4">Thêm Ghi chú</h3>
+            <div id="editor-toolbar" class="flex items-center gap-2 p-2 bg-gray-100 rounded-t-md border-b">
+                <button class="px-3 py-1 hover:bg-gray-200 rounded" data-command="bold"><b>B</b></button>
+                <button class="px-3 py-1 hover:bg-gray-200 rounded" data-command="italic"><i>I</i></button>
+                <button class="px-3 py-1 hover:bg-gray-200 rounded" data-command="underline"><u>U</u></button>
+                <div class="w-px h-6 bg-gray-300"></div>
+                <div class="color-palette flex items-center gap-2">
+                    <button class="color-swatch" style="background-color: #000000;" data-color="#000000"></button>
+                    <button class="color-swatch" style="background-color: #ef4444;" data-color="#ef4444"></button>
+                    <button class="color-swatch" style="background-color: #3b82f6;" data-color="#3b82f6"></button>
+                    <button class="color-swatch" style="background-color: #22c55e;" data-color="#22c55e"></button>
+                </div>
+                <input type="color" id="note-color-picker" class="w-8 h-8 p-0 border-none bg-transparent cursor-pointer" title="Chọn màu khác">
+            </div>
+            <div id="note-editor" contenteditable="true" class="w-full p-3 border border-gray-300 rounded-b-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" style="min-height: 200px;"></div>
+            <div class="flex items-center justify-between mt-4">
+                 <span id="note-status" class="text-green-600 font-semibold opacity-0">Đã lưu!</span>
+                <div class="flex gap-2">
+                    <button id="cancel-note-btn" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400">Hủy</button>
+                    <button id="save-note-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h3 id="delete-modal-title" class="text-lg leading-6 font-medium text-gray-900">Xóa ghi chú?</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p id="delete-modal-text" class="text-sm text-gray-500"></p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="confirm-delete-btn" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">Xóa</button>
+                    <button id="cancel-delete-btn" class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 mt-2">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Logic for accordion ---
+        document.querySelectorAll('.grammar-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('expanded');
+                const content = toggle.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        });
+        
+        // --- Logic for Note-Taking Feature ---
+        const notesKey = 'lesson_17_grammar_notes'; // Unique key for this lesson
+        let notes = JSON.parse(localStorage.getItem(notesKey)) || [];
+        let currentEditingIndex = null;
+
+        // Modal elements
+        const noteModal = document.getElementById('note-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const noteEditor = document.getElementById('note-editor');
+        const saveNoteBtn = document.getElementById('save-note-btn');
+        const cancelNoteBtn = document.getElementById('cancel-note-btn');
+        const deleteModal = document.getElementById('delete-modal');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        
+        // Display and action elements
+        const notesDisplayArea = document.getElementById('notes-display-area');
+        const copyAllBtn = document.getElementById('copy-all-notes-btn');
+        const clearAllBtn = document.getElementById('clear-all-notes-btn');
+        const copyStatus = document.getElementById('copy-status');
+        let deleteCallback = null;
+        
+        // --- Modal Functions ---
+        function showDeleteModal(title, text, callback) {
+            document.getElementById('delete-modal-title').textContent = title;
+            document.getElementById('delete-modal-text').textContent = text;
+            deleteCallback = callback;
+            deleteModal.classList.remove('hidden');
+        }
+        
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (typeof deleteCallback === 'function') {
+                deleteCallback();
+            }
+            deleteModal.classList.add('hidden');
+        });
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+        });
+
+        function openNoteModal(sectionTitle, content = '', editIndex = null) {
+            modalTitle.textContent = editIndex !== null ? `Chỉnh sửa ghi chú` : `Thêm ghi chú cho: ${sectionTitle}`;
+            noteEditor.innerHTML = content;
+            currentEditingIndex = editIndex;
+            noteModal.classList.remove('hidden');
+            noteEditor.focus();
+        }
+
+        function closeNoteModal() {
+            noteModal.classList.add('hidden');
+        }
+
+        // --- Note Data Functions ---
+        function saveAllNotes() {
+            localStorage.setItem(notesKey, JSON.stringify(notes));
+        }
+
+        function renderNotes() {
+            notesDisplayArea.innerHTML = '';
+            if (notes.length === 0) {
+                notesDisplayArea.innerHTML = `<p class="text-gray-500 italic">Chưa có ghi chú nào.</p>`;
+                return;
+            }
+            notes.forEach((note, index) => {
+                const noteEl = document.createElement('div');
+                noteEl.className = 'note-display-item bg-indigo-50 p-4 rounded-lg';
+                noteEl.innerHTML = `
+                    <p class="note-source-title">Từ mục: ${note.section}</p>
+                    <div class="note-content mt-2">${note.content}</div>
+                    <div class="text-right mt-2 space-x-2">
+                        <button class="edit-note-btn text-sm text-blue-600 hover:underline" data-index="${index}">Sửa</button>
+                        <button class="delete-note-btn text-sm text-red-600 hover:underline" data-index="${index}">Xóa</button>
+                    </div>`;
+                notesDisplayArea.appendChild(noteEl);
+            });
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('grammar-section').addEventListener('click', (e) => {
+            const addBtn = e.target.closest('.add-note-btn');
+            if (addBtn) {
+                openNoteModal(addBtn.dataset.sectionTitle);
+            }
+        });
+
+        saveNoteBtn.addEventListener('click', () => {
+            const content = noteEditor.innerHTML.trim();
+            if (!content) return;
+
+            if (currentEditingIndex !== null) {
+                notes[currentEditingIndex].content = content;
+            } else {
+                const section = modalTitle.textContent.replace('Thêm ghi chú cho: ', '');
+                notes.push({ section, content, id: Date.now() });
+            }
+            saveAllNotes();
+            renderNotes();
+            closeNoteModal();
+        });
+
+        cancelNoteBtn.addEventListener('click', closeNoteModal);
+
+        // Rich text editor toolbar listeners
+        document.querySelectorAll('#editor-toolbar button[data-command]').forEach(button => {
+            button.addEventListener('click', () => {
+                document.execCommand(button.dataset.command, false, null);
+                noteEditor.focus();
+            });
+        });
+        document.querySelectorAll('.color-palette button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.execCommand('foreColor', false, button.dataset.color);
+                noteEditor.focus();
+            });
+        });
+        document.getElementById('note-color-picker').addEventListener('input', (e) => {
+            document.execCommand('foreColor', false, e.target.value);
+            noteEditor.focus();
+        });
+
+        // Listen for clicks on edit/delete buttons in the display area
+        notesDisplayArea.addEventListener('click', (e) => {
+            const index = e.target.dataset.index;
+            if (e.target.classList.contains('edit-note-btn')) {
+                openNoteModal(notes[index].section, notes[index].content, index);
+            }
+            if (e.target.classList.contains('delete-note-btn')) {
+                showDeleteModal('Xóa ghi chú này?', 'Bạn có chắc chắn muốn xóa ghi chú này không? Hành động này không thể hoàn tác.', () => {
+                    notes.splice(index, 1);
+                    saveAllNotes();
+                    renderNotes();
+                });
+            }
+        });
+        
+        // Listener for "Copy All" button
+        copyAllBtn.addEventListener('click', () => {
+            if(notes.length === 0) return;
+            let fullText = '';
+            notes.forEach(note => {
+                fullText += `--- Ghi chú từ: ${note.section} ---\n`;
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = note.content;
+                fullText += tempDiv.innerText.trim() + '\n\n';
+            });
+             navigator.clipboard.writeText(fullText).then(() => {
+                copyStatus.style.opacity = '1';
+                setTimeout(() => { copyStatus.style.opacity = '0'; }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy notes: ', err);
+                alert('Lỗi! Không thể sao chép ghi chú.');
+            });
+        });
+
+        // Listener for "Clear All" button
+        clearAllBtn.addEventListener('click', () => {
+             if(notes.length === 0) return;
+             showDeleteModal('Xóa tất cả ghi chú?', 'Bạn có chắc chắn muốn XÓA TOÀN BỘ ghi chú không? Hành động này không thể hoàn tác.', () => {
+                notes = [];
+                saveAllNotes();
+                renderNotes();
+             });
+        });
+        
+        // Initial render of notes on page load
+        renderNotes();
+    </script>
+</body>
+</html>
