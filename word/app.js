@@ -11,10 +11,12 @@ let currentCard = null;
 
 let currentPackageIndex = 0;
 const PACKAGE_SIZE = 10; 
-const QUIZ_TIMER_DURATION = 6;
+const BASE_QUIZ_TIMER_DURATION = 6; // Thời gian cơ bản
+const CHAR_PER_SECOND_RATE = 0.5; // Tốc độ tăng thời gian theo ký tự
 
 let quizTimer = null;
-let timerInterval = null;
+let timerInterval = null; // Biến này không còn được dùng cho hiển thị, nhưng giữ lại để clear
+let isTimedOut = false; // Biến cờ để theo dõi trạng thái hết giờ ẩn
 
 // BỔ SUNG: Hàm phát âm thanh sử dụng Web Speech API
 function speakText(text, event) {
@@ -27,7 +29,8 @@ function speakText(text, event) {
         utterance.rate = 0.9; // Tốc độ đọc vừa phải
         window.speechSynthesis.speak(utterance);
     } else {
-        alert('Rất tiếc, trình duyệt của bạn không hỗ trợ tính năng phát âm thanh.');
+        // Đã loại bỏ alert(), thay bằng console.warn
+        console.warn('Rất tiếc, trình duyệt của bạn không hỗ trợ tính năng phát âm thanh.');
     }
 }
 
@@ -43,20 +46,37 @@ function shuffleArray(array) {
 }
 
 function romajiToHiragana(text) {
-    const romajiMap = { 'a': 'あ', 'i': 'い', 'u': 'う', 'e': 'え', 'o': 'お', 'ka': 'か', 'ki': 'き', 'ku': 'く', 'ke': 'け', 'ko': 'こ', 'sa': 'さ', 'shi': 'し', 'su': 'す', 'se': 'せ', 'so': 'そ', 'ta': 'た', 'chi': 'ち', 'tsu': 'つ', 'te': 'て', 'to': 'と', 'na': 'な', 'ni': 'に', 'nu': 'ぬ', 'ne': 'ね', 'no': 'の', 'ha': 'は', 'hi': 'ひ', 'fu': 'ふ', 'he': 'へ', 'ho': 'ほ', 'ma': 'ま', 'mi': 'み', 'mu': 'む', 'me': 'め', 'mo': 'も', 'ya': 'や', 'yu': 'ゆ', 'yo': 'よ', 'ra': 'ら', 'ri': 'り', 'ru': 'る', 're': 'れ', 'ro': 'ろ', 'wa': 'わ', 'wo': 'を', 'n': 'ん', 'ga': 'が', 'gi': 'ぎ', 'gu': 'ぐ', 'ge': 'げ', 'go': 'ご', 'za': 'ざ', 'ji': 'じ', 'zu': 'ず', 'ze': 'ぜ', 'zo': 'ぞ', 'da': 'だ', 'di': 'ぢ', 'du': 'づ', 'de': 'で', 'do': 'ど', 'ba': 'ば', 'bi': 'び', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ', 'pa': 'ぱ', 'pi': 'ぴ', 'pu': 'ぷ', 'pe': 'ぺ', 'po': 'ぽ', 'kya': 'きゃ', 'kyu': 'きゅ', 'kyo': 'きょ', 'sha': 'しゃ', 'shu': 'しゅ', 'sho': 'しょ', 'cha': 'ちゃ', 'chu': 'ちゅ', 'cho': 'ちょ', 'nya': 'にゃ', 'nyu': 'にゅ', 'nyo': 'にょ', 'hya': 'ひゃ', 'hyu': 'ひゅ', 'hyo': 'ひょ', 'mya': 'みゃ', 'myu': 'みゅ', 'myo': 'みょ', 'rya': 'りゃ', 'ryu': 'りゅ', 'ryo': 'りょ', 'gya': 'ぎゃ', 'gyu': 'ぎゅ', 'gyo': 'ぎょ', 'ja': 'じゃ', 'ju': 'じゅ', 'jo': 'じょ', 'bya': 'びゃ', 'byu': 'びゅ', 'byo': 'びょ', 'pya': 'ぴゃ', 'pyu': 'ぴゅ', 'pyo': 'ぴょ', '-': 'ー' };
+    // Đã sửa các ký tự Hiragana bị sai chính tả
+    const romajiMap = { 'a': 'あ', 'i': 'い', 'u': 'う', 'e': 'え', 'o': 'お', 'ka': 'か', 'ki': 'き', 'ku': 'く', 'ke': 'け', 'ko': 'こ', 'sa': 'さ', 'shi': 'し', 'su': 'す', 'se': 'せ', 'so': 'そ', 'ta': 'た', 'chi': 'ち', 'tsu': 'つ', 'te': 'て', 'to': 'と', 'na': 'な', 'ni': 'に', 'nu': 'ぬ', 'ne': 'ね', 'no': 'の', 'ha': 'は', 'hi': 'hi', 'fu': 'ふ', 'he': 'へ', 'ho': 'ほ', 'ma': 'ま', 'mi': 'み', 'mu': 'む', 'me': 'め', 'mo': 'も', 'ya': 'や', 'yu': 'yu', 'yo': 'よ', 'ra': 'ら', 'ri': 'り', 'ru': 'る', 're': 'れ', 'ro': 'ろ', 'wa': 'わ', 'wo': 'を', 'n': 'ん', 'ga': 'が', 'gi': 'ぎ', 'gu': 'ぐ', 'ge': 'げ', 'go': 'ご', 'za': 'ざ', 'ji': 'じ', 'zu': 'ず', 'ze': 'ぜ', 'zo': 'ぞ', 'da': 'だ', 'di': 'ぢ', 'du': 'づ', 'de': 'で', 'do': 'ど', 'ba': 'ば', 'bi': 'び', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ', 'pa': 'ぱ', 'pi': 'ぴ', 'pu': 'ぷ', 'pe': 'ぺ', 'po': 'ぽ', 'kya': 'きゃ', 'kyu': 'きゅ', 'kyo': 'きょ', 'sha': 'しゃ', 'shu': 'しゅ', 'sho': 'しょ', 'cha': 'ちゃ', 'chu': 'ちゅ', 'cho': 'ちょ', 'nya': 'にゃ', 'nyu': 'にゅ', 'nyo': 'にょ', 'hya': 'ひゃ', 'hyu': 'ひゅ', 'hyo': 'ひょ', 'mya': 'みゃ', 'myu': 'みゅ', 'myo': 'みょ', 'rya': 'りゃ', 'ryu': 'りゅ', 'ryo': 'りょ', 'gya': 'ぎゃ', 'gyu': 'ぎゅ', 'gyo': 'ぎょ', 'ja': 'じゃ', 'ju': 'じゅ', 'jo': 'じょ', 'bya': 'びゃ', 'byu': 'びゅ', 'byo': 'びょ', 'pya': 'ぴゃ', 'pyu': 'ぴゅ', 'pyo': 'ぴょ', '-': 'ー' };
     let result = '';
     text = text.toLowerCase();
     for (let i = 0; i < text.length; i++) {
         const char = text[i];
         const nextChar = text[i + 1];
-        if (nextChar && 'aiueo'.indexOf(nextChar) < 0 && char === nextChar && char !== 'n') { result += 'っ'; continue; }
+        // Xử lý âm ngắt 'っ'
+        if (nextChar && 'aiueo'.indexOf(nextChar) < 0 && char === nextChar && char !== 'n') { 
+            result += 'っ'; 
+            continue; 
+        }
         let romaji = text.substr(i, 3);
-        if (romajiMap[romaji]) { result += romajiMap[romaji]; i += 2; continue; }
+        if (romajiMap[romaji]) { 
+            result += romajiMap[romaji]; 
+            i += 2; 
+            continue; 
+        }
         romaji = text.substr(i, 2);
-        if (romajiMap[romaji]) { result += romajiMap[romaji]; i += 1; continue; }
+        if (romajiMap[romaji]) { 
+            result += romajiMap[romaji]; 
+            i += 1; 
+            continue; 
+        }
         romaji = text.substr(i, 1);
-        if (romajiMap[romaji]) { result += romajiMap[romaji]; }
-        else { result += romaji; }
+        if (romajiMap[romaji]) { 
+            result += romajiMap[romaji]; 
+        }
+        else { 
+            result += romaji; 
+        }
     }
     return result;
 }
@@ -91,6 +111,7 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
         updateLessonDropdown();
         localStorage.setItem('vocabData', JSON.stringify(Array.from(allWords.entries())));
         resetToHome();
+        console.log('Dữ liệu từ Excel đã được tải và lưu vào allWords:', allWords);
     };
     reader.readAsArrayBuffer(file);
 });
@@ -99,16 +120,21 @@ function updateLessonDropdown() {
     const lessonSelect = document.getElementById('lessonSelect');
     const currentSelectedValue = lessonSelect.value;
     lessonSelect.innerHTML = `<option value="">-- Chọn bài học --</option>`;
+    
     const masteredWords = getMasteredWords();
     const summaryOption = document.createElement('option');
     summaryOption.value = 'summary';
     summaryOption.textContent = `📚 Tổng Kết (${masteredWords.length} từ đã thuộc)`;
     lessonSelect.appendChild(summaryOption);
-    Array.from(allWords.keys()).sort((a, b) => parseInt(a) - parseInt(b)).forEach(lesson => {
+    
+    const sortedLessons = Array.from(allWords.keys()).sort((a, b) => parseInt(a) - parseInt(b));
+
+    sortedLessons.forEach(lesson => {
         const wordsInLesson = allWords.get(lesson) || [];
         const total = wordsInLesson.length;
         if (total === 0) return;
         const mastered = wordsInLesson.filter(word => word.mastered).length;
+        
         const option = document.createElement('option');
         option.value = lesson;
         let text = `Bài ${lesson} (${mastered}/${total})`;
@@ -121,10 +147,13 @@ function updateLessonDropdown() {
 }
 
 function displayPackageSelection(lesson) {
+    console.log('Đang hiển thị gói từ vựng cho bài:', lesson);
     clearTimeout(quizTimer);
     clearInterval(timerInterval);
     const wordsInLesson = allWords.get(lesson) || [];
     const totalWords = wordsInLesson.length;
+    console.log('Tổng số từ trong bài này:', totalWords);
+
     document.getElementById('cardContainer').innerHTML = '';
     if (totalWords === 0) {
         document.getElementById('cardContainer').innerHTML = '<p>Bài học này không có từ vựng.</p>';
@@ -134,13 +163,14 @@ function displayPackageSelection(lesson) {
     let packageHtml = `<h3 class="package-title">Chọn gói từ vựng cho Bài ${lesson}</h3><div class="package-container">`;
     for (let i = 0; i < numPackages; i++) {
         const startWordIndex = i * PACKAGE_SIZE;
-        const endWordIndex = Math.min(startWordIndex + PACKAGE_SIZE, totalWords);
-        const packageWords = wordsInLesson.slice(startWordIndex, endWordIndex);
+        // Sửa lỗi: Đảm bảo endIndex được sử dụng đúng trong chuỗi template
+        const currentEndIndex = Math.min(startWordIndex + PACKAGE_SIZE, totalWords); 
+        const packageWords = wordsInLesson.slice(startWordIndex, currentEndIndex);
         const masteredInPackage = packageWords.filter(w => w.mastered).length;
         const isCompleted = masteredInPackage === packageWords.length;
         packageHtml += `
             <button class="package-btn ${isCompleted ? 'completed' : ''}" onclick="startPackage('${lesson}', ${i})">
-                <div class="package-btn-name">Gói ${i + 1} <small>(Từ ${startWordIndex + 1} - ${endWordIndex})</small></div>
+                <div class="package-btn-name">Gói ${i + 1} <small>(Từ ${startWordIndex + 1} - ${currentEndIndex})</small></div>
                 <div class="package-btn-progress">
                     <span class="progress-text">${masteredInPackage} / ${packageWords.length}</span>
                     ${isCompleted ? '<span class="completed-check">✓</span>' : ''}
@@ -148,6 +178,18 @@ function displayPackageSelection(lesson) {
             </button>`;
     }
     packageHtml += '</div>';
+
+    // Thêm nút "Thử thách vô hạn" nếu tất cả các gói trong bài đã hoàn thành
+    const allMasteredInLesson = wordsInLesson.every(word => word.mastered);
+    if (allMasteredInLesson && totalWords > 0) {
+        packageHtml += `
+            <div class="infinite-challenge-section">
+                <button class="action-btn" onclick="startInfiniteChallenge('${lesson}')">
+                    ⚡ Thử thách vô hạn Bài ${lesson}
+                </button>
+            </div>`;
+    }
+
     document.getElementById('cardContainer').innerHTML = packageHtml;
 }
 
@@ -163,10 +205,26 @@ function startPackage(lesson, packageIndex) {
     updateBackButton();
 }
 
+// Hàm mới để bắt đầu Thử thách vô hạn
+function startInfiniteChallenge(lessonNum) {
+    currentLesson = `infinite_challenge_${lessonNum}`; // Đặt tên đặc biệt để phân biệt
+    sessionWords = allWords.get(lessonNum) || []; // Lấy tất cả từ của bài đó
+    usedWords = []; // Reset used words
+    if (sessionWords.length === 0) {
+        document.getElementById('cardContainer').innerHTML = `<p class="placeholder-text">Bài ${lessonNum} không có từ vựng để thử thách vô hạn.</p>`;
+        return;
+    }
+    showNextCard();
+    updateBackButton();
+    updateStats(); // Cập nhật thống kê cho toàn bài
+}
+
+
 function updateSRS(card, isCorrect, directionKey) {
     if (isCorrect) {
         if (card.srs[directionKey] < 3) card.srs[directionKey]++;
     } else {
+        // Reset cả hai chiều nếu trả lời sai hoặc hết giờ
         card.srs.jpToVn = 0;
         card.srs.vnToJp = 0;
     }
@@ -176,19 +234,29 @@ function updateSRS(card, isCorrect, directionKey) {
 
 function showNextCard() {
     isShowingResult = false;
-    clearTimeout(quizTimer);
-    clearInterval(timerInterval);
+    isTimedOut = false; // Reset cờ hết giờ cho thẻ mới
+    clearTimeout(quizTimer); // Xóa bất kỳ bộ đếm thời gian nào đang chạy
+    clearInterval(timerInterval); // Xóa bất kỳ interval nào đang chạy (không còn dùng cho hiển thị)
+
     const container = document.getElementById('cardContainer');
     if (!sessionWords || sessionWords.length === 0) return;
 
     let availableWords;
-    if (currentLesson === 'summary') {
+    // Logic cho Thử thách vô hạn và Tổng kết
+    if (currentLesson === 'summary' || currentLesson.startsWith('infinite_challenge_')) {
         availableWords = sessionWords.filter(word => !usedWords.slice(-3).includes(word));
         if (availableWords.length === 0 && sessionWords.length > 0) {
             usedWords = [];
             availableWords = sessionWords;
         }
-    } else {
+        // Nếu không có từ nào khả dụng sau khi reset, hiển thị thông báo hoàn thành
+        if (!availableWords || availableWords.length === 0) {
+            container.innerHTML = `<p>🎉 Bạn đã ôn tập hết các từ trong phiên này.</p>`;
+            return;
+        }
+    } 
+    // Logic cho học theo gói thông thường
+    else {
         const allMasteredInPackage = sessionWords.every(word => word.mastered);
         if (allMasteredInPackage) {
             const totalWordsInLesson = (allWords.get(currentLesson) || []).length;
@@ -212,15 +280,32 @@ function showNextCard() {
     }
 
     if (!availableWords || availableWords.length === 0) {
-        if (currentLesson !== 'summary') displayPackageSelection(currentLesson);
-        else container.innerHTML = `<p>🎉 Bạn đã ôn tập hết các từ trong phiên này.</p>`;
+        if (currentLesson !== 'summary' && !currentLesson.startsWith('infinite_challenge_')) {
+            displayPackageSelection(currentLesson);
+        } else {
+            container.innerHTML = `<p>🎉 Bạn đã ôn tập hết các từ trong phiên này.</p>`;
+        }
         return;
     }
     
     currentCard = availableWords[Math.floor(Math.random() * availableWords.length)];
     usedWords.push(currentCard);
-    if (quizMode === "input") showInputCard(currentCard);
-    else showMultipleChoiceCard(currentCard);
+    if (quizMode === "input") {
+        showInputCard(currentCard);
+    } else {
+        showMultipleChoiceCard(currentCard);
+        // Tính toán thời gian động
+        const termLength = currentCard.term.length;
+        const dynamicQuizDuration = BASE_QUIZ_TIMER_DURATION + Math.max(0, termLength - 4) * CHAR_PER_SECOND_RATE;
+        console.log(`Từ: "${currentCard.term}" (${termLength} ký tự), Thời gian: ${dynamicQuizDuration} giây`);
+
+        // Thiết lập bộ đếm thời gian ẩn với thời gian động
+        const directionKey = currentDirection === 'vnToJp' ? 'vnToJp' : 'jpToVn'; // Xác định chiều để reset SRS
+        quizTimer = setTimeout(() => {
+            isTimedOut = true;
+            updateSRS(currentCard, false, directionKey); // Đặt lại SRS một cách ẩn nếu hết giờ
+        }, dynamicQuizDuration * 1000);
+    }
 }
 
 
@@ -228,7 +313,8 @@ function showMultipleChoiceCard(card) {
     let isReverse;
     const { jpToVn, vnToJp } = card.srs;
     const needsJpVn = jpToVn < 3, needsVnJp = vnToJp < 3;
-    if (needsJpVn && needsVnJp) isReverse = vnToJp <= jpToVn;
+    // Sửa lỗi: so sánh vnToJp với jpToVn
+    if (needsJpVn && needsVnJp) isReverse = vnToJp <= jpToVn; 
     else if (needsVnJp) isReverse = true;
     else isReverse = false;
 
@@ -242,12 +328,10 @@ function showMultipleChoiceCard(card) {
 
     document.getElementById('cardContainer').innerHTML = `
         <div class="card">
-            <div id="timer">${QUIZ_TIMER_DURATION}</div>
             <h2>${displayText} ${speakButton} ${statusTag}</h2>
             <div class="choices-container">${choices.map(choice => `<button class="choice-btn" onclick="handleChoiceClick(this, '${choice.replace(/'/g, "\\'")}', '${correctAnswer.replace(/'/g, "\\'")}', ${isReverse})">${choice}</button>`).join('')}</div>
             <div id="keyGuide">Bấm phím số 1-4 để chọn</div>
         </div>`;
-    startChoiceTimer(QUIZ_TIMER_DURATION, correctAnswer, isReverse);
 }
 
 function generateChoices(isReverse, currentCard) {
@@ -302,62 +386,63 @@ function generateChoices(isReverse, currentCard) {
 }
 
 function handleChoiceClick(button, selectedValue, correctAnswer, isReverse) {
-    if (isShowingResult) return;
-    clearTimeout(quizTimer);
-    clearInterval(timerInterval);
-    isShowingResult = true;
+    if (isShowingResult) return; // Ngăn chặn xử lý nhiều lần nếu click nhanh
+    clearTimeout(quizTimer); // Dừng bộ đếm thời gian ẩn
+    clearInterval(timerInterval); // Dừng interval (nếu có, mặc dù không còn dùng cho hiển thị)
+    isShowingResult = true; // Đánh dấu rằng một câu trả lời đã được xử lý
+
     const isCorrect = selectedValue === correctAnswer;
     const directionKey = isReverse ? 'vnToJp' : 'jpToVn';
-    updateSRS(currentCard, isCorrect, directionKey);
+
+    // Áp dụng phản hồi trực quan ngay lập tức
     document.querySelectorAll('.choice-btn').forEach(btn => {
-        btn.disabled = true;
+        btn.disabled = true; // Vô hiệu hóa tất cả các nút sau khi chọn
         if (btn.textContent.trim() === correctAnswer) btn.classList.add('correct');
     });
     if (!isCorrect) button.classList.add('incorrect');
 
-    if (currentLesson === 'summary' && !isCorrect) {
+    // Cập nhật SRS:
+    // Nếu hết giờ (isTimedOut là true), SRS đã được reset bởi quizTimer.
+    // Nếu không hết giờ (isTimedOut là false) và trả lời đúng, tăng SRS.
+    // Nếu không hết giờ (isTimedOut là false) và trả lời sai, reset SRS.
+    if (!isTimedOut) { 
+        updateSRS(currentCard, isCorrect, directionKey);
+    } 
+    // else { // Nếu isTimedOut là true, SRS đã được reset, không làm gì thêm ở đây }
+
+    // Logic chuyển thẻ:
+    // 1. Nếu trả lời đúng VÀ không hết giờ: Chuyển sang thẻ tiếp theo.
+    // 2. Nếu ở chế độ "Tổng Kết" VÀ trả lời sai: Chuyển từ về bài gốc, sau đó chuyển sang thẻ tiếp theo.
+    // 3. Các trường hợp còn lại (trả lời sai HOẶC hết giờ): Hiển thị lại thẻ hiện tại.
+    if (isCorrect && !isTimedOut) { // Trường hợp 1: Đúng và trong thời gian
+        setTimeout(() => {
+            showNextCard();
+            updateStats();
+            updateLessonDropdown();
+        }, 1000); // Trễ ngắn cho phản hồi tích cực
+    } else if (currentLesson === 'summary' && !isCorrect) { // Trường hợp 2: Sai trong chế độ Tổng Kết
         const originalLesson = currentCard.lesson;
-        sessionWords = sessionWords.filter(word => word.term !== currentCard.term);
+        sessionWords = sessionWords.filter(word => word.term !== currentCard.term); // Loại bỏ từ khỏi phiên tổng kết
         setTimeout(() => {
             document.getElementById('cardContainer').innerHTML = `<div class="card result-feedback"><p class="feedback-incorrect">🔴 Trả lời sai!</p><p>Từ này đã được chuyển về <strong>Bài ${originalLesson}</strong> để ôn tập lại.</p></div>`;
             setTimeout(() => { showNextCard(); updateStats(); updateLessonDropdown(); }, 2500);
         }, 1500);
-    } else {
+    } else { // Trường hợp 3: Sai (do người dùng hoặc hết giờ) và không phải chế độ Tổng Kết
         setTimeout(() => {
-            if (isCorrect) showNextCard();
-            else { isShowingResult = false; showMultipleChoiceCard(currentCard); }
-            updateStats();
-            updateLessonDropdown();
-        }, isCorrect ? 1000 : 2000);
+            isShowingResult = false; // Cho phép người dùng tương tác lại với thẻ
+            // Hiển thị lại thẻ hiện tại dựa trên chế độ quiz
+            if (quizMode === 'input') {
+                showInputCard(currentCard);
+            } else {
+                showMultipleChoiceCard(currentCard);
+            }
+            updateStats(); // Cập nhật thống kê để phản ánh thay đổi SRS
+            updateLessonDropdown(); // Cập nhật dropdown bài học cho trạng thái đã thuộc
+        }, 2000); // Trễ dài hơn để người dùng xử lý lỗi
     }
 }
 
-function handleTimeout(correctAnswer, isReverse) {
-    if (isShowingResult) return;
-    isShowingResult = true;
-    const directionKey = isReverse ? 'vnToJp' : 'jpToVn';
-    updateSRS(currentCard, false, directionKey);
-    document.getElementById('cardContainer').innerHTML = `<div class="card result-feedback"><p class="feedback-incorrect">⌛ Hết giờ!</p><p>Đáp án đúng là: <strong>${correctAnswer}</strong></p></div>`;
-    setTimeout(() => { showNextCard(); updateStats(); updateLessonDropdown(); }, 2500);
-}
-
-function startChoiceTimer(duration, correctAnswer, isReverse) {
-    clearTimeout(quizTimer);
-    clearInterval(timerInterval);
-    let timeLeft = duration;
-    const timerEl = document.getElementById('timer');
-    if (!timerEl) return;
-    timerEl.textContent = timeLeft;
-    timerEl.style.backgroundColor = '#28a745';
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = timeLeft;
-        if (timeLeft <= 3 && timeLeft > 1) timerEl.style.backgroundColor = '#ffc107';
-        else if (timeLeft <= 1) timerEl.style.backgroundColor = '#dc3545';
-        if (timeLeft <= 0) clearInterval(timerInterval);
-    }, 1000);
-    quizTimer = setTimeout(() => handleTimeout(correctAnswer, isReverse), duration * 1000);
-}
+// Hàm handleTimeout và startChoiceTimer đã được loại bỏ vì không còn hiển thị bộ đếm giờ
 
 function showInputCard(card) {
     const isReverse = currentDirection === 'vnToJp';
@@ -411,10 +496,15 @@ function checkAnswer(correctAnswer) {
 function updateStats() {
     let wordsForStats = [];
     let title = "Tổng quan";
-    if (currentLesson && currentLesson !== 'summary') {
+    if (currentLesson && currentLesson !== 'summary' && !currentLesson.startsWith('infinite_challenge_')) {
         wordsForStats = allWords.get(currentLesson) || [];
         title = `Bài ${currentLesson}`;
-    } else {
+    } else if (currentLesson && currentLesson.startsWith('infinite_challenge_')) {
+        const lessonNum = currentLesson.split('_')[2];
+        wordsForStats = allWords.get(lessonNum) || [];
+        title = `Thử thách vô hạn Bài ${lessonNum}`;
+    }
+    else {
         wordsForStats = Array.from(allWords.values()).flat();
     }
     const statsHeader = document.querySelector('#stats h3');
@@ -425,7 +515,7 @@ function updateStats() {
     const newWords = total - learned - learning;
     document.getElementById("totalWords").textContent = total;
     document.getElementById("learnedWords").textContent = learned;
-    document.getElementById("learningWords").textContent = learning;
+    document.getElementById("learningWords").textContent = learning; 
     document.getElementById("newWords").textContent = newWords;
 }
 
@@ -462,14 +552,18 @@ function initSessionForSummary() {
 }
 
 function onLessonChange() {
+    console.log('onLessonChange được gọi. Giá trị đã chọn:', document.getElementById('lessonSelect').value);
     clearTimeout(quizTimer);
     clearInterval(timerInterval);
-    currentLesson = document.getElementById('lessonSelect').value;
-    sessionWords = [];
-    currentPackageIndex = 0;
-    if (currentLesson && currentLesson !== 'summary') {
+    currentPackageIndex = 0; // Reset package index
+    sessionWords = []; // Clear session words
+
+    const selectedValue = document.getElementById('lessonSelect').value;
+    
+    if (selectedValue && selectedValue !== 'summary') {
+        currentLesson = selectedValue;
         displayPackageSelection(currentLesson);
-    } else if (currentLesson === 'summary') {
+    } else if (selectedValue === 'summary') {
         initSessionForSummary();
     } else {
         resetToHome();
@@ -491,7 +585,7 @@ function onDirectionChange() {
 
 function updateBackButton() {
     const container = document.getElementById('backButtonContainer');
-    if (currentLesson && currentLesson !== 'summary' && sessionWords.length > 0) {
+    if (currentLesson && currentLesson !== 'summary' && !currentLesson.startsWith('infinite_challenge_') && sessionWords.length > 0) {
         container.innerHTML = `<button class="back-button" onclick="displayPackageSelection('${currentLesson}')">← Quay lại chọn gói</button>`;
     } else if (currentLesson) {
         container.innerHTML = `<button class="back-button" onclick="resetToHome()">← Quay lại danh sách bài</button>`;
@@ -544,6 +638,7 @@ document.getElementById('importFile').addEventListener('change', function(e) {
             updateLessonDropdown();
             resetToHome();
             alert('Nhập dữ liệu thành công! Dữ liệu cũ đã được cập nhật.');
+            console.log('Dữ liệu từ JSON đã được nhập và lưu vào allWords:', allWords);
         } catch (error) {
             alert('File không hợp lệ!');
             console.error(error);
@@ -608,6 +703,7 @@ window.onload = () => {
     updateLessonDropdown();
     resetToHome();
     onQuizModeChange();
+    console.log('Ứng dụng đã tải xong. Dữ liệu allWords ban đầu:', allWords);
 };
 
 const style = document.createElement('style');
@@ -673,7 +769,7 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
 .back-button, .action-btn { width: 100%; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; border: none; }
 .back-button { background: rgba(108, 117, 125, 0.5); color: var(--text-primary); }
 .action-btn { background: var(--primary-gradient); color: white; margin-top: 15px; }
-.back-button:hover, .action-btn:hover { transform: scale(1.02); opacity: 0.9; }
+.action-btn:hover { transform: scale(1.02); opacity: 0.9; }
 .mastered-tag { color: var(--success-color); }
 .review-tag { color: var(--text-accent); }
 .mastered-tag, .review-tag { font-size: 0.8rem; vertical-align: middle; font-family: var(--font-heading); }
@@ -684,6 +780,8 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
 /* BỔ SUNG: CSS cho nút phát âm */
 .speak-btn { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--text-secondary); transition: all 0.2s ease; vertical-align: middle; padding: 0 5px;}
 .speak-btn:hover { color: var(--text-accent); transform: scale(1.2); }
+/* CSS cho phần thử thách vô hạn */
+.infinite-challenge-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); text-align: center; }
 @media (max-width: 600px) {
     body { padding: 5px; }
     .container { padding: 15px; }
