@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Học Từ Vựng Tiếng Nhật</title>
+    <title>Học Từ Vựng Tiếng Nhật (Cloud Version)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,19 +13,19 @@
 <body>
     <div class="container">
         <header>
-             <a href="../index.html" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
-                &larr; Quay lại trang chủ
-            </a>
             <div class="header-top">
                 <h1>📚 Học Từ Vựng Tiếng Nhật</h1>
-                <button id="theme-toggle" title="Chuyển đổi giao diện">🌙</button>
+                
+                <!-- CẤU TRÚC MENU MỚI -->
+                <!-- Toàn bộ nội dung sẽ được JavaScript chèn vào đây -->
+                <div id="user-menu-container"></div>
             </div>
-            <p>Tải lên file Excel hoặc JSON để bắt đầu học</p>
+            <p>Đồng bộ tiến trình học của bạn trên mọi thiết bị</p>
         </header>
         
         <div class="main-controls">
             <input type="file" id="excelFile" accept=".xlsx" class="file-input">
-            <label for="excelFile" class="file-label">📂 Chọn file Excel...</label>
+            <label for="excelFile" class="file-label">📂 Chọn file Excel để tải lên</label>
         </div>
 
         <div class="lesson-controls">
@@ -68,7 +68,7 @@
         </div>
 
         <div id="cardContainer">
-             <p class="placeholder-text">Vui lòng chọn một bài học để bắt đầu.</p>
+             <p class="placeholder-text">Vui lòng đăng nhập để bắt đầu học và đồng bộ tiến trình của bạn.</p>
         </div>
 
         <footer>
@@ -78,7 +78,33 @@
         </footer>
     </div>
 
+    <!-- Firebase SDK (Sử dụng phiên bản 8 để tương thích với cú pháp trong app.js) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- Khởi tạo Firebase -->
+    <script>
+      // QUAN TRỌNG: Thay thế các giá trị dưới đây bằng cấu hình Firebase của bạn
+      const firebaseConfig = {
+        apiKey: "AIzaSyAFQSdwL6wukhwCVBzZT7IWDTjY9TxdfHM",
+        authDomain: "hoc-tieng-nhat-app.firebaseapp.com",
+        projectId: "hoc-tieng-nhat-app",
+        storageBucket: "hoc-tieng-nhat-app.firebasestorage.app",
+        messagingSenderId: "415468899123",
+        appId: "1:415468899123:web:c9c43b12ad28ce172d8c46"
+      };
+
+      // Khởi tạo Firebase và các dịch vụ
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+    </script>
+
+    <!-- Thư viện đọc file Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    
+    <!-- File logic chính của ứng dụng -->
     <script src="app.js"></script>
 </body>
 </html>

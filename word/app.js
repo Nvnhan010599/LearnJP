@@ -1,5 +1,146 @@
-// --- LOGIC CHÍNH CỦA ỨNG DỤNG ---
+// --- PHẦN KHỞI TẠO VÀ CẤU HÌNH FIREBASE ---
+let currentUser = null;
 
+function signInWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .catch(error => {
+            console.error("Lỗi khi đăng nhập:", error);
+            alert("Đăng nhập thất bại. Vui lòng thử lại.");
+        });
+}
+
+function signOut() {
+    auth.signOut().catch(error => console.error("Lỗi khi đăng xuất:", error));
+}
+
+// THEO DÕI TRẠNG THÁI ĐĂNG NHẬP
+auth.onAuthStateChanged(user => {
+    const menuContainer = document.getElementById('user-menu-container');
+    const mainControls = document.querySelector('.main-controls');
+    const lessonControls = document.querySelector('.lesson-controls');
+    const statsContainer = document.getElementById('stats');
+    const cardContainer = document.getElementById('cardContainer');
+    const footer = document.querySelector('footer');
+
+    if (user) {
+        // --- NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP ---
+        currentUser = user;
+        menuContainer.innerHTML = `
+            <div id="user-avatar-menu">
+                <img id="userAvatar" src="${user.photoURL}" alt="User Avatar" class="avatar-btn" title="Mở menu">
+                <div id="userDropdown" class="dropdown-content">
+                    <div class="dropdown-header">
+                        <img src="${user.photoURL}" alt="User Avatar" class="avatar-in-menu">
+                        <div>
+                            <strong>${user.displayName}</strong>
+                            <span class="email-text">${user.email}</span>
+                        </div>
+                    </div>
+                    <a href="#" id="themeToggleBtn" class="dropdown-item">
+                        <!-- Icon và text sẽ được JS cập nhật -->
+                    </a>
+                    <a href="#" id="logoutBtn" class="dropdown-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                          <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                        </svg>
+                        <span>Đăng xuất</span>
+                    </a>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('userAvatar').addEventListener('click', toggleUserMenu);
+        document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); signOut(); });
+        document.getElementById('themeToggleBtn').addEventListener('click', (e) => { e.preventDefault(); toggleTheme(); });
+        
+        updateThemeButton();
+
+        mainControls.style.display = 'block';
+        lessonControls.style.display = 'flex';
+        statsContainer.style.display = 'block';
+        footer.style.display = 'flex';
+
+        loadDataFromFirebase();
+
+    } else {
+        // --- NGƯỜI DÙNG CHƯA ĐĂNG NHẬP ---
+        currentUser = null;
+        menuContainer.innerHTML = `<button id="loginBtn" class="auth-btn login">🔑 Đăng nhập với Google</button>`;
+        document.getElementById('loginBtn').addEventListener('click', signInWithGoogle);
+        
+        allWords = new Map();
+        resetToHome();
+        updateLessonDropdown();
+        
+        mainControls.style.display = 'none';
+        lessonControls.style.display = 'none';
+        statsContainer.style.display = 'none';
+        footer.style.display = 'none';
+        
+        cardContainer.innerHTML = '<p class="placeholder-text">Vui lòng đăng nhập để bắt đầu học và đồng bộ tiến trình của bạn.</p>';
+    }
+});
+
+// --- LOGIC ĐIỀU KHIỂN MENU DROPDOWN ---
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+window.onclick = function(event) {
+    if (!event.target.matches('.avatar-btn')) {
+        const dropdowns = document.getElementsByClassName("dropdown-content");
+        for (let i = 0; i < dropdowns.length; i++) {
+            let openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
+
+// --- LOGIC LƯU VÀ TẢI DỮ LIỆU VỚI FIRESTORE ---
+async function saveDataToFirebase() {
+    if (!currentUser) return; 
+    const dataToSave = Object.fromEntries(allWords.entries());
+    try {
+        await db.collection('users').doc(currentUser.uid).set({
+            vocabData: dataToSave,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('Dữ liệu đã được đồng bộ lên Firebase!');
+    } catch (error) {
+        console.error("Lỗi khi lưu dữ liệu lên Firebase:", error);
+        alert("Không thể đồng bộ dữ liệu. Vui lòng kiểm tra kết nối mạng.");
+    }
+}
+
+async function loadDataFromFirebase() {
+    if (!currentUser) return;
+    const docRef = db.collection('users').doc(currentUser.uid);
+    try {
+        const doc = await docRef.get();
+        if (doc.exists) {
+            const data = doc.data().vocabData;
+            allWords = new Map(Object.entries(data));
+            console.log('Dữ liệu đã được tải từ Firebase.');
+        } else {
+            console.log('Không tìm thấy dữ liệu cũ, bắt đầu một phiên học mới.');
+            allWords = new Map();
+        }
+    } catch (error) {
+        console.error("Lỗi khi tải dữ liệu từ Firebase:", error);
+        allWords = new Map();
+    }
+    updateLessonDropdown();
+    resetToHome();
+}
+
+// --- LOGIC CHÍNH CỦA ỨNG DỤNG ---
 let allWords = new Map();
 let currentLesson = null;
 let quizMode = "multipleChoice";
@@ -8,74 +149,13 @@ let currentDirection = "jpToVn";
 let sessionWords = [];
 let usedWords = [];
 let currentCard = null;
-
 let currentPackageIndex = 0;
-const PACKAGE_SIZE = 10; 
-const BASE_QUIZ_TIMER_DURATION = 6; // Thời gian cơ bản
-const CHAR_PER_SECOND_RATE = 0.5; // Tốc độ tăng thời gian theo ký tự
-
+const PACKAGE_SIZE = 10;
+const BASE_QUIZ_TIMER_DURATION = 6;
+const CHAR_PER_SECOND_RATE = 0.5;
 let quizTimer = null;
-let timerInterval = null; // Biến này không còn được dùng cho hiển thị, nhưng giữ lại để clear
-let isTimedOut = false; // Biến cờ để theo dõi trạng thái hết giờ ẩn
-// let skipNextQuestionSpeech = false; // Cờ này không còn cần thiết khi bỏ tính năng phát âm
-
-// BỔ SUNG: Hàm phát âm thanh sử dụng Web Speech API (ĐÃ BỊ LOẠI BỎ)
-/*
-function speakText(text, applySplitLogic = true) { 
-    return new Promise((resolve, reject) => {
-        if (!('speechSynthesis' in window)) {
-            console.warn('Rất tiếc, trình duyệt của bạn không hỗ trợ tính năng phát âm thanh.');
-            resolve(); 
-            return;
-        }
-
-        window.speechSynthesis.cancel(); 
-
-        let partsToSpeak = [text]; 
-        if (applySplitLogic) {
-            partsToSpeak = text.split(/(I|II|III)/); 
-        }
-        
-        let currentPartIndex = 0;
-
-        const speakNextPart = () => {
-            if (currentPartIndex >= partsToSpeak.length) {
-                resolve(); 
-                return;
-            }
-
-            const part = partsToSpeak[currentPartIndex].trim();
-
-            if (applySplitLogic && (part === 'I' || part === 'II' || part === 'III')) {
-                currentPartIndex++; 
-                setTimeout(() => {
-                    speakNextPart(); 
-                }, 2000); 
-            } else if (part) {
-                const utterance = new SpeechSynthesisUtterance(part);
-                utterance.lang = 'ja-JP';
-                utterance.rate = 0.9;
-
-                utterance.onend = () => {
-                    currentPartIndex++;
-                    speakNextPart(); 
-                };
-                utterance.onerror = (event) => {
-                    console.error('SpeechSynthesisUtterance.onerror', event);
-                    reject(event); 
-                };
-
-                window.speechSynthesis.speak(utterance);
-            } else {
-                currentPartIndex++;
-                speakNextPart();
-            }
-        };
-
-        speakNextPart(); 
-    });
-}
-*/
+let timerInterval = null;
+let isTimedOut = false;
 
 function shuffleArray(array) {
     let currentIndex = array.length,  randomIndex;
@@ -88,14 +168,12 @@ function shuffleArray(array) {
 }
 
 function romajiToHiragana(text) {
-    // Đã sửa các ký tự Hiragana bị sai chính tả
     const romajiMap = { 'a': 'あ', 'i': 'い', 'u': 'う', 'e': 'え', 'o': 'お', 'ka': 'か', 'ki': 'き', 'ku': 'く', 'ke': 'け', 'ko': 'こ', 'sa': 'さ', 'shi': 'し', 'su': 'す', 'se': 'せ', 'so': 'そ', 'ta': 'た', 'chi': 'ち', 'tsu': 'tsu', 'te': 'て', 'to': 'と', 'na': 'な', 'ni': 'ni', 'nu': 'ぬ', 'ne': 'ね', 'no': 'no', 'ha': 'ha', 'hi': 'hi', 'fu': 'ふ', 'he': 'he', 'ho': 'ほ', 'ma': 'ま', 'mi': 'mi', 'mu': 'む', 'me': 'め', 'mo': 'も', 'ya': 'ya', 'yu': 'yu', 'yo': 'yo', 'ra': 'ら', 'ri': 'ri', 'ru': 'る', 're': 'れ', 'ro': 'ろ', 'wa': 'わ', 'wo': 'を', 'n': 'ん', 'ga': 'が', 'gi': 'ぎ', 'gu': 'ぐ', 'ge': 'げ', 'go': 'ご', 'za': 'ざ', 'ji': 'じ', 'zu': 'zu', 'ze': 'ze', 'zo': 'ぞ', 'da': 'だ', 'di': 'ぢ', 'du': 'づ', 'de': 'で', 'do': 'ど', 'ba': 'ba', 'bi': 'び', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ', 'pa': 'ぱ', 'pi': 'ぴ', 'pu': 'ぷ', 'pe': 'ぺ', 'po': 'ぽ', 'kya': 'きゃ', 'kyu': 'きゅ', 'kyo': 'きょ', 'sha': 'しゃ', 'shu': 'しゅ', 'sho': 'しょ', 'cha': 'ちゃ', 'chu': 'ちゅ', 'cho': 'ちょ', 'nya': 'にゃ', 'nyu': 'にゅ', 'nyo': 'にょ', 'hya': 'ひゃ', 'hyu': 'ひゅ', 'hyo': 'ひょ', 'mya': 'みゃ', 'myu': 'みゅ', 'myo': 'みょ', 'rya': 'りゃ', 'ryu': 'りゅ', 'ryo': 'りょ', 'gya': 'ぎゃ', 'gyu': 'ぎゅ', 'gyo': 'ぎょ', 'ja': 'じゃ', 'ju': 'じゅ', 'jo': 'じょ', 'bya': 'びゃ', 'byu': 'びゅ', 'byo': 'びょ', 'pya': 'ぴゃ', 'pyu': 'ぴゅ', 'pyo': 'ぴょ', '-': 'ー' };
     let result = '';
     text = text.toLowerCase();
     for (let i = 0; i < text.length; i++) {
         const char = text[i];
         const nextChar = text[i + 1];
-        // Xử lý âm ngắt 'っ'
         if (nextChar && 'aiueo'.indexOf(nextChar) < 0 && char === nextChar && char !== 'n') { 
             result += 'っ'; 
             continue; 
@@ -151,7 +229,7 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
             allWords.get(lesson).push(vocab);
         });
         updateLessonDropdown();
-        localStorage.setItem('vocabData', JSON.stringify(Array.from(allWords.entries())));
+        saveDataToFirebase();
         resetToHome();
         console.log('Dữ liệu từ Excel đã được tải và lưu vào allWords:', allWords);
     };
@@ -169,23 +247,27 @@ function updateLessonDropdown() {
     summaryOption.textContent = `📚 Tổng Kết (${masteredWords.length} từ đã thuộc)`;
     lessonSelect.appendChild(summaryOption);
     
-    const sortedLessons = Array.from(allWords.keys()).sort((a, b) => parseInt(a) - parseInt(b));
+    if (allWords && allWords.size > 0) {
+        const sortedLessons = Array.from(allWords.keys()).sort((a, b) => parseInt(a) - parseInt(b));
 
-    sortedLessons.forEach(lesson => {
-        const wordsInLesson = allWords.get(lesson) || [];
-        const total = wordsInLesson.length;
-        if (total === 0) return;
-        const mastered = wordsInLesson.filter(word => word.mastered).length;
-        
-        const option = document.createElement('option');
-        option.value = lesson;
-        let text = `Bài ${lesson} (${mastered}/${total})`;
-        if (mastered === total) { text += ' ✓'; }
-        option.textContent = text;
-        lessonSelect.appendChild(option);
-    });
-    lessonSelect.value = currentSelectedValue;
-    lessonSelect.disabled = false;
+        sortedLessons.forEach(lesson => {
+            const wordsInLesson = allWords.get(lesson) || [];
+            const total = wordsInLesson.length;
+            if (total === 0) return;
+            const mastered = wordsInLesson.filter(word => word.mastered).length;
+            
+            const option = document.createElement('option');
+            option.value = lesson;
+            let text = `Bài ${lesson} (${mastered}/${total})`;
+            if (mastered === total) { text += ' ✓'; }
+            option.textContent = text;
+            lessonSelect.appendChild(option);
+        });
+        lessonSelect.value = currentSelectedValue;
+        lessonSelect.disabled = false;
+    } else {
+        lessonSelect.disabled = true;
+    }
 }
 
 function displayPackageSelection(lesson) {
@@ -205,7 +287,6 @@ function displayPackageSelection(lesson) {
     let packageHtml = `<h3 class="package-title">Chọn gói từ vựng cho Bài ${lesson}</h3><div class="package-container">`;
     for (let i = 0; i < numPackages; i++) {
         const startWordIndex = i * PACKAGE_SIZE;
-        // Sửa lỗi: Đảm bảo endIndex được sử dụng đúng trong chuỗi template
         const currentEndIndex = Math.min(startWordIndex + PACKAGE_SIZE, totalWords); 
         const packageWords = wordsInLesson.slice(startWordIndex, currentEndIndex);
         const masteredInPackage = packageWords.filter(w => w.mastered).length;
@@ -221,7 +302,6 @@ function displayPackageSelection(lesson) {
     }
     packageHtml += '</div>';
 
-    // Thêm nút "Thử thách vô hạn" nếu tất cả các gói trong bài đã hoàn thành
     const allMasteredInLesson = wordsInLesson.every(word => word.mastered);
     if (allMasteredInLesson && totalWords > 0) {
         packageHtml += `
@@ -247,18 +327,17 @@ function startPackage(lesson, packageIndex) {
     updateBackButton();
 }
 
-// Hàm mới để bắt đầu Thử thách vô hạn
 function startInfiniteChallenge(lessonNum) {
-    currentLesson = `infinite_challenge_${lessonNum}`; // Đặt tên đặc biệt để phân biệt
-    sessionWords = allWords.get(lessonNum) || []; // Lấy tất cả từ của bài đó
-    usedWords = []; // Reset used words
+    currentLesson = `infinite_challenge_${lessonNum}`;
+    sessionWords = allWords.get(lessonNum) || [];
+    usedWords = [];
     if (sessionWords.length === 0) {
         document.getElementById('cardContainer').innerHTML = `<p class="placeholder-text">Bài ${lessonNum} không có từ vựng để thử thách vô hạn.</p>`;
         return;
     }
     showNextCard();
     updateBackButton();
-    updateStats(); // Cập nhật thống kê cho toàn bài
+    updateStats();
 }
 
 
@@ -266,38 +345,34 @@ function updateSRS(card, isCorrect, directionKey) {
     if (isCorrect) {
         if (card.srs[directionKey] < 3) card.srs[directionKey]++;
     } else {
-        // Reset cả hai chiều nếu trả lời sai hoặc hết giờ
         card.srs.jpToVn = 0;
         card.srs.vnToJp = 0;
     }
     card.mastered = card.srs.jpToVn >= 3 && card.srs.vnToJp >= 3;
-    localStorage.setItem('vocabData', JSON.stringify(Array.from(allWords.entries())));
+    saveDataToFirebase();
 }
 
 function showNextCard() {
     isShowingResult = false;
-    isTimedOut = false; // Reset cờ hết giờ cho thẻ mới
-    clearTimeout(quizTimer); // Xóa bất kỳ bộ đếm thời gian nào đang chạy
-    clearInterval(timerInterval); // Xóa bất kỳ interval nào đang chạy (không còn dùng cho hiển thị)
+    isTimedOut = false; 
+    clearTimeout(quizTimer);
+    clearInterval(timerInterval);
 
     const container = document.getElementById('cardContainer');
     if (!sessionWords || sessionWords.length === 0) return;
 
     let availableWords;
-    // Logic cho Thử thách vô hạn và Tổng kết
     if (currentLesson === 'summary' || currentLesson.startsWith('infinite_challenge_')) {
         availableWords = sessionWords.filter(word => !usedWords.slice(-3).includes(word));
         if (availableWords.length === 0 && sessionWords.length > 0) {
             usedWords = [];
             availableWords = sessionWords;
         }
-        // Nếu không có từ nào khả dụng sau khi reset, hiển thị thông báo hoàn thành
         if (!availableWords || availableWords.length === 0) {
             container.innerHTML = `<p>🎉 Bạn đã ôn tập hết các từ trong phiên này.</p>`;
             return;
         }
     } 
-    // Logic cho học theo gói thông thường
     else {
         const allMasteredInPackage = sessionWords.every(word => word.mastered);
         if (allMasteredInPackage) {
@@ -336,16 +411,13 @@ function showNextCard() {
         showInputCard(currentCard);
     } else {
         showMultipleChoiceCard(currentCard);
-        // Tính toán thời gian động
         const termToMeasure = currentCard.kanji ? `${currentCard.term} (${currentCard.kanji})` : currentCard.term;
         const dynamicQuizDuration = BASE_QUIZ_TIMER_DURATION + Math.max(0, termToMeasure.length - 4) * CHAR_PER_SECOND_RATE;
-        console.log(`Từ: "${termToMeasure}" (${termToMeasure.length} ký tự), Thời gian: ${dynamicQuizDuration.toFixed(2)} giây`); // Log thời gian động
-
-        // Thiết lập bộ đếm thời gian ẩn với thời gian động
-        const directionKey = currentDirection === 'vnToJp' ? 'vnToJp' : 'jpToVn'; // Xác định chiều để reset SRS
+        
+        const directionKey = currentDirection === 'vnToJp' ? 'vnToJp' : 'jpToVn';
         quizTimer = setTimeout(() => {
             isTimedOut = true;
-            updateSRS(currentCard, false, directionKey); // Đặt lại SRS một cách ẩn nếu hết giờ
+            updateSRS(currentCard, false, directionKey);
         }, dynamicQuizDuration * 1000);
     }
 }
@@ -357,14 +429,12 @@ function showMultipleChoiceCard(card) {
     const needsJpVn = jpToVn < 3;
     const needsVnJp = vnToJp < 3;
     
-    // Cải thiện logic trộn câu hỏi:
     if (needsJpVn && needsVnJp) {
-        // Nếu cả hai chiều đều cần ôn tập, chọn ngẫu nhiên
-        isReverse = Math.random() < 0.5; // 50% VN->JP, 50% for JP->VN
+        isReverse = Math.random() < 0.5;
     } else if (needsVnJp) {
-        isReverse = true; // Chỉ cần ôn tập VN->JP
+        isReverse = true;
     } else {
-        isReverse = false; // Chỉ cần ôn tập JP->VN, hoặc từ đã thuộc hoàn toàn
+        isReverse = false;
     }
 
     const displayText = isReverse ? card.meaning : (card.kanji ? `${card.term} (${card.kanji})` : card.term);
@@ -372,41 +442,27 @@ function showMultipleChoiceCard(card) {
     const choices = generateChoices(isReverse, card);
     const statusTag = card.mastered ? '<span class="mastered-tag">✓ Đã thuộc</span>' : (jpToVn > 0 || vnToJp > 0 ? '<span class="review-tag">⏳ Đang học...</span>' : '');
     
-    // CẢI TIẾN: Thêm nút loa khi hiển thị từ tiếng Nhật (ĐÃ BỊ LOẠI BỎ CHỨC NĂNG)
-    // const speakButton = !isReverse ? `<button class="speak-btn" onclick="speakText('${card.term}', true)">🔊</button>` : ''; 
-
     document.getElementById('cardContainer').innerHTML = `
         <div class="card">
             <h2>${displayText} ${statusTag}</h2>
             <div class="choices-container">${choices.map(choice => `<button class="choice-btn" onclick="handleChoiceClick(this, '${choice.replace(/'/g, "\\'")}', '${correctAnswer.replace(/'/g, "\\'")}', ${isReverse})">${choice}</button>`).join('')}</div>
             <div id="keyGuide">Bấm phím số 1-4 để chọn</div>
         </div>`;
-    
-    // Tự động phát âm khi hiển thị câu hỏi tiếng Nhật (ĐÃ BỊ LOẠI BỎ CHỨC NĂNG)
-    /*
-    if (!isReverse && !skipNextQuestionSpeech) { 
-        speakText(card.term, true); 
-    }
-    skipNextQuestionSpeech = false; 
-    */
 }
 
 function generateChoices(isReverse, currentCard) {
-    // Xác định câu trả lời đúng
     const correctAnswer = isReverse
         ? (currentCard.kanji ? `${currentCard.term} (${currentCard.kanji})` : currentCard.term)
         : currentCard.meaning;
         
-    const allPossibleWords = Array.from(allWords.values()).flat();
+    const allPossibleWords = (allWords && allWords.size > 0) ? Array.from(allWords.values()).flat() : [];
     let choices = [correctAnswer];
     const uniqueAnswers = new Set(choices);
 
-    // Lấy các đáp án nhiễu đã được định nghĩa trước trong file Excel
     const currentDummies = isReverse ? currentCard.jpDummies : currentCard.vnDummies;
     currentDummies.forEach(dummy => {
         if (choices.length >= 4) return;
         let processedDummy = dummy;
-        // Nếu các lựa chọn là tiếng Nhật, thêm kanji cho các từ nhiễu nếu có
         if (isReverse) {
             const kanjiData = allPossibleWords.find(w => w.term === dummy);
             if (kanjiData && kanjiData.kanji) {
@@ -419,19 +475,14 @@ function generateChoices(isReverse, currentCard) {
         }
     });
 
-    // Lấy thêm các từ khác trong toàn bộ từ vựng để làm đáp án nhiễu
     const otherWords = allPossibleWords.filter(word => word.term !== currentCard.term);
     shuffleArray(otherWords);
 
     while (choices.length < 4 && otherWords.length > 0) {
         const word = otherWords.pop();
-        
-        // SỬA LỖI: Đảm bảo "candidate" (đáp án nhiễu) luôn là ngôn ngữ đúng
-        // Nếu isReverse (hỏi tiếng Việt), các lựa chọn phải là tiếng Nhật.
-        // Nếu không (hỏi tiếng Nhật), các lựa chọn phải là tiếng Việt.
         const candidate = isReverse
-            ? (word.kanji ? `${word.term} (${word.kanji})` : word.term) // Lựa chọn tiếng Nhật
-            : word.meaning; // Lựa chọn tiếng Việt
+            ? (word.kanji ? `${word.term} (${word.kanji})` : word.term)
+            : word.meaning;
 
         if (!uniqueAnswers.has(candidate)) {
             choices.push(candidate);
@@ -443,40 +494,28 @@ function generateChoices(isReverse, currentCard) {
 }
 
 function handleChoiceClick(button, selectedValue, correctAnswer, isReverse) {
-    if (isShowingResult) return; // Ngăn chặn xử lý nhiều lần nếu click nhanh
-    clearTimeout(quizTimer); // Dừng bộ đếm thời gian ẩn
-    clearInterval(timerInterval); // Dừng interval (nếu có, mặc dù không còn dùng cho hiển thị)
-    isShowingResult = true; // Đánh dấu rằng một câu trả lời đã được xử lý
+    if (isShowingResult) return;
+    clearTimeout(quizTimer);
+    clearInterval(timerInterval);
+    isShowingResult = true;
 
-    const isCorrectAttempt = selectedValue === correctAnswer; // User's current selection is correct
+    const isCorrectAttempt = selectedValue === correctAnswer;
     const directionKey = isReverse ? 'vnToJp' : 'jpToVn';
 
-    // Áp dụng phản hồi trực quan ngay lập tức
     document.querySelectorAll('.choice-btn').forEach(btn => {
-        btn.disabled = true; // Vô hiệu hóa tất cả các nút sau khi chọn
+        btn.disabled = true;
         if (btn.textContent.trim() === correctAnswer) btn.classList.add('correct');
     });
     if (!isCorrectAttempt) button.classList.add('incorrect');
 
-    // Cập nhật SRS chỉ khi KHÔNG hết giờ.
-    // Nếu hết giờ (isTimedOut là true), SRS đã được reset bởi quizTimer.
     if (!isTimedOut) { 
         updateSRS(currentCard, isCorrectAttempt, directionKey);
     } 
 
-    // Determine what text to speak and when to transition
-    // let speechPromise = Promise.resolve(); // Mặc định là Promise đã giải quyết nếu không có phát âm (ĐÃ BỊ LOẠI BỎ)
-    let delayBeforeNextAction = 1000; // Độ trễ mặc định cho phản hồi tích cực
+    let delayBeforeNextAction = 1000;
 
-    if (isCorrectAttempt) { // Nếu người dùng trả lời đúng (dù trong hay ngoài thời gian)
-        // if (isReverse) { // Nếu câu hỏi là tiếng Việt, đáp án đúng là tiếng Nhật (ĐÃ BỊ LOẠI BỎ CHỨC NĂNG PHÁT ÂM)
-        //     speechPromise = speakText(correctAnswer, true); 
-        //     delayBeforeNextAction = 1000; 
-        //     skipNextQuestionSpeech = true; 
-        // } else { 
-            delayBeforeNextAction = 1000; 
-            // skipNextQuestionSpeech = false; // Đảm bảo cờ là false nếu không cần bỏ qua (ĐÃ BỊ LOẠI BỎ)
-        // }
+    if (isCorrectAttempt) {
+        delayBeforeNextAction = 1000;
     } else if (currentLesson === 'summary' && !isCorrectAttempt) { 
         const originalLesson = currentCard.lesson;
         sessionWords = sessionWords.filter(word => word.term !== currentCard.term); 
@@ -486,48 +525,24 @@ function handleChoiceClick(button, selectedValue, correctAnswer, isReverse) {
         }, 1500);
         return; 
     } else { 
-        delayBeforeNextAction = 2000; 
-        // speechPromise = Promise.resolve(); // Không phát âm cho câu trả lời sai (ĐÃ BỊ LOẠI BỎ)
-        // skipNextQuestionSpeech = false; // Đảm bảo cờ là false nếu không cần bỏ qua (ĐÃ BỊ LOẠI BỎ)
+        delayBeforeNextAction = 2000;
     }
 
-    // Chờ cho việc phát âm hoàn tất (nếu có), sau đó thực hiện bước tiếp theo (ĐÃ BỊ LOẠI BỎ)
-    // speechPromise.then(() => {
-        setTimeout(() => {
-            if (isCorrectAttempt) { 
-                showNextCard();
-            } else { 
-                isShowingResult = false; 
-                if (quizMode === 'input') {
-                    showInputCard(currentCard);
-                } else {
-                    showMultipleChoiceCard(currentCard);
-                }
+    setTimeout(() => {
+        if (isCorrectAttempt) { 
+            showNextCard();
+        } else { 
+            isShowingResult = false; 
+            if (quizMode === 'input') {
+                showInputCard(currentCard);
+            } else {
+                showMultipleChoiceCard(currentCard);
             }
-            updateStats(); 
-            updateLessonDropdown(); 
-        }, delayBeforeNextAction);
-    // }).catch(error => {
-    //     console.error("Lỗi trong quá trình phát âm hoặc chuyển đổi:", error);
-    //     // Fallback: tiếp tục mà không phát âm nếu có lỗi
-    //     setTimeout(() => {
-    //         if (isCorrectAttempt) {
-    //             showNextCard();
-    //         } else {
-    //             isShowingResult = false;
-    //             if (quizMode === 'input') {
-    //                 showInputCard(currentCard);
-    //             } else {
-    //                 showMultipleChoiceCard(currentCard);
-    //             }
-    //         }
-    //         updateStats();
-    //         updateLessonDropdown();
-    //     }, delayBeforeNextAction);
-    // });
+        }
+        updateStats(); 
+        updateLessonDropdown(); 
+    }, delayBeforeNextAction);
 }
-
-// Hàm handleTimeout và startChoiceTimer đã được loại bỏ vì không còn hiển thị bộ đếm giờ
 
 function showInputCard(card) {
     const isReverse = currentDirection === 'vnToJp';
@@ -536,9 +551,6 @@ function showInputCard(card) {
     const correctAnswer = isReverse ? card.term : card.meaning;
     const statusTag = card.mastered ? '<span class="mastered-tag">✓ Đã thuộc</span>' : (card.srs.jpToVn > 0 || card.srs.vnToJp > 0 ? '<span class="review-tag">⏳ Đang học...</span>' : '');
     
-    // CẢI TIẾN: Thêm nút loa khi hiển thị từ tiếng Nhật (ĐÃ BỊ LOẠI BỎ CHỨC NĂNG)
-    // const speakButton = !isReverse ? `<button class="speak-btn" onclick="speakText('${card.term}', true)">🔊</button>` : ''; 
-
     document.getElementById('cardContainer').innerHTML = `
         <div class="card">
             <h2>${displayText} ${statusTag}</h2>
@@ -581,17 +593,20 @@ function checkAnswer(correctAnswer) {
 function updateStats() {
     let wordsForStats = [];
     let title = "Tổng quan";
-    if (currentLesson && currentLesson !== 'summary' && !currentLesson.startsWith('infinite_challenge_')) {
-        wordsForStats = allWords.get(currentLesson) || [];
-        title = `Bài ${currentLesson}`;
-    } else if (currentLesson && currentLesson.startsWith('infinite_challenge_')) {
-        const lessonNum = currentLesson.split('_')[2];
-        wordsForStats = allWords.get(lessonNum) || [];
-        title = `Thử thách vô hạn Bài ${lessonNum}`;
+    if (allWords && allWords.size > 0) {
+        if (currentLesson && currentLesson !== 'summary' && !currentLesson.startsWith('infinite_challenge_')) {
+            wordsForStats = allWords.get(currentLesson) || [];
+            title = `Bài ${currentLesson}`;
+        } else if (currentLesson && currentLesson.startsWith('infinite_challenge_')) {
+            const lessonNum = currentLesson.split('_')[2];
+            wordsForStats = allWords.get(lessonNum) || [];
+            title = `Thử thách vô hạn Bài ${lessonNum}`;
+        }
+        else {
+            wordsForStats = Array.from(allWords.values()).flat();
+        }
     }
-    else {
-        wordsForStats = Array.from(allWords.values()).flat();
-    }
+    
     const statsHeader = document.querySelector('#stats h3');
     if (statsHeader) statsHeader.textContent = `📊 Thống kê (${title})`;
     const total = wordsForStats.length;
@@ -605,6 +620,7 @@ function updateStats() {
 }
 
 function getMasteredWords() {
+    if (!allWords || allWords.size === 0) return [];
     return Array.from(allWords.values()).flat().filter(word => word.mastered);
 }
 
@@ -637,11 +653,10 @@ function initSessionForSummary() {
 }
 
 function onLessonChange() {
-    console.log('onLessonChange được gọi. Giá trị đã chọn:', document.getElementById('lessonSelect').value);
     clearTimeout(quizTimer);
     clearInterval(timerInterval);
-    currentPackageIndex = 0; // Reset package index
-    sessionWords = []; // Clear session words
+    currentPackageIndex = 0;
+    sessionWords = [];
 
     const selectedValue = document.getElementById('lessonSelect').value;
     
@@ -686,14 +701,16 @@ function resetToHome() {
     currentLesson = null;
     sessionWords = [];
     updateBackButton();
-    document.getElementById('cardContainer').innerHTML = '<p class="placeholder-text">Vui lòng chọn một bài học để bắt đầu.</p>';
+    if (currentUser) {
+        document.getElementById('cardContainer').innerHTML = '<p class="placeholder-text">Vui lòng chọn một bài học để bắt đầu.</p>';
+    }
     updateStats();
 }
 
 function exportData() {
-    const data = localStorage.getItem('vocabData');
-    if (!data) return alert('Không có dữ liệu để xuất!');
-    const blob = new Blob([data], { type: 'application/json' });
+    if (!allWords || allWords.size === 0) return alert('Không có dữ liệu để xuất!');
+    const dataToExport = JSON.stringify(Array.from(allWords.entries()));
+    const blob = new Blob([dataToExport], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -714,16 +731,19 @@ document.getElementById('importFile').addEventListener('change', function(e) {
             for(const words of allWords.values()){
                 words.forEach(word => {
                     if(!word.srs) {
-                        word.srs = { jpToVn: word.repetitions >= 3 ? 3 : 0, vnToJp: word.repetitions >= 3 ? 3 : 0 };
-                        delete word.repetitions;
+                        word.srs = { jpToVn: 0, vnToJp: 0 };
+                        if (word.mastered) {
+                            word.srs.jpToVn = 3;
+                            word.srs.vnToJp = 3;
+                        }
                     }
+                    delete word.repetitions;
                 });
             }
-            localStorage.setItem('vocabData', JSON.stringify(Array.from(allWords.entries())));
+            saveDataToFirebase();
             updateLessonDropdown();
             resetToHome();
-            alert('Nhập dữ liệu thành công! Dữ liệu cũ đã được cập nhật.');
-            console.log('Dữ liệu từ JSON đã được nhập và lưu vào allWords:', allWords);
+            alert('Nhập dữ liệu thành công! Dữ liệu của bạn đang được đồng bộ hóa.');
         } catch (error) {
             alert('File không hợp lệ!');
             console.error(error);
@@ -733,13 +753,34 @@ document.getElementById('importFile').addEventListener('change', function(e) {
     e.target.value = '';
 });
 
+// --- LOGIC GIAO DIỆN (THEME) ---
 function setTheme(theme) {
     localStorage.setItem('theme', theme);
     document.body.setAttribute('data-theme', theme);
-    const toggleButton = document.getElementById('theme-toggle');
-    if (toggleButton) {
-        toggleButton.textContent = theme === 'dark' ? '☀️' : '🌙';
-        toggleButton.title = theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối';
+    updateThemeButton();
+}
+
+function updateThemeButton() {
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    if (!themeToggleBtn) return;
+
+    const currentTheme = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+        themeToggleBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="bi bi-sun-fill">
+              <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+            </svg>
+            <span>Giao diện Sáng</span>
+        `;
+    } else {
+        themeToggleBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="bi bi-moon-stars-fill">
+              <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+              <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162h1.212a.217.217 0 0 1 .134.386l-.979.713.387 1.162a.217.217 0 0 1-.316.242l-.979-.712-1.03.752a.217.217 0 0 1-.316-.242l.387-1.162-.979-.713a.217.217 0 0 1 .134-.386h1.212l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a.715.715 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a.715.715 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+            </svg>
+            <span>Giao diện Tối</span>
+        `;
     }
 }
 
@@ -752,45 +793,20 @@ function toggleTheme() {
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (savedTheme) setTheme(savedTheme);
-    else if (prefersDark) setTheme('dark');
-    else setTheme('light');
+    if (savedTheme) {
+        setTheme(savedTheme);
+    } else {
+        setTheme(prefersDark ? 'dark' : 'light');
+    }
 }
 
 window.onload = () => {
     initTheme();
-    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-    const savedData = localStorage.getItem('vocabData');
-    if (savedData) {
-        try {
-            const parsedData = JSON.parse(savedData);
-            if (Array.isArray(parsedData)) {
-                allWords = new Map(parsedData);
-                for(const words of allWords.values()){
-                    words.forEach(word => {
-                        if(word.repetitions !== undefined) {
-                            word.srs = { jpToVn: 0, vnToJp: 0 };
-                            if(word.mastered) {
-                                word.srs.jpToVn = 3;
-                                word.srs.vnToJp = 3;
-                            }
-                            delete word.repetitions;
-                        }
-                    });
-                }
-            }
-            else localStorage.removeItem('vocabData');
-        } catch (e) {
-            console.error("Could not parse vocabData from localStorage", e);
-            localStorage.removeItem('vocabData');
-        }
-    }
-    updateLessonDropdown();
-    resetToHome();
     onQuizModeChange();
-    console.log('Ứng dụng đã tải xong. Dữ liệu allWords ban đầu:', allWords);
+    console.log('Ứng dụng đã sẵn sàng. Chờ trạng thái đăng nhập...');
 };
 
+// CSS MỚI CHO MENU NGƯỜI DÙNG
 const style = document.createElement('style');
 style.textContent = `
 :root {
@@ -802,12 +818,14 @@ body[data-theme='light'] {
     --bg-main: #f4f7f9; --bg-content: #ffffff; --bg-card: rgba(255, 255, 255, 0.8);
     --border-color: #e0e6ed; --text-primary: #1e1e1e; --text-secondary: #5a6268;
     --text-accent: #0056b3; --shadow-light: rgba(0, 0, 0, 0.1); --shadow-heavy: rgba(0, 0, 0, 0.15);
+    --bg-dropdown: #ffffff;
 }
 body[data-theme='dark'] {
     --primary-gradient: linear-gradient(135deg, #82aaff 0%, #2575fc 100%);
     --bg-main: #121212; --bg-content: #1e1e1e; --bg-card: rgba(42, 42, 62, 0.7);
-    --border-color: rgba(255, 255, 255, 0.1); --text-primary: #ffffff; --text-secondary: #a0a0b0;
+    --border-color: rgba(255, 255, 255, 0.15); --text-primary: #ffffff; --text-secondary: #a0a0b0;
     --text-accent: #82aaff; --shadow-light: rgba(0, 0, 0, 0.2); --shadow-heavy: rgba(0, 0, 0, 0.4);
+    --bg-dropdown: #2c2c3e;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: var(--font-body); background-color: var(--bg-main); color: var(--text-primary); line-height: 1.6; padding: 15px; transition: background-color 0.3s, color 0.3s; }
@@ -816,6 +834,27 @@ header { text-align: center; margin-bottom: 25px; }
 .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 h1 { font-family: var(--font-heading); font-weight: 700; color: var(--text-primary); font-size: 1.8rem; }
 header p { color: var(--text-secondary); }
+
+/* --- CSS MỚI CHO MENU --- */
+#user-menu-container { position: relative; }
+.auth-btn.login { padding: 8px 16px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; transition: all 0.3s ease; background: var(--primary-gradient); color: white; }
+.avatar-btn { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid var(--border-color); transition: transform 0.2s ease, box-shadow 0.2s ease; object-fit: cover; }
+.avatar-btn:hover { transform: scale(1.1); box-shadow: 0 0 10px var(--text-accent); }
+.dropdown-content { position: absolute; top: 50px; right: 0; background-color: var(--bg-dropdown); min-width: 220px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); border-radius: 12px; z-index: 1; border: 1px solid var(--border-color);
+    visibility: hidden; opacity: 0; transform: translateY(-10px); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s; }
+.dropdown-content.show { visibility: visible; opacity: 1; transform: translateY(0); }
+.dropdown-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+.dropdown-header strong { font-size: 14px; }
+.email-text { font-size: 12px; color: var(--text-secondary); word-break: break-all; }
+.avatar-in-menu { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.dropdown-item { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px; font-size: 14px; text-align: left; cursor: pointer; }
+.dropdown-item:hover { background-color: rgba(128, 128, 128, 0.1); }
+.dropdown-content > a:first-of-type:hover { border-radius: 12px 12px 0 0; }
+.dropdown-item:last-of-type { border-top: 1px solid var(--border-color); }
+.dropdown-item:last-of-type:hover { border-radius: 0 0 12px 12px; }
+.dropdown-item svg { color: var(--text-secondary); min-width: 16px; }
+/* --- KẾT THÚC CSS MENU --- */
+
 h3 { font-family: var(--font-heading); font-weight: 700; margin-bottom: 15px; text-align: center; color: var(--text-accent); }
 .main-controls { text-align: center; margin-bottom: 20px; }
 .file-label { display: inline-block; padding: 12px 25px; background: var(--primary-gradient); color: white; border-radius: 8px; cursor: pointer; font-weight: 700; font-family: var(--font-heading); transition: all 0.3s ease; box-shadow: 0 4px 15px var(--shadow-light); }
@@ -858,20 +897,13 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
 .mastered-tag { color: var(--success-color); }
 .review-tag { color: var(--text-accent); }
 .mastered-tag, .review-tag { font-size: 0.8rem; vertical-align: middle; font-family: var(--font-heading); }
-#timer { position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; border-radius: 50%; background-color: var(--text-accent); color: var(--bg-content); font-size: 1.2em; font-weight: bold; transition: all 0.5s; border: 2px solid var(--bg-main); display: flex; align-items: center; justify-content: center; }
-#theme-toggle { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: var(--text-secondary); transition: transform 0.3s ease, color 0.3s; }
-#theme-toggle:hover { transform: scale(1.2) rotate(15deg); color: var(--warning-color); }
 .placeholder-text { text-align: center; color: var(--text-secondary); padding: 40px 20px; }
-/* BỔ SUNG: CSS cho nút phát âm (ĐÃ BỊ LOẠI BỎ) */
-/*
-.speak-btn { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--text-secondary); transition: all 0.2s ease; vertical-align: middle; padding: 0 5px;}
-.speak-btn:hover { color: var(--text-accent); transform: scale(1.2); }
-*/
-/* CSS cho phần thử thách vô hạn */
 .infinite-challenge-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); text-align: center; }
 @media (max-width: 600px) {
     body { padding: 5px; }
     .container { padding: 15px; }
+    .header-top { flex-wrap: wrap; justify-content: center; gap: 15px; }
+    #user-menu-container { order: -1; flex-basis: 100%; text-align: right; }
     .card h2 { font-size: 1.8rem; }
     .choice-btn, #answerInput { font-size: 16px; }
     .lesson-controls { flex-direction: column; }
