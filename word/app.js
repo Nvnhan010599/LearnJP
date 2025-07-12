@@ -954,5 +954,25 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
     .lesson-controls { flex-direction: column; }
     .header-top h1 { font-size: 1.5rem; }
 }
+/* Định dạng cho vùng chứa nút để căn lề trái và tạo khoảng cách */
+.header-nav { 
+    text-align: left; 
+    margin-bottom: 15px; 
+}
+
+/* Định dạng cho chính liên kết "Quay lại trang chủ" */
+.back-to-home { 
+    text-decoration: none;      /* Bỏ gạch chân mặc định của liên kết */
+    color: var(--text-accent);  /* Dùng màu nhấn của theme (xanh dương hoặc sáng hơn) */
+    font-weight: 500;           /* Độ đậm vừa phải */
+    font-size: 14px;            /* Cỡ chữ nhỏ */
+    transition: color 0.2s ease;/* Hiệu ứng chuyển màu mượt mà */
+}
+
+/* Định dạng khi người dùng di chuột qua liên kết */
+.back-to-home:hover { 
+    color: var(--text-primary); /* Đổi sang màu chữ chính của theme */
+    text-decoration: underline; /* Thêm lại gạch chân để báo hiệu có thể nhấn */
+}
 `;
 document.head.appendChild(style);
