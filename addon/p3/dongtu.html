@@ -74,7 +74,7 @@
         <!-- New Hierarchical Navigation -->
         <nav class="flex justify-center items-center space-x-2 md:space-x-4 mb-8 bg-white p-2 rounded-xl shadow-md sticky top-2 z-20">
             <!-- Home Button -->
-            <a href="../supplementary.html" class="p-2 rounded-md hover:bg-gray-200 transition" aria-label="Trang chủ">
+            <a href="index.html" class="p-2 rounded-md hover:bg-gray-200 transition" aria-label="Trang chủ">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
@@ -83,24 +83,24 @@
             <div class="relative group">
                 <button id="main-nav-theory" class="main-nav-btn flex items-center space-x-2 w-full text-left px-4 py-2 text-lg font-semibold rounded-md hover:bg-blue-100 transition"><span>Lý thuyết</span></button>
                 <div class="dropdown-menu absolute z-10 bg-white shadow-lg rounded-md mt-1 w-48 py-1">
-                    <a href="#" id="sub-nav-theory-groups" onclick="showTab('theory-groups', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Chia Nhóm</a>
-                    <a href="#" onclick="showTab('theory-te', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Chia Thể て</a>
+                    <a href="#" id="sub-nav-theory-groups" onclick="showTab('theory-groups', this, event)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Chia Nhóm</a>
+                    <a href="#" onclick="showTab('theory-te', this, event)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Chia Thể て</a>
                 </div>
             </div>
             <!-- Trò chơi Dropdown -->
             <div class="relative group">
                 <button id="main-nav-game" class="main-nav-btn flex items-center space-x-2 w-full text-left px-4 py-2 text-lg font-semibold rounded-md hover:bg-blue-100 transition"><span>Trò chơi</span></button>
                 <div class="dropdown-menu absolute z-10 bg-white shadow-lg rounded-md mt-1 w-48 py-1">
-                    <a href="#" onclick="showTab('game-irregular', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Tìm Nhóm 2 ĐB</a>
-                    <a href="#" onclick="showTab('game-groups', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Phân Loại Nhóm</a>
-                    <a href="#" onclick="showTab('game-te', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Chia Thể て</a>
+                    <a href="#" onclick="showTab('game-irregular', this, event)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Tìm Nhóm 2 ĐB</a>
+                    <a href="#" onclick="showTab('game-groups', this, event)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Phân Loại Nhóm</a>
+                    <a href="#" onclick="showTab('game-te', this, event)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Chia Thể て</a>
                 </div>
             </div>
             <!-- Phản xạ Dropdown -->
             <div class="relative group">
                 <button id="main-nav-reflex" class="main-nav-btn flex items-center space-x-2 w-full text-left px-4 py-2 text-lg font-semibold rounded-md hover:bg-blue-100 transition"><span>Phản xạ</span></button>
                 <div class="dropdown-menu absolute z-10 bg-white shadow-lg rounded-md mt-1 w-48 py-1">
-                    <a href="#" onclick="showTab('game-reflex', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Luyện Nghe</a>
+                    <a href="#" onclick="showTab('game-reflex', this, event)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Luyện Nghe</a>
                 </div>
             </div>
         </nav>
@@ -276,7 +276,7 @@
             <div id="game-irregular" class="tab-content bg-white p-6 rounded-xl shadow-lg hidden">
                 <h2 class="text-2xl md:text-3xl font-bold mb-2 text-center">Game: Săn Lùng Động Từ Nhóm 2 Đặc Biệt</h2>
                 <p class="text-center text-gray-600 mb-6">Hãy chọn tất cả các động từ Nhóm 2 có kết thúc là hàng <strong>い</strong> (i) nhé!</p>
-                <div id="irregular-verb-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div id="irregular-verb-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
                     <!-- Verbs will be injected here by JS -->
                 </div>
                 <div class="text-center mt-8 flex justify-center items-center gap-4">
@@ -395,9 +395,13 @@
         let speech = new SpeechSynthesisUtterance();
         speech.lang = "ja-JP";
         speech.rate = 0.9;
+        let isAudioUnlocked = false; // Flag to track audio unlock status for mobile
 
         // --- TAB MANAGEMENT ---
-        function showTab(tabId, clickedElement) {
+        function showTab(tabId, clickedElement, event) {
+            if (event) {
+                event.preventDefault();
+            }
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
             
@@ -440,58 +444,79 @@
             });
         }
         
-        function goHome() {
-            // This function is now handled by a standard <a> tag
-            // but we can keep it in case we want to do more complex "home" actions later.
-            window.location.href = 'index.html';
-        }
-
         // --- GAME 0: IRREGULAR VERB FINDER ---
-        const irregularGameVerbs = [
+        const irregularGameVerbsPool = [
             { hiragana: 'おきます', isIrregular: true }, { hiragana: 'おります', isIrregular: true },
             { hiragana: 'あびます', isIrregular: true }, { hiragana: 'きます', isIrregular: true }, // 着ます
             { hiragana: 'おちます', isIrregular: true }, { hiragana: 'います', isIrregular: true },
             { hiragana: 'かります', isIrregular: true }, { hiragana: 'できます', isIrregular: true },
             { hiragana: 'たります', isIrregular: true }, { hiragana: 'みます', isIrregular: true },
+            // Distractors
             { hiragana: 'かえります', isIrregular: false }, { hiragana: 'はなします', isIrregular: false },
             { hiragana: 'のみます', isIrregular: false }, { hiragana: 'きます', isIrregular: false }, // 来ます
-            { hiragana: 'つくります', isIrregular: false }
-        ].sort(() => Math.random() - 0.5);
+            { hiragana: 'つくります', isIrregular: false }, { hiragana: 'はたらきます', isIrregular: false },
+            { hiragana: 'おわります', isIrregular: false }, { hiragana: 'べんきょうします', isIrregular: false },
+            { hiragana: 'ねます', isIrregular: false }, { hiragana: 'ききます', isIrregular: false }
+        ];
 
         function initIrregularGame() {
+            // Shuffle the pool and take 20 verbs for the game
+            const gameVerbs = irregularGameVerbsPool.sort(() => 0.5 - Math.random());
+
             const grid = document.getElementById('irregular-verb-grid');
             const feedbackEl = document.getElementById('irregular-feedback');
             grid.innerHTML = '';
             feedbackEl.textContent = '';
-            irregularGameVerbs.forEach(verb => {
+            
+            gameVerbs.forEach(verb => {
                 const item = document.createElement('button');
                 item.textContent = verb.hiragana;
                 item.dataset.isIrregular = verb.isIrregular;
+                // Reset classes to default state for re-playability
                 item.className = 'verb-grid-item p-4 border-2 rounded-lg cursor-pointer text-xl font-bold bg-gray-100 hover:bg-blue-200';
-                item.onclick = () => item.classList.toggle('selected');
+                item.onclick = () => {
+                    // Only allow selection if the game is active (not checked yet)
+                    if (!grid.hasAttribute('data-checked')) {
+                        item.classList.toggle('selected');
+                    }
+                };
                 grid.appendChild(item);
             });
+            // Reset checked state
+            grid.removeAttribute('data-checked');
+            document.getElementById('check-irregular-btn').disabled = false;
         }
 
         document.getElementById('check-irregular-btn').addEventListener('click', () => {
-            const items = document.querySelectorAll('#irregular-verb-grid .verb-grid-item');
+            const grid = document.getElementById('irregular-verb-grid');
+            const items = grid.querySelectorAll('.verb-grid-item');
             let correctSelections = 0;
-            const totalIrregulars = irregularGameVerbs.filter(v => v.isIrregular).length;
+            const totalIrregulars = Array.from(items).filter(item => item.dataset.isIrregular === 'true').length;
+
+            // Mark the grid as checked to disable further selections
+            grid.setAttribute('data-checked', 'true');
 
             items.forEach(item => {
                 const isSelected = item.classList.contains('selected');
                 const isIrregular = item.dataset.isIrregular === 'true';
-                item.classList.remove('bg-green-300', 'bg-red-300', 'bg-yellow-300');
+
+                // Remove selection and hover classes to apply feedback colors cleanly
+                item.classList.remove('selected', 'bg-gray-100', 'hover:bg-blue-200');
+
                 if (isSelected && isIrregular) {
-                    item.classList.add('bg-green-300');
+                    item.classList.add('bg-green-300'); // Correctly selected
                     correctSelections++;
                 } else if (isSelected && !isIrregular) {
-                    item.classList.add('bg-red-300');
+                    item.classList.add('bg-red-300'); // Incorrectly selected
                 } else if (!isSelected && isIrregular) {
-                    item.classList.add('bg-yellow-300');
+                    item.classList.add('bg-yellow-300'); // Missed
+                } else {
+                    item.classList.add('bg-gray-100'); // Unselected and correct
                 }
             });
+            
             document.getElementById('irregular-feedback').textContent = `Bạn đã tìm đúng ${correctSelections} / ${totalIrregulars} động từ. (Xanh: Đúng, Đỏ: Sai, Vàng: Bỏ sót)`;
+            document.getElementById('check-irregular-btn').disabled = true;
         });
         
         document.getElementById('reset-irregular-btn').addEventListener('click', initIrregularGame);
@@ -584,12 +609,22 @@
         }
 
         function startReflexRound() {
+            // Mobile browser audio unlock. Must be in a direct user interaction event.
+            if (!isAudioUnlocked) {
+                const unlockSpeech = new SpeechSynthesisUtterance('');
+                unlockSpeech.volume = 0; // Play silently
+                window.speechSynthesis.speak(unlockSpeech);
+                isAudioUnlocked = true;
+            }
+
             document.getElementById('reflex-start-view').classList.add('hidden');
             document.getElementById('reflex-result-view').classList.add('hidden');
             document.getElementById('reflex-playing-view').classList.remove('hidden');
+            
             const verb = verbs[Math.floor(Math.random() * verbs.length)];
             speech.text = verb.hiragana;
             window.speechSynthesis.speak(speech);
+
             let timeLeft = 5;
             const timerEl = document.getElementById('reflex-timer');
             timerEl.textContent = timeLeft;
