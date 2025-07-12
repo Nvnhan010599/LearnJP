@@ -157,6 +157,8 @@ let quizTimer = null;
 let timerInterval = null;
 let isTimedOut = false;
 
+// --- CÁC HÀM TIỆN ÍCH ---
+
 function shuffleArray(array) {
     let currentIndex = array.length,  randomIndex;
     while (currentIndex != 0) {
@@ -201,6 +203,45 @@ function romajiToHiragana(text) {
     return result;
 }
 
+/**
+ * HÀM MỚI: Dọn dẹp và chuẩn hóa từ vựng tiếng Nhật từ file Excel.
+ * Chức năng: Loại bỏ thể từ điển, nhóm động từ (I, II, III) và chỉ giữ lại thể lịch sự (~masu).
+ * @param {string} rawTerm - Chuỗi từ vựng thô từ file Excel.
+ * @returns {string} Chuỗi từ vựng đã được làm sạch.
+ */
+function cleanJapaneseTerm(rawTerm) {
+    if (!rawTerm) return '';
+
+    let prefix = '';
+    let mainPart = rawTerm.trim();
+
+    // Xử lý các tiền tố trong ngoặc, ví dụ: [こどもが～]
+    const bracketMatch = mainPart.match(/^(\[.*?\]\s*)/);
+    if (bracketMatch) {
+        prefix = bracketMatch[1];
+        mainPart = mainPart.substring(prefix.length).trim();
+    }
+
+    // Tách các phần của từ bằng khoảng trắng
+    const parts = mainPart.split(/\s+/).filter(p => p);
+
+    // Ưu tiên tìm thể lịch sự (kết thúc bằng ます)
+    const politeForm = parts.find(p => p.endsWith('ます'));
+
+    if (politeForm) {
+        // Nếu tìm thấy, đây là dạng từ chúng ta muốn giữ lại
+        return (prefix + politeForm).trim();
+    } else {
+        // Nếu không có thể ~masu (ví dụ: danh từ, tính từ),
+        // thì chỉ cần loại bỏ các ký hiệu nhóm động từ La Mã.
+        const filteredParts = parts.filter(p => !/^(I|II|III)$/.test(p.trim()));
+        return (prefix + filteredParts.join(' ')).trim();
+    }
+}
+
+
+// --- XỬ LÝ FILE VÀ LOGIC HỌC ---
+
 const LESSON_COLUMN = 0, JP_WORD_COLUMN = 2, KANJI_COLUMN = 3, VN_WORD_COLUMN = 4;
 const JP_DUMMY_COLUMNS = [9, 10, 11], VN_DUMMY_COLUMNS = [12, 13, 14];
 
@@ -215,10 +256,16 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
         allWords = new Map();
         jsonData.slice(1).forEach(row => {
             const lesson = (row[LESSON_COLUMN]?.toString() || '0').trim();
-            const term = (row[JP_WORD_COLUMN] || '').trim();
+            
+            // **NÂNG CẤP: Sử dụng hàm dọn dẹp dữ liệu**
+            const rawTerm = (row[JP_WORD_COLUMN] || '').trim();
+            const term = cleanJapaneseTerm(rawTerm); // <-- Áp dụng hàm làm sạch
+            
             const kanji = (row[KANJI_COLUMN] || '').trim();
             const meaning = (row[VN_WORD_COLUMN] || '').trim();
+
             if (!lesson || !term || !meaning) return;
+
             const vocab = { 
                 term, kanji, meaning, lesson, mastered: false,
                 srs: { jpToVn: 0, vnToJp: 0 },
@@ -231,7 +278,7 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
         updateLessonDropdown();
         saveDataToFirebase();
         resetToHome();
-        console.log('Dữ liệu từ Excel đã được tải và lưu vào allWords:', allWords);
+        console.log('Dữ liệu từ Excel đã được tải và xử lý.', allWords);
     };
     reader.readAsArrayBuffer(file);
 });
@@ -271,12 +318,10 @@ function updateLessonDropdown() {
 }
 
 function displayPackageSelection(lesson) {
-    console.log('Đang hiển thị gói từ vựng cho bài:', lesson);
     clearTimeout(quizTimer);
     clearInterval(timerInterval);
     const wordsInLesson = allWords.get(lesson) || [];
     const totalWords = wordsInLesson.length;
-    console.log('Tổng số từ trong bài này:', totalWords);
 
     document.getElementById('cardContainer').innerHTML = '';
     if (totalWords === 0) {
@@ -806,7 +851,7 @@ window.onload = () => {
     console.log('Ứng dụng đã sẵn sàng. Chờ trạng thái đăng nhập...');
 };
 
-// CSS MỚI CHO MENU NGƯỜI DÙNG
+// CSS được nhúng
 const style = document.createElement('style');
 style.textContent = `
 :root {
@@ -835,7 +880,7 @@ header { text-align: center; margin-bottom: 25px; }
 h1 { font-family: var(--font-heading); font-weight: 700; color: var(--text-primary); font-size: 1.8rem; }
 header p { color: var(--text-secondary); }
 
-/* --- CSS MỚI CHO MENU --- */
+/* --- CSS CHO MENU --- */
 #user-menu-container { position: relative; }
 .auth-btn.login { padding: 8px 16px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; transition: all 0.3s ease; background: var(--primary-gradient); color: white; }
 .avatar-btn { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid var(--border-color); transition: transform 0.2s ease, box-shadow 0.2s ease; object-fit: cover; }
