@@ -74,7 +74,7 @@
         <!-- New Hierarchical Navigation -->
         <nav class="flex justify-center items-center space-x-2 md:space-x-4 mb-8 bg-white p-2 rounded-xl shadow-md sticky top-2 z-20">
             <!-- Home Button -->
-            <a href="index.html" class="p-2 rounded-md hover:bg-gray-200 transition" aria-label="Trang chủ">
+            <a href="../supplementary.html" class="p-2 rounded-md hover:bg-gray-200 transition" aria-label="Trang chủ">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
@@ -353,44 +353,138 @@
     <script>
         // --- DATABASE ---
         const verbs = [
-            // Data from PDF, classified
-            { id: 1, kanji: '行きます', hiragana: 'いきます', meaning: 'Đi', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1 khi chia thể て.', te_form: 'いって', is_irregular_g2: false, is_irregular_g1: true },
-            { id: 2, kanji: '寝ます', hiragana: 'ねます', meaning: 'Ngủ', group: 2, reason: 'Âm tiết trước ます là ね (ne) thuộc cột え (e).', te_form: 'ねて', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 3, kanji: '働きます', hiragana: 'はたらきます', meaning: 'Làm việc', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'はたらいて', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 4, kanji: '終わります', hiragana: 'おわります', meaning: 'Kết thúc', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'おわって', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 5, kanji: '勉強します', hiragana: 'べんきょうします', meaning: 'Học', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'べんきょうして', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 6, kanji: 'します', hiragana: 'します', meaning: 'Làm', group: 3, reason: 'Đây là động từ gốc của nhóm 3.', te_form: 'して', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 7, kanji: '起きます', hiragana: 'おきます', meaning: 'Thức dậy', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là き (ki), nó vẫn thuộc nhóm 2.', te_form: 'おきて', is_irregular_g2: true, is_irregular_g1: false },
-            { id: 8, kanji: '来ます', hiragana: 'きます', meaning: 'Đến', group: 3, reason: 'Đây là động từ bất quy tắc gốc của nhóm 3.', te_form: 'きて', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 9, kanji: '帰ります', hiragana: 'かえります', meaning: 'Về', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm え (e), nó vẫn thuộc nhóm 1.', te_form: 'かえって', is_irregular_g2: false, is_irregular_g1: true },
-            { id: 10, kanji: '食べます', hiragana: 'たべます', meaning: 'Ăn', group: 2, reason: 'Âm tiết trước ます là べ (be) thuộc cột え (e).', te_form: 'たべて', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 11, kanji: '飲みます', hiragana: 'のみます', meaning: 'Uống', group: 1, reason: 'Âm tiết trước ます là み (mi) thuộc cột い (i).', te_form: 'のんで', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 12, kanji: '見ます', hiragana: 'みます', meaning: 'Nhìn, xem', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là み (mi), nó vẫn thuộc nhóm 2.', te_form: 'みて', is_irregular_g2: true, is_irregular_g1: false },
-            { id: 13, kanji: '聞きます', hiragana: 'ききます', meaning: 'Nghe', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'きいて', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 14, kanji: '読みます', hiragana: 'よみます', meaning: 'Đọc', group: 1, reason: 'Âm tiết trước ます là み (mi) thuộc cột い (i).', te_form: 'よんで', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 15, kanji: '書きます', hiragana: 'かきます', meaning: 'Viết', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'かいて', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 16, kanji: '会います', hiragana: 'あいます', meaning: 'Gặp', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'あって', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 18, kanji: '切ります', hiragana: 'きります', meaning: 'Cắt', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó thuộc nhóm 1.', te_form: 'きって', is_irregular_g2: false, is_irregular_g1: true },
-            { id: 23, kanji: '教えます', hiragana: 'おしえます', meaning: 'Dạy', group: 2, reason: 'Âm tiết trước ます là え (e) thuộc cột え (e).', te_form: 'おしえて', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 25, kanji: '借ります', hiragana: 'かります', meaning: 'Mượn', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là り (ri), nó vẫn thuộc nhóm 2.', te_form: 'かりて', is_irregular_g2: true, is_irregular_g1: false },
-            { id: 26, kanji: '貸します', hiragana: 'かします', meaning: 'Cho mượn', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'かして', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 37, kanji: '泳ぎます', hiragana: 'およぎます', meaning: 'Bơi', group: 1, reason: 'Âm tiết trước ます là ぎ (gi) thuộc cột い (i).', te_form: 'およいで', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 44, kanji: '急ぎます', hiragana: 'いそぎます', meaning: 'Vội', group: 1, reason: 'Âm tiết trước ます là ぎ (gi) thuộc cột い (i).', te_form: 'いそいで', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 45, kanji: '待ちます', hiragana: 'まちます', meaning: 'Đợi', group: 1, reason: 'Âm tiết trước ます là ち (chi) thuộc cột い (i).', te_form: 'まって', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 48, kanji: '呼びます', hiragana: 'よびます', meaning: 'Gọi', group: 1, reason: 'Âm tiết trước ます là び (bi) thuộc cột い (i).', te_form: 'よんで', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 49, kanji: '話します', hiragana: 'はなします', meaning: 'Nói chuyện', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'はなして', is_irregular_g2: false, is_irregular_g1: false },
-            { id: 54, kanji: '入ります', hiragana: 'はいります', meaning: 'Vào', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó vẫn thuộc nhóm 1.', te_form: 'はいって', is_irregular_g2: false, is_irregular_g1: true },
-            { id: 64, kanji: '降ります', hiragana: 'おります', meaning: 'Xuống (xe)', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là り (ri), nó vẫn thuộc nhóm 2.', te_form: 'おりて', is_irregular_g2: true, is_irregular_g1: false },
-            { id: 88, kanji: '出来ます', hiragana: 'できます', meaning: 'Có thể', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là き (ki), nó vẫn thuộc nhóm 2.', te_form: 'できて', is_irregular_g2: true, is_irregular_g1: false },
-            { id: 99, kanji: '要ります', hiragana: 'いります', meaning: 'Cần', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó vẫn thuộc nhóm 1.', te_form: 'いって', is_irregular_g2: false, is_irregular_g1: true },
-            { id: 130, kanji: '足ります', hiragana: 'たります', meaning: 'Đủ', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là り (ri), nó vẫn thuộc nhóm 2.', te_form: 'たりて', is_irregular_g2: true, is_irregular_g1: false },
-            // From image
-            { id: 131, kanji: '浴びます', hiragana: 'あびます', meaning: 'Tắm', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là び (bi), nó vẫn thuộc nhóm 2.', te_form: 'あびて', is_irregular_g2: true, is_irregular_g1: false },
-            { id: 132, kanji: '着ます', hiragana: 'きます', meaning: 'Mặc', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là き (ki), nó vẫn thuộc nhóm 2.', te_form: 'きて', is_irregular_g2: true, is_irregular_g1: false },
-            { id: 133, kanji: '落ちます', hiragana: 'おちます', meaning: 'Rơi, rụng', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là ち (chi), nó vẫn thuộc nhóm 2.', te_form: 'おちて', is_irregular_g2: true, is_irregular_g1: false },
-            { id: 134, kanji: 'います', hiragana: 'います', meaning: 'Ở', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là い (i), nó vẫn thuộc nhóm 2.', te_form: 'いて', is_irregular_g2: true, is_irregular_g1: false },
+            { id: 1, kanji: '行きます', hiragana: 'いきます', meaning: 'Đi', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1 khi chia thể て.', te_form: 'いって' },
+            { id: 2, kanji: '寝ます', hiragana: 'ねます', meaning: 'Ngủ', group: 2, reason: 'Âm tiết trước ます là ね (ne) thuộc cột え (e).', te_form: 'ねて' },
+            { id: 3, kanji: '働きます', hiragana: 'はたらきます', meaning: 'Làm việc', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'はたらいて' },
+            { id: 4, kanji: '終わります', hiragana: 'おわります', meaning: 'Kết thúc', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'おわって' },
+            { id: 5, kanji: '勉強します', hiragana: 'べんきょうします', meaning: 'Học', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'べんきょうして' },
+            { id: 6, kanji: 'します', hiragana: 'します', meaning: 'Làm', group: 3, reason: 'Đây là động từ gốc của nhóm 3.', te_form: 'して' },
+            { id: 7, kanji: '起きます', hiragana: 'おきます', meaning: 'Thức dậy', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là き (ki), nó vẫn thuộc nhóm 2.', te_form: 'おきて' },
+            { id: 8, kanji: '来ます', hiragana: 'きます', meaning: 'Đến', group: 3, reason: 'Đây là động từ bất quy tắc gốc của nhóm 3.', te_form: 'きて' },
+            { id: 9, kanji: '帰ります', hiragana: 'かえります', meaning: 'Về', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm え (e), nó vẫn thuộc nhóm 1.', te_form: 'かえって' },
+            { id: 10, kanji: '食べます', hiragana: 'たべます', meaning: 'Ăn', group: 2, reason: 'Âm tiết trước ます là べ (be) thuộc cột え (e).', te_form: 'たべて' },
+            { id: 11, kanji: '飲みます', hiragana: 'のみます', meaning: 'Uống', group: 1, reason: 'Âm tiết trước ます là み (mi) thuộc cột い (i).', te_form: 'のんで' },
+            { id: 12, kanji: '見ます', hiragana: 'みます', meaning: 'Nhìn', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là み (mi), nó vẫn thuộc nhóm 2.', te_form: 'みて' },
+            { id: 13, kanji: '聞きます', hiragana: 'ききます', meaning: 'Nghe', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'きいて' },
+            { id: 14, kanji: '読みます', hiragana: 'よみます', meaning: 'Đọc', group: 1, reason: 'Âm tiết trước ます là み (mi) thuộc cột い (i).', te_form: 'よんで' },
+            { id: 15, kanji: '書きます', hiragana: 'かきます', meaning: 'Viết', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'かいて' },
+            { id: 16, kanji: '会います', hiragana: 'あいます', meaning: 'Gặp', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'あって' },
+            { id: 17, kanji: '撮ります', hiragana: 'とります', meaning: 'Chụp', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'とって' },
+            { id: 18, kanji: '切ります', hiragana: 'きります', meaning: 'Cắt', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó vẫn thuộc nhóm 1.', te_form: 'きって' },
+            { id: 19, kanji: '送ります', hiragana: 'おくります', meaning: 'Gửi', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'おくって' },
+            { id: 20, kanji: 'あげます', hiragana: 'あげます', meaning: 'Tặng', group: 2, reason: 'Âm tiết trước ます là げ (ge) thuộc cột え (e).', te_form: 'あげて' },
+            { id: 21, kanji: '買い物します', hiragana: 'かいものします', meaning: 'Mua sắm', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'かいものして' },
+            { id: 22, kanji: 'もらいます', hiragana: 'もらいます', meaning: 'Nhận', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'もらって' },
+            { id: 23, kanji: '教えます', hiragana: 'おしえます', meaning: 'Dạy', group: 2, reason: 'Âm tiết trước ます là え (e) thuộc cột え (e).', te_form: 'おしえて' },
+            { id: 24, kanji: '習います', hiragana: 'ならいます', meaning: 'Học', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'ならって' },
+            { id: 25, kanji: '借ります', hiragana: 'かります', meaning: 'Mượn', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là り (ri), nó vẫn thuộc nhóm 2.', te_form: 'かりて' },
+            { id: 26, kanji: '貸します', hiragana: 'かします', meaning: 'Cho mượn', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'かして' },
+            { id: 27, kanji: '食事します', hiragana: 'しょくじします', meaning: 'Dùng bữa', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'しょくじして' },
+            { id: 28, kanji: 'かけます', hiragana: 'かけます', meaning: 'Gọi', group: 2, reason: 'Âm tiết trước ます là け (ke) thuộc cột え (e).', te_form: 'かけて' },
+            { id: 29, kanji: 'わかります', hiragana: 'わかります', meaning: 'Hiểu', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'わかって' },
+            { id: 30, kanji: 'あります', hiragana: 'あります', meaning: 'Có (đồ vật)', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1.', te_form: 'あって' },
+            { id: 31, kanji: 'います', hiragana: 'います', meaning: 'Ở (người)', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là い (i), nó vẫn thuộc nhóm 2.', te_form: 'いて' },
+            { id: 32, kanji: 'かかります', hiragana: 'かかります', meaning: 'Tốn', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'かかって' },
+            { id: 33, kanji: '休みます', hiragana: 'やすみます', meaning: 'Nghỉ', group: 1, reason: 'Âm tiết trước ます là み (mi) thuộc cột い (i).', te_form: 'やすんで' },
+            { id: 34, kanji: '迎えます', hiragana: 'むかえます', meaning: 'Đón', group: 2, reason: 'Âm tiết trước ます là え (e) thuộc cột え (e).', te_form: 'むかえて' },
+            { id: 35, kanji: '散歩します', hiragana: 'さんぽします', meaning: 'Đi dạo', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'さんぽして' },
+            { id: 36, kanji: '結婚します', hiragana: 'けっこんします', meaning: 'Kết hôn', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'けっこんして' },
+            { id: 37, kanji: '泳ぎます', hiragana: 'およぎます', meaning: 'Bơi', group: 1, reason: 'Âm tiết trước ます là ぎ (gi) thuộc cột い (i).', te_form: 'およいで' },
+            { id: 38, kanji: '遊びます', hiragana: 'あそびます', meaning: 'Chơi', group: 1, reason: 'Âm tiết trước ます là び (bi) thuộc cột い (i).', te_form: 'あそんで' },
+            { id: 39, kanji: '疲れます', hiragana: 'つかれます', meaning: 'Mệt', group: 2, reason: 'Âm tiết trước ます là れ (re) thuộc cột え (e).', te_form: 'つかれて' },
+            { id: 40, kanji: 'つけます', hiragana: 'つけます', meaning: 'Bật', group: 2, reason: 'Âm tiết trước ます là け (ke) thuộc cột え (e).', te_form: 'つけて' },
+            { id: 41, kanji: 'けします', hiragana: 'けします', meaning: 'Tắt', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'けして' },
+            { id: 42, kanji: 'あけます', hiragana: 'あけます', meaning: 'Mở', group: 2, reason: 'Âm tiết trước ます là け (ke) thuộc cột え (e).', te_form: 'あけて' },
+            { id: 43, kanji: 'しめます', hiragana: 'しめます', meaning: 'Đóng', group: 2, reason: 'Âm tiết trước ます là め (me) thuộc cột え (e).', te_form: 'しめて' },
+            { id: 44, kanji: '急ぎます', hiragana: 'いそぎます', meaning: 'Vội', group: 1, reason: 'Âm tiết trước ます là ぎ (gi) thuộc cột い (i).', te_form: 'いそいで' },
+            { id: 45, kanji: '待ちます', hiragana: 'まちます', meaning: 'Đợi', group: 1, reason: 'Âm tiết trước ます là ち (chi) thuộc cột い (i).', te_form: 'まって' },
+            { id: 46, kanji: '持ちます', hiragana: 'もちます', meaning: 'Mang, cầm', group: 1, reason: 'Âm tiết trước ます là ち (chi) thuộc cột い (i).', te_form: 'もって' },
+            { id: 47, kanji: '手伝います', hiragana: 'てつだいます', meaning: 'Giúp đỡ', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'てつだって' },
+            { id: 48, kanji: '呼びます', hiragana: 'よびます', meaning: 'Gọi', group: 1, reason: 'Âm tiết trước ます là び (bi) thuộc cột い (i).', te_form: 'よんで' },
+            { id: 49, kanji: '話します', hiragana: 'はなします', meaning: 'Nói chuyện', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'はなして' },
+            { id: 50, kanji: '見せます', hiragana: 'みせます', meaning: 'Cho xem', group: 2, reason: 'Âm tiết trước ます là せ (se) thuộc cột え (e).', te_form: 'みせて' },
+            { id: 51, kanji: '止めます', hiragana: 'とめます', meaning: 'Dừng', group: 2, reason: 'Âm tiết trước ます là め (me) thuộc cột え (e).', te_form: 'とめて' },
+            { id: 52, kanji: '立ちます', hiragana: 'たちます', meaning: 'Đứng', group: 1, reason: 'Âm tiết trước ます là ち (chi) thuộc cột い (i).', te_form: 'たって' },
+            { id: 53, kanji: '座ります', hiragana: 'すわります', meaning: 'Ngồi', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'すわって' },
+            { id: 54, kanji: '入ります', hiragana: 'はいります', meaning: 'Vào', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó vẫn thuộc nhóm 1.', te_form: 'はいって' },
+            { id: 55, kanji: '降ります', hiragana: 'ふります', meaning: 'Rơi (mưa)', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'ふって' },
+            { id: 56, kanji: '出ます', hiragana: 'でます', meaning: 'Ra', group: 2, reason: 'Âm tiết trước ます là で (de) thuộc cột え (e).', te_form: 'でて' },
+            { id: 57, kanji: '作ります', hiragana: 'つくります', meaning: 'Làm, chế tạo', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'つくって' },
+            { id: 58, kanji: '置きます', hiragana: 'おきます', meaning: 'Đặt, để', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'おいて' },
+            { id: 59, kanji: '売ります', hiragana: 'うります', meaning: 'Bán', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'うって' },
+            { id: 60, kanji: '知ります', hiragana: 'しります', meaning: 'Biết', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó vẫn thuộc nhóm 1.', te_form: 'しって' },
+            { id: 61, kanji: '住みます', hiragana: 'すみます', meaning: 'Sống', group: 1, reason: 'Âm tiết trước ます là み (mi) thuộc cột い (i).', te_form: 'すんで' },
+            { id: 62, kanji: '研究します', hiragana: 'けんきゅうします', meaning: 'Nghiên cứu', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'けんきゅうして' },
+            { id: 63, kanji: '乗ります', hiragana: 'のります', meaning: 'Lên (xe)', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'のって' },
+            { id: 64, kanji: '降ります', hiragana: 'おります', meaning: 'Xuống (xe)', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là り (ri), nó vẫn thuộc nhóm 2.', te_form: 'おりて' },
+            { id: 65, kanji: '乗り換えます', hiragana: 'のりかえます', meaning: 'Đổi (xe)', group: 2, reason: 'Âm tiết trước ます là え (e) thuộc cột え (e).', te_form: 'のりかえて' },
+            { id: 66, kanji: '入れます', hiragana: 'いれます', meaning: 'Cho vào', group: 2, reason: 'Âm tiết trước ます là れ (re) thuộc cột え (e).', te_form: 'いれて' },
+            { id: 67, kanji: '出します', hiragana: 'だします', meaning: 'Nộp, lấy ra', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'だして' },
+            { id: 68, kanji: '下ろします', hiragana: 'おろします', meaning: 'Rút', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'おろして' },
+            { id: 69, kanji: '電話します', hiragana: 'でんわします', meaning: 'Gọi điện thoại', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'でんわして' },
+            { id: 70, kanji: '押します', hiragana: 'おします', meaning: 'Ấn', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'おして' },
+            { id: 71, kanji: '見学します', hiragana: 'けんがくします', meaning: 'Kiến tập', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'けんがくして' },
+            { id: 72, kanji: '始めます', hiragana: 'はじめます', meaning: 'Bắt đầu', group: 2, reason: 'Âm tiết trước ます là め (me) thuộc cột え (e).', te_form: 'はじめて' },
+            { id: 73, kanji: '覚えます', hiragana: 'おぼえます', meaning: 'Nhớ', group: 2, reason: 'Âm tiết trước ます là え (e) thuộc cột え (e).', te_form: 'おぼえて' },
+            { id: 74, kanji: '忘れます', hiragana: 'わすれます', meaning: 'Quên', group: 2, reason: 'Âm tiết trước ます là れ (re) thuộc cột え (e).', te_form: 'わすれて' },
+            { id: 75, kanji: 'なくします', hiragana: 'なくします', meaning: 'Làm mất', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'なくして' },
+            { id: 76, kanji: '払います', hiragana: 'はらいます', meaning: 'Trả tiền', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'はらって' },
+            { id: 77, kanji: '脱ぎます', hiragana: 'ぬぎます', meaning: 'Cởi', group: 1, reason: 'Âm tiết trước ます là ぎ (gi) thuộc cột い (i).', te_form: 'ぬいで' },
+            { id: 78, kanji: '出張します', hiragana: 'しゅっちょうします', meaning: 'Công tác', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'しゅっちょうして' },
+            { id: 79, kanji: '残業します', hiragana: 'ざんぎょうします', meaning: 'Tăng ca', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'ざんぎょうして' },
+            { id: 80, kanji: '出かけます', hiragana: 'でかけます', meaning: 'Ra ngoài', group: 2, reason: 'Âm tiết trước ます là け (ke) thuộc cột え (e).', te_form: 'でかけて' },
+            { id: 81, kanji: '心配します', hiragana: 'しんぱいします', meaning: 'Lo lắng', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'しんぱいして' },
+            { id: 82, kanji: '持って行きます', hiragana: 'もっていきます', meaning: 'Mang đi', group: 1, reason: 'Động từ ghép với 行きます.', te_form: 'もっていって' },
+            { id: 83, kanji: '持って来ます', hiragana: 'もってきます', meaning: 'Mang đến', group: 3, reason: 'Động từ ghép với 来ます.', te_form: 'もってきて' },
+            { id: 84, kanji: '持って帰ります', hiragana: 'もってかえります', meaning: 'Mang về', group: 1, reason: 'Động từ ghép với 帰ります.', te_form: 'もってかえって' },
+            { id: 85, kanji: '洗います', hiragana: 'あらいます', meaning: 'Rửa', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'あらって' },
+            { id: 86, kanji: '弾きます', hiragana: 'ひきます', meaning: 'Chơi (nhạc cụ)', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'ひいて' },
+            { id: 87, kanji: '換えます', hiragana: 'かえます', meaning: 'Đổi', group: 2, reason: 'Âm tiết trước ます là え (e) thuộc cột え (e).', te_form: 'かえて' },
+            { id: 88, kanji: '出来ます', hiragana: 'できます', meaning: 'Có thể', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là き (ki), nó vẫn thuộc nhóm 2.', te_form: 'できて' },
+            { id: 89, kanji: '運転します', hiragana: 'うんてんします', meaning: 'Lái xe', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'うんてんして' },
+            { id: 90, kanji: '予約します', hiragana: 'よやくします', meaning: 'Đặt', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'よやくして' },
+            { id: 91, kanji: '捨てます', hiragana: 'すてます', meaning: 'Vứt', group: 2, reason: 'Âm tiết trước ます là て (te) thuộc cột え (e).', te_form: 'すてて' },
+            { id: 92, kanji: '集めます', hiragana: 'あつめます', meaning: 'Sưu tầm, thu thập', group: 2, reason: 'Âm tiết trước ます là め (me) thuộc cột え (e).', te_form: 'あつめて' },
+            { id: 93, kanji: '歌います', hiragana: 'うたいます', meaning: 'Hát', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'うたって' },
+            { id: 94, kanji: '登ります', hiragana: 'のぼります', meaning: 'Leo', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'のぼって' },
+            { id: 95, kanji: '止まります', hiragana: 'とまります', meaning: 'Dừng', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'とまって' },
+            { id: 96, kanji: '掃除します', hiragana: 'そうじします', meaning: 'Dọn vệ sinh', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'そうじして' },
+            { id: 97, kanji: '洗濯します', hiragana: 'せんたくします', meaning: 'Giặt quần áo', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'せんたくして' },
+            { id: 98, kanji: 'なります', hiragana: 'なります', meaning: 'Trở nên, trở thành', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'なって' },
+            { id: 99, kanji: '要ります', hiragana: 'いります', meaning: 'Cần', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó vẫn thuộc nhóm 1.', te_form: 'いって' },
+            { id: 100, kanji: '調べます', hiragana: 'しらべます', meaning: 'Tìm hiểu', group: 2, reason: 'Âm tiết trước ます là べ (be) thuộc cột え (e).', te_form: 'しらべて' },
+            { id: 101, kanji: '修理します', hiragana: 'しゅうりします', meaning: 'Sửa chữa', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'しゅうりして' },
+            { id: 102, kanji: '思います', hiragana: 'おもいます', meaning: 'Nghĩ', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'おもって' },
+            { id: 103, kanji: '言います', hiragana: 'いいます', meaning: 'Nói', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'いって' },
+            { id: 104, kanji: '勝ちます', hiragana: 'かちます', meaning: 'Thắng', group: 1, reason: 'Âm tiết trước ます là ち (chi) thuộc cột い (i).', te_form: 'かって' },
+            { id: 105, kanji: '負けます', hiragana: 'まけます', meaning: 'Thua', group: 2, reason: 'Âm tiết trước ます là け (ke) thuộc cột え (e).', te_form: 'まけて' },
+            { id: 106, kanji: '役に立ちます', hiragana: 'やくにたちます', meaning: 'Giúp ích', group: 1, reason: 'Động từ ghép với 立ちます.', te_form: 'やくにたって' },
+            { id: 107, kanji: 'やめます', hiragana: 'やめます', meaning: 'Từ bỏ', group: 2, reason: 'Âm tiết trước ます là め (me) thuộc cột え (e).', te_form: 'やめて' },
+            { id: 108, kanji: '動きます', hiragana: 'うごきます', meaning: 'Di chuyển', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'うごいて' },
+            { id: 109, kanji: '気を付けます', hiragana: 'きをつけます', meaning: 'Chú ý', group: 2, reason: 'Âm tiết trước ます là け (ke) thuộc cột え (e).', te_form: 'きをつけて' },
+            { id: 110, kanji: '留学します', hiragana: 'りゅうがくします', meaning: 'Du học', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'りゅうがくして' },
+            { id: 111, kanji: '着ます', hiragana: 'きます', meaning: 'Mặc', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là き (ki), nó vẫn thuộc nhóm 2.', te_form: 'きて' },
+            { id: 112, kanji: 'はきます', hiragana: 'はきます', meaning: 'Đeo, mặc (dưới)', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'はいて' },
+            { id: 113, kanji: 'かぶります', hiragana: 'かぶります', meaning: 'Đội', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'かぶって' },
+            { id: 114, kanji: 'かけます', hiragana: 'かけます', meaning: 'Treo', group: 2, reason: 'Âm tiết trước ます là け (ke) thuộc cột え (e).', te_form: 'かけて' },
+            { id: 115, kanji: '生まれます', hiragana: 'うまれます', meaning: 'Sinh ra', group: 2, reason: 'Âm tiết trước ます là れ (re) thuộc cột え (e).', te_form: 'うまれて' },
+            { id: 116, kanji: '回します', hiragana: 'まわします', meaning: 'Vặn, xoay', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'まわして' },
+            { id: 117, kanji: '引きます', hiragana: 'ひきます', meaning: 'Kéo', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'ひいて' },
+            { id: 118, kanji: '変えます', hiragana: 'かえます', meaning: 'Đổi', group: 2, reason: 'Âm tiết trước ます là え (e) thuộc cột え (e).', te_form: 'かえて' },
+            { id: 119, kanji: '歩きます', hiragana: 'あるきます', meaning: 'Đi bộ', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'あるいて' },
+            { id: 120, kanji: '渡ります', hiragana: 'わたります', meaning: 'Qua đường', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'わたって' },
+            { id: 121, kanji: '曲がります', hiragana: 'まがります', meaning: 'Rẽ', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'まがって' },
+            { id: 122, kanji: '触ります', hiragana: 'さわります', meaning: 'Sờ', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'さわって' },
+            { id: 123, kanji: 'くれます', hiragana: 'くれます', meaning: 'Cho (tôi)', group: 2, reason: 'Âm tiết trước ます là れ (re) thuộc cột え (e).', te_form: 'くれて' },
+            { id: 124, kanji: '直します', hiragana: 'なおします', meaning: 'Sửa', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'なおして' },
+            { id: 125, kanji: '連れて行きます', hiragana: 'つれていきます', meaning: 'Dẫn đi', group: 1, reason: 'Động từ ghép với 行きます.', te_form: 'つれていって' },
+            { id: 126, kanji: '連れて来ます', hiragana: 'つれてきます', meaning: 'Dẫn đến', group: 3, reason: 'Động từ ghép với 来ます.', te_form: 'つれてきて' },
+            { id: 127, kanji: '紹介します', hiragana: 'しょうかいします', meaning: 'Giới thiệu', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'しょうかいして' },
+            { id: 128, kanji: '案内します', hiragana: 'あんないします', meaning: 'Hướng dẫn', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'あんないして' },
+            { id: 129, kanji: '説明します', hiragana: 'せつめいします', meaning: 'Giải thích', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'せつめいして' },
+            { id: 130, kanji: '足ります', hiragana: 'たります', meaning: 'Đủ', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là り (ri), nó vẫn thuộc nhóm 2.', te_form: 'たりて' },
         ];
-
+        
         // --- GLOBAL STATE ---
         let speech = new SpeechSynthesisUtterance();
         speech.lang = "ja-JP";
@@ -648,11 +742,36 @@
         document.getElementById('reflex-start-btn').addEventListener('click', startReflexRound);
         document.getElementById('reflex-next-btn').addEventListener('click', startReflexRound);
 
+        // --- KEYBOARD SHORTCUTS ---
+        function handleKeyPress(event) {
+            if (event.code === 'Enter' || event.code === 'Space') {
+                // Find the visible "next" button and click it
+                const visibleNextButton = 
+                    document.querySelector('#group-next-btn:not(.hidden)') ||
+                    document.querySelector('#te-next-btn:not(.hidden)') ||
+                    document.querySelector('#reflex-next-btn:not(.hidden)');
+
+                if (visibleNextButton) {
+                    event.preventDefault();
+                    visibleNextButton.click();
+                    return;
+                }
+                
+                // If no "next" button, check for a visible "start" button in the reflex game
+                const reflexStartButton = document.querySelector('#reflex-start-btn');
+                if (reflexStartButton && !reflexStartButton.parentElement.classList.contains('hidden')) {
+                     event.preventDefault();
+                     reflexStartButton.click();
+                }
+            }
+        }
+
         // --- INITIALIZATION ---
         window.onload = () => {
             const initialLink = document.getElementById('sub-nav-theory-groups');
             showTab('theory-groups', initialLink);
             initAccordions();
+            document.addEventListener('keydown', handleKeyPress);
         };
     </script>
 
