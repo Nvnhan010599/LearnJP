@@ -17,23 +17,65 @@ const CHAR_PER_SECOND_RATE = 0.5; // Tốc độ tăng thời gian theo ký tự
 let quizTimer = null;
 let timerInterval = null; // Biến này không còn được dùng cho hiển thị, nhưng giữ lại để clear
 let isTimedOut = false; // Biến cờ để theo dõi trạng thái hết giờ ẩn
+// let skipNextQuestionSpeech = false; // Cờ này không còn cần thiết khi bỏ tính năng phát âm
 
-// BỔ SUNG: Hàm phát âm thanh sử dụng Web Speech API
-function speakText(text, event) {
-    if (event) event.stopPropagation(); // Ngăn các sự kiện click khác
-    
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Dừng bất kỳ âm thanh nào đang phát
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ja-JP'; // Đặt ngôn ngữ là tiếng Nhật
-        utterance.rate = 0.9; // Tốc độ đọc vừa phải
-        window.speechSynthesis.speak(utterance);
-    } else {
-        // Đã loại bỏ alert(), thay bằng console.warn
-        console.warn('Rất tiếc, trình duyệt của bạn không hỗ trợ tính năng phát âm thanh.');
-    }
+// BỔ SUNG: Hàm phát âm thanh sử dụng Web Speech API (ĐÃ BỊ LOẠI BỎ)
+/*
+function speakText(text, applySplitLogic = true) { 
+    return new Promise((resolve, reject) => {
+        if (!('speechSynthesis' in window)) {
+            console.warn('Rất tiếc, trình duyệt của bạn không hỗ trợ tính năng phát âm thanh.');
+            resolve(); 
+            return;
+        }
+
+        window.speechSynthesis.cancel(); 
+
+        let partsToSpeak = [text]; 
+        if (applySplitLogic) {
+            partsToSpeak = text.split(/(I|II|III)/); 
+        }
+        
+        let currentPartIndex = 0;
+
+        const speakNextPart = () => {
+            if (currentPartIndex >= partsToSpeak.length) {
+                resolve(); 
+                return;
+            }
+
+            const part = partsToSpeak[currentPartIndex].trim();
+
+            if (applySplitLogic && (part === 'I' || part === 'II' || part === 'III')) {
+                currentPartIndex++; 
+                setTimeout(() => {
+                    speakNextPart(); 
+                }, 2000); 
+            } else if (part) {
+                const utterance = new SpeechSynthesisUtterance(part);
+                utterance.lang = 'ja-JP';
+                utterance.rate = 0.9;
+
+                utterance.onend = () => {
+                    currentPartIndex++;
+                    speakNextPart(); 
+                };
+                utterance.onerror = (event) => {
+                    console.error('SpeechSynthesisUtterance.onerror', event);
+                    reject(event); 
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                currentPartIndex++;
+                speakNextPart();
+            }
+        };
+
+        speakNextPart(); 
+    });
 }
-
+*/
 
 function shuffleArray(array) {
     let currentIndex = array.length,  randomIndex;
@@ -47,7 +89,7 @@ function shuffleArray(array) {
 
 function romajiToHiragana(text) {
     // Đã sửa các ký tự Hiragana bị sai chính tả
-    const romajiMap = { 'a': 'あ', 'i': 'い', 'u': 'う', 'e': 'え', 'o': 'お', 'ka': 'か', 'ki': 'き', 'ku': 'く', 'ke': 'け', 'ko': 'こ', 'sa': 'さ', 'shi': 'し', 'su': 'す', 'se': 'せ', 'so': 'そ', 'ta': 'た', 'chi': 'ち', 'tsu': 'つ', 'te': 'て', 'to': 'と', 'na': 'な', 'ni': 'に', 'nu': 'ぬ', 'ne': 'ね', 'no': 'の', 'ha': 'は', 'hi': 'hi', 'fu': 'ふ', 'he': 'へ', 'ho': 'ほ', 'ma': 'ま', 'mi': 'み', 'mu': 'む', 'me': 'め', 'mo': 'も', 'ya': 'や', 'yu': 'yu', 'yo': 'よ', 'ra': 'ら', 'ri': 'り', 'ru': 'る', 're': 'れ', 'ro': 'ろ', 'wa': 'わ', 'wo': 'を', 'n': 'ん', 'ga': 'が', 'gi': 'ぎ', 'gu': 'ぐ', 'ge': 'げ', 'go': 'ご', 'za': 'ざ', 'ji': 'じ', 'zu': 'ず', 'ze': 'ぜ', 'zo': 'ぞ', 'da': 'だ', 'di': 'ぢ', 'du': 'づ', 'de': 'で', 'do': 'ど', 'ba': 'ば', 'bi': 'び', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ', 'pa': 'ぱ', 'pi': 'ぴ', 'pu': 'ぷ', 'pe': 'ぺ', 'po': 'ぽ', 'kya': 'きゃ', 'kyu': 'きゅ', 'kyo': 'きょ', 'sha': 'しゃ', 'shu': 'しゅ', 'sho': 'しょ', 'cha': 'ちゃ', 'chu': 'ちゅ', 'cho': 'ちょ', 'nya': 'にゃ', 'nyu': 'にゅ', 'nyo': 'にょ', 'hya': 'ひゃ', 'hyu': 'ひゅ', 'hyo': 'ひょ', 'mya': 'みゃ', 'myu': 'みゅ', 'myo': 'みょ', 'rya': 'りゃ', 'ryu': 'りゅ', 'ryo': 'りょ', 'gya': 'ぎゃ', 'gyu': 'ぎゅ', 'gyo': 'ぎょ', 'ja': 'じゃ', 'ju': 'じゅ', 'jo': 'じょ', 'bya': 'びゃ', 'byu': 'びゅ', 'byo': 'びょ', 'pya': 'ぴゃ', 'pyu': 'ぴゅ', 'pyo': 'ぴょ', '-': 'ー' };
+    const romajiMap = { 'a': 'あ', 'i': 'い', 'u': 'う', 'e': 'え', 'o': 'お', 'ka': 'か', 'ki': 'き', 'ku': 'く', 'ke': 'け', 'ko': 'こ', 'sa': 'さ', 'shi': 'し', 'su': 'す', 'se': 'せ', 'so': 'そ', 'ta': 'た', 'chi': 'ち', 'tsu': 'tsu', 'te': 'て', 'to': 'と', 'na': 'な', 'ni': 'ni', 'nu': 'ぬ', 'ne': 'ね', 'no': 'no', 'ha': 'ha', 'hi': 'hi', 'fu': 'ふ', 'he': 'he', 'ho': 'ほ', 'ma': 'ま', 'mi': 'mi', 'mu': 'む', 'me': 'め', 'mo': 'も', 'ya': 'ya', 'yu': 'yu', 'yo': 'yo', 'ra': 'ら', 'ri': 'ri', 'ru': 'る', 're': 'れ', 'ro': 'ろ', 'wa': 'わ', 'wo': 'を', 'n': 'ん', 'ga': 'が', 'gi': 'ぎ', 'gu': 'ぐ', 'ge': 'げ', 'go': 'ご', 'za': 'ざ', 'ji': 'じ', 'zu': 'zu', 'ze': 'ze', 'zo': 'ぞ', 'da': 'だ', 'di': 'ぢ', 'du': 'づ', 'de': 'で', 'do': 'ど', 'ba': 'ba', 'bi': 'び', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ', 'pa': 'ぱ', 'pi': 'ぴ', 'pu': 'ぷ', 'pe': 'ぺ', 'po': 'ぽ', 'kya': 'きゃ', 'kyu': 'きゅ', 'kyo': 'きょ', 'sha': 'しゃ', 'shu': 'しゅ', 'sho': 'しょ', 'cha': 'ちゃ', 'chu': 'ちゅ', 'cho': 'ちょ', 'nya': 'にゃ', 'nyu': 'にゅ', 'nyo': 'にょ', 'hya': 'ひゃ', 'hyu': 'ひゅ', 'hyo': 'ひょ', 'mya': 'みゃ', 'myu': 'みゅ', 'myo': 'みょ', 'rya': 'りゃ', 'ryu': 'りゅ', 'ryo': 'りょ', 'gya': 'ぎゃ', 'gyu': 'ぎゅ', 'gyo': 'ぎょ', 'ja': 'じゃ', 'ju': 'じゅ', 'jo': 'じょ', 'bya': 'びゃ', 'byu': 'びゅ', 'byo': 'びょ', 'pya': 'ぴゃ', 'pyu': 'ぴゅ', 'pyo': 'ぴょ', '-': 'ー' };
     let result = '';
     text = text.toLowerCase();
     for (let i = 0; i < text.length; i++) {
@@ -295,9 +337,9 @@ function showNextCard() {
     } else {
         showMultipleChoiceCard(currentCard);
         // Tính toán thời gian động
-        const termLength = currentCard.term.length;
-        const dynamicQuizDuration = BASE_QUIZ_TIMER_DURATION + Math.max(0, termLength - 4) * CHAR_PER_SECOND_RATE;
-        console.log(`Từ: "${currentCard.term}" (${termLength} ký tự), Thời gian: ${dynamicQuizDuration} giây`);
+        const termToMeasure = currentCard.kanji ? `${currentCard.term} (${currentCard.kanji})` : currentCard.term;
+        const dynamicQuizDuration = BASE_QUIZ_TIMER_DURATION + Math.max(0, termToMeasure.length - 4) * CHAR_PER_SECOND_RATE;
+        console.log(`Từ: "${termToMeasure}" (${termToMeasure.length} ký tự), Thời gian: ${dynamicQuizDuration.toFixed(2)} giây`); // Log thời gian động
 
         // Thiết lập bộ đếm thời gian ẩn với thời gian động
         const directionKey = currentDirection === 'vnToJp' ? 'vnToJp' : 'jpToVn'; // Xác định chiều để reset SRS
@@ -312,26 +354,41 @@ function showNextCard() {
 function showMultipleChoiceCard(card) {
     let isReverse;
     const { jpToVn, vnToJp } = card.srs;
-    const needsJpVn = jpToVn < 3, needsVnJp = vnToJp < 3;
-    // Sửa lỗi: so sánh vnToJp với jpToVn
-    if (needsJpVn && needsVnJp) isReverse = vnToJp <= jpToVn; 
-    else if (needsVnJp) isReverse = true;
-    else isReverse = false;
+    const needsJpVn = jpToVn < 3;
+    const needsVnJp = vnToJp < 3;
+    
+    // Cải thiện logic trộn câu hỏi:
+    if (needsJpVn && needsVnJp) {
+        // Nếu cả hai chiều đều cần ôn tập, chọn ngẫu nhiên
+        isReverse = Math.random() < 0.5; // 50% VN->JP, 50% for JP->VN
+    } else if (needsVnJp) {
+        isReverse = true; // Chỉ cần ôn tập VN->JP
+    } else {
+        isReverse = false; // Chỉ cần ôn tập JP->VN, hoặc từ đã thuộc hoàn toàn
+    }
 
     const displayText = isReverse ? card.meaning : (card.kanji ? `${card.term} (${card.kanji})` : card.term);
     const correctAnswer = isReverse ? (card.kanji ? `${card.term} (${card.kanji})` : card.term) : card.meaning;
     const choices = generateChoices(isReverse, card);
     const statusTag = card.mastered ? '<span class="mastered-tag">✓ Đã thuộc</span>' : (jpToVn > 0 || vnToJp > 0 ? '<span class="review-tag">⏳ Đang học...</span>' : '');
     
-    // CẢI TIẾN: Thêm nút loa khi hiển thị từ tiếng Nhật
-    const speakButton = !isReverse ? `<button class="speak-btn" onclick="speakText('${card.term}', event)">🔊</button>` : '';
+    // CẢI TIẾN: Thêm nút loa khi hiển thị từ tiếng Nhật (ĐÃ BỊ LOẠI BỎ CHỨC NĂNG)
+    // const speakButton = !isReverse ? `<button class="speak-btn" onclick="speakText('${card.term}', true)">🔊</button>` : ''; 
 
     document.getElementById('cardContainer').innerHTML = `
         <div class="card">
-            <h2>${displayText} ${speakButton} ${statusTag}</h2>
+            <h2>${displayText} ${statusTag}</h2>
             <div class="choices-container">${choices.map(choice => `<button class="choice-btn" onclick="handleChoiceClick(this, '${choice.replace(/'/g, "\\'")}', '${correctAnswer.replace(/'/g, "\\'")}', ${isReverse})">${choice}</button>`).join('')}</div>
             <div id="keyGuide">Bấm phím số 1-4 để chọn</div>
         </div>`;
+    
+    // Tự động phát âm khi hiển thị câu hỏi tiếng Nhật (ĐÃ BỊ LOẠI BỎ CHỨC NĂNG)
+    /*
+    if (!isReverse && !skipNextQuestionSpeech) { 
+        speakText(card.term, true); 
+    }
+    skipNextQuestionSpeech = false; 
+    */
 }
 
 function generateChoices(isReverse, currentCard) {
@@ -391,7 +448,7 @@ function handleChoiceClick(button, selectedValue, correctAnswer, isReverse) {
     clearInterval(timerInterval); // Dừng interval (nếu có, mặc dù không còn dùng cho hiển thị)
     isShowingResult = true; // Đánh dấu rằng một câu trả lời đã được xử lý
 
-    const isCorrect = selectedValue === correctAnswer;
+    const isCorrectAttempt = selectedValue === correctAnswer; // User's current selection is correct
     const directionKey = isReverse ? 'vnToJp' : 'jpToVn';
 
     // Áp dụng phản hồi trực quan ngay lập tức
@@ -399,47 +456,75 @@ function handleChoiceClick(button, selectedValue, correctAnswer, isReverse) {
         btn.disabled = true; // Vô hiệu hóa tất cả các nút sau khi chọn
         if (btn.textContent.trim() === correctAnswer) btn.classList.add('correct');
     });
-    if (!isCorrect) button.classList.add('incorrect');
+    if (!isCorrectAttempt) button.classList.add('incorrect');
 
-    // Cập nhật SRS:
+    // Cập nhật SRS chỉ khi KHÔNG hết giờ.
     // Nếu hết giờ (isTimedOut là true), SRS đã được reset bởi quizTimer.
-    // Nếu không hết giờ (isTimedOut là false) và trả lời đúng, tăng SRS.
-    // Nếu không hết giờ (isTimedOut là false) và trả lời sai, reset SRS.
     if (!isTimedOut) { 
-        updateSRS(currentCard, isCorrect, directionKey);
+        updateSRS(currentCard, isCorrectAttempt, directionKey);
     } 
-    // else { // Nếu isTimedOut là true, SRS đã được reset, không làm gì thêm ở đây }
 
-    // Logic chuyển thẻ:
-    // 1. Nếu trả lời đúng VÀ không hết giờ: Chuyển sang thẻ tiếp theo.
-    // 2. Nếu ở chế độ "Tổng Kết" VÀ trả lời sai: Chuyển từ về bài gốc, sau đó chuyển sang thẻ tiếp theo.
-    // 3. Các trường hợp còn lại (trả lời sai HOẶC hết giờ): Hiển thị lại thẻ hiện tại.
-    if (isCorrect && !isTimedOut) { // Trường hợp 1: Đúng và trong thời gian
-        setTimeout(() => {
-            showNextCard();
-            updateStats();
-            updateLessonDropdown();
-        }, 1000); // Trễ ngắn cho phản hồi tích cực
-    } else if (currentLesson === 'summary' && !isCorrect) { // Trường hợp 2: Sai trong chế độ Tổng Kết
+    // Determine what text to speak and when to transition
+    // let speechPromise = Promise.resolve(); // Mặc định là Promise đã giải quyết nếu không có phát âm (ĐÃ BỊ LOẠI BỎ)
+    let delayBeforeNextAction = 1000; // Độ trễ mặc định cho phản hồi tích cực
+
+    if (isCorrectAttempt) { // Nếu người dùng trả lời đúng (dù trong hay ngoài thời gian)
+        // if (isReverse) { // Nếu câu hỏi là tiếng Việt, đáp án đúng là tiếng Nhật (ĐÃ BỊ LOẠI BỎ CHỨC NĂNG PHÁT ÂM)
+        //     speechPromise = speakText(correctAnswer, true); 
+        //     delayBeforeNextAction = 1000; 
+        //     skipNextQuestionSpeech = true; 
+        // } else { 
+            delayBeforeNextAction = 1000; 
+            // skipNextQuestionSpeech = false; // Đảm bảo cờ là false nếu không cần bỏ qua (ĐÃ BỊ LOẠI BỎ)
+        // }
+    } else if (currentLesson === 'summary' && !isCorrectAttempt) { 
         const originalLesson = currentCard.lesson;
-        sessionWords = sessionWords.filter(word => word.term !== currentCard.term); // Loại bỏ từ khỏi phiên tổng kết
+        sessionWords = sessionWords.filter(word => word.term !== currentCard.term); 
         setTimeout(() => {
             document.getElementById('cardContainer').innerHTML = `<div class="card result-feedback"><p class="feedback-incorrect">🔴 Trả lời sai!</p><p>Từ này đã được chuyển về <strong>Bài ${originalLesson}</strong> để ôn tập lại.</p></div>`;
             setTimeout(() => { showNextCard(); updateStats(); updateLessonDropdown(); }, 2500);
         }, 1500);
-    } else { // Trường hợp 3: Sai (do người dùng hoặc hết giờ) và không phải chế độ Tổng Kết
-        setTimeout(() => {
-            isShowingResult = false; // Cho phép người dùng tương tác lại với thẻ
-            // Hiển thị lại thẻ hiện tại dựa trên chế độ quiz
-            if (quizMode === 'input') {
-                showInputCard(currentCard);
-            } else {
-                showMultipleChoiceCard(currentCard);
-            }
-            updateStats(); // Cập nhật thống kê để phản ánh thay đổi SRS
-            updateLessonDropdown(); // Cập nhật dropdown bài học cho trạng thái đã thuộc
-        }, 2000); // Trễ dài hơn để người dùng xử lý lỗi
+        return; 
+    } else { 
+        delayBeforeNextAction = 2000; 
+        // speechPromise = Promise.resolve(); // Không phát âm cho câu trả lời sai (ĐÃ BỊ LOẠI BỎ)
+        // skipNextQuestionSpeech = false; // Đảm bảo cờ là false nếu không cần bỏ qua (ĐÃ BỊ LOẠI BỎ)
     }
+
+    // Chờ cho việc phát âm hoàn tất (nếu có), sau đó thực hiện bước tiếp theo (ĐÃ BỊ LOẠI BỎ)
+    // speechPromise.then(() => {
+        setTimeout(() => {
+            if (isCorrectAttempt) { 
+                showNextCard();
+            } else { 
+                isShowingResult = false; 
+                if (quizMode === 'input') {
+                    showInputCard(currentCard);
+                } else {
+                    showMultipleChoiceCard(currentCard);
+                }
+            }
+            updateStats(); 
+            updateLessonDropdown(); 
+        }, delayBeforeNextAction);
+    // }).catch(error => {
+    //     console.error("Lỗi trong quá trình phát âm hoặc chuyển đổi:", error);
+    //     // Fallback: tiếp tục mà không phát âm nếu có lỗi
+    //     setTimeout(() => {
+    //         if (isCorrectAttempt) {
+    //             showNextCard();
+    //         } else {
+    //             isShowingResult = false;
+    //             if (quizMode === 'input') {
+    //                 showInputCard(currentCard);
+    //             } else {
+    //                 showMultipleChoiceCard(currentCard);
+    //             }
+    //         }
+    //         updateStats();
+    //         updateLessonDropdown();
+    //     }, delayBeforeNextAction);
+    // });
 }
 
 // Hàm handleTimeout và startChoiceTimer đã được loại bỏ vì không còn hiển thị bộ đếm giờ
@@ -451,12 +536,12 @@ function showInputCard(card) {
     const correctAnswer = isReverse ? card.term : card.meaning;
     const statusTag = card.mastered ? '<span class="mastered-tag">✓ Đã thuộc</span>' : (card.srs.jpToVn > 0 || card.srs.vnToJp > 0 ? '<span class="review-tag">⏳ Đang học...</span>' : '');
     
-    // CẢI TIẾN: Thêm nút loa khi hiển thị từ tiếng Nhật
-    const speakButton = !isReverse ? `<button class="speak-btn" onclick="speakText('${card.term}', event)">🔊</button>` : '';
+    // CẢI TIẾN: Thêm nút loa khi hiển thị từ tiếng Nhật (ĐÃ BỊ LOẠI BỎ CHỨC NĂNG)
+    // const speakButton = !isReverse ? `<button class="speak-btn" onclick="speakText('${card.term}', true)">🔊</button>` : ''; 
 
     document.getElementById('cardContainer').innerHTML = `
         <div class="card">
-            <h2>${displayText} ${speakButton} ${statusTag}</h2>
+            <h2>${displayText} ${statusTag}</h2>
             <input type="text" id="answerInput" onkeypress="handleKeyPress(event, '${correctAnswer.replace(/'/g, "\\'")}')" placeholder="${placeholder}" autocomplete="off" autocapitalize="off">
             <button onclick="checkAnswer('${correctAnswer.replace(/'/g, "\\'")}')">Kiểm tra</button>
         </div>`;
@@ -759,7 +844,7 @@ select:focus { outline: 2px solid var(--text-accent); }
 .package-title { margin-bottom: 20px; }
 .package-container { display: flex; flex-direction: column; gap: 10px; }
 .package-btn { display: flex; justify-content: space-between; align-items: center; padding: 15px; text-align: left; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 1em; color: var(--text-secondary); }
-.package-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.02); }
+.package-btn:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.1); color: var(--text-primary); border-color: var(--text-accent); }
 .package-btn.completed { border-left: 5px solid var(--success-color); background: rgba(40, 167, 69, 0.1); color: var(--text-primary); }
 .package-btn-name { color: var(--text-primary); }
 .completed-check { color: var(--success-color); }
@@ -777,9 +862,11 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
 #theme-toggle { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: var(--text-secondary); transition: transform 0.3s ease, color 0.3s; }
 #theme-toggle:hover { transform: scale(1.2) rotate(15deg); color: var(--warning-color); }
 .placeholder-text { text-align: center; color: var(--text-secondary); padding: 40px 20px; }
-/* BỔ SUNG: CSS cho nút phát âm */
+/* BỔ SUNG: CSS cho nút phát âm (ĐÃ BỊ LOẠI BỎ) */
+/*
 .speak-btn { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--text-secondary); transition: all 0.2s ease; vertical-align: middle; padding: 0 5px;}
 .speak-btn:hover { color: var(--text-accent); transform: scale(1.2); }
+*/
 /* CSS cho phần thử thách vô hạn */
 .infinite-challenge-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); text-align: center; }
 @media (max-width: 600px) {
