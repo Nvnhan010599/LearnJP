@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học Động Từ Tiếng Nhật & Thể て</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .main-nav-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .sub-nav-link.active {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+            font-weight: bold;
+        }
+        .verb-grid-item {
+            transition: all 0.2s ease-in-out;
+        }
+        .verb-grid-item.selected {
+            transform: scale(1.05);
+            background-color: #60a5fa;
+            color: white;
+            border-color: #2563eb;
+        }
+        .feedback-correct {
+            background-color: #dcfce7;
+            border-left-color: #22c55e;
+        }
+        .feedback-incorrect {
+            background-color: #fee2e2;
+            border-left-color: #ef4444;
+        }
+        .dropdown-menu {
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.2s ease-in-out;
+        }
+        .group:hover .dropdown-menu {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Accordion Styles */
+        .accordion-header .accordion-icon {
+            transition: transform 0.3s ease-in-out;
+        }
+        .accordion-header.open .accordion-icon {
+            transform: rotate(180deg);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out;
+            background-color: white;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-6 max-w-5xl">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-5xl font-bold text-blue-600">Luyện Siêu Trí Nhớ Động Từ</h1>
+            <p class="text-gray-500 mt-2 text-lg">Học tiếng Nhật hiệu quả và trực quan</p>
+        </header>
+
+        <!-- New Hierarchical Navigation -->
+        <nav class="flex justify-center items-center space-x-2 md:space-x-4 mb-8 bg-white p-2 rounded-xl shadow-md sticky top-2 z-20">
+            <!-- Home Button -->
+            <a href="../supplementary.html" class="p-2 rounded-md hover:bg-gray-200 transition" aria-label="Trang chủ">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </a>
+            <!-- Lý Thuyết Dropdown -->
+            <div class="relative group">
+                <button id="main-nav-theory" class="main-nav-btn flex items-center space-x-2 w-full text-left px-4 py-2 text-lg font-semibold rounded-md hover:bg-blue-100 transition"><span>Lý thuyết</span></button>
+                <div class="dropdown-menu absolute z-10 bg-white shadow-lg rounded-md mt-1 w-48 py-1">
+                    <a href="#" id="sub-nav-theory-groups" onclick="showTab('theory-groups', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Chia Nhóm</a>
+                    <a href="#" onclick="showTab('theory-te', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Chia Thể て</a>
+                </div>
+            </div>
+            <!-- Trò chơi Dropdown -->
+            <div class="relative group">
+                <button id="main-nav-game" class="main-nav-btn flex items-center space-x-2 w-full text-left px-4 py-2 text-lg font-semibold rounded-md hover:bg-blue-100 transition"><span>Trò chơi</span></button>
+                <div class="dropdown-menu absolute z-10 bg-white shadow-lg rounded-md mt-1 w-48 py-1">
+                    <a href="#" onclick="showTab('game-irregular', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Tìm Nhóm 2 ĐB</a>
+                    <a href="#" onclick="showTab('game-groups', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Phân Loại Nhóm</a>
+                    <a href="#" onclick="showTab('game-te', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Chia Thể て</a>
+                </div>
+            </div>
+            <!-- Phản xạ Dropdown -->
+            <div class="relative group">
+                <button id="main-nav-reflex" class="main-nav-btn flex items-center space-x-2 w-full text-left px-4 py-2 text-lg font-semibold rounded-md hover:bg-blue-100 transition"><span>Phản xạ</span></button>
+                <div class="dropdown-menu absolute z-10 bg-white shadow-lg rounded-md mt-1 w-48 py-1">
+                    <a href="#" onclick="showTab('game-reflex', this)" class="sub-nav-link block px-4 py-2 text-gray-700 hover:bg-gray-100">Luyện Nghe</a>
+                </div>
+            </div>
+        </nav>
+
+        <main id="main-content">
+            <!-- Theory: Verb Groups -->
+            <div id="theory-groups" class="tab-content bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-blue-700">Lý Thuyết: 3 Nhóm Động Từ & Các Trường Hợp Đặc Biệt</h2>
+                <div class="space-y-4 accordion-container">
+                    <!-- Accordion Item 1 -->
+                    <div class="accordion-item border rounded-lg overflow-hidden">
+                        <button class="accordion-header w-full flex justify-between items-center p-4 bg-green-100 hover:bg-green-200 transition">
+                            <span class="font-bold text-xl text-green-800">Nhóm 3 (Bất quy tắc)</span>
+                            <svg class="accordion-icon w-6 h-6 text-green-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4">
+                                <p><strong class="font-semibold">Công thức:</strong> Nhóm này chỉ bao gồm 2 động từ gốc và các biến thể của します.</p>
+                                <ul class="list-disc list-inside mt-2 pl-4 space-y-1">
+                                    <li><code class="bg-gray-200 px-2 py-1 rounded">します</code> (làm) và các động từ có cấu trúc "Danh từ + します".</li>
+                                    <li><code class="bg-gray-200 px-2 py-1 rounded">来ます (きます)</code> (đến).</li>
+                                </ul>
+                                <p class="mt-2"><strong class="font-semibold text-red-500">Chú ý:</strong> Nhóm này không có ngoại lệ. Chỉ cần nhớ hai trường hợp này là đủ.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion Item 2 -->
+                    <div class="accordion-item border rounded-lg overflow-hidden">
+                        <button class="accordion-header w-full flex justify-between items-center p-4 bg-yellow-100 hover:bg-yellow-200 transition">
+                            <span class="font-bold text-xl text-yellow-800">Nhóm 2 (Ichidan)</span>
+                            <svg class="accordion-icon w-6 h-6 text-yellow-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content">
+                             <div class="p-4">
+                                <p><strong class="font-semibold">Công thức chính:</strong> Những động từ có âm tiết ngay trước <code class="bg-gray-200 px-2 py-1 rounded">ます</code> thuộc <strong>hàng え (e)</strong>.</p>
+                                <p class="mt-4"><strong class="font-semibold text-red-500">Chú ý về ngoại lệ:</strong> Đây là nhóm có nhiều ngoại lệ cần ghi nhớ nhất. Các động từ này dù có âm trước <code class="bg-gray-200 px-2 py-1 rounded">ます</code> thuộc <strong>hàng い (i)</strong> nhưng vẫn được xếp vào Nhóm 2.</p>
+                                <p class="mt-4"><strong>Danh sách các động từ ngoại lệ Nhóm 2 thường gặp:</strong></p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 bg-yellow-50 p-4 rounded-md">
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">おきます</code><span>Thức dậy</span></div>
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">おります</code><span>Xuống (xe)</span></div>
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">あびます</code><span>Tắm</span></div>
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">きます</code><span>Mặc</span></div>
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">おちます</code><span>Rơi, rụng</span></div>
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">います</code><span>Ở, có</span></div>
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">かります</code><span>Mượn</span></div>
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">できます</code><span>Có thể</span></div>
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">みます</code><span>Nhìn, xem</span></div>
+                                    <div class="flex justify-between border-b border-yellow-200 py-1"><code class="font-semibold text-yellow-900">たります</code><span>Đủ</span></div>
+                                </div>
+                                <div class="mt-6 p-4 bg-green-100 border-l-4 border-green-400 rounded">
+                                    <h4 class="font-bold text-lg text-green-800">💡 Bài Thơ Mẹo Nhớ Ngoại Lệ Nhóm 2</h4>
+                                    <p class="mt-2 italic leading-relaxed text-green-900">
+                                        Sáng sớm <strong>thức dậy</strong> (<code class="text-sm bg-green-200 px-1 rounded">おきます</code>),<br>
+                                        <strong>Xuống</strong> (<code class="text-sm bg-green-200 px-1 rounded">おります</code>) giường đi <strong>tắm</strong> (<code class="text-sm bg-green-200 px-1 rounded">あびます</code>).<br>
+                                        <strong>Mặc</strong> (<code class="text-sm bg-green-200 px-1 rounded">きます</code>) quần áo thì tiền <strong>rơi</strong> (<code class="text-sm bg-green-200 px-1 rounded">おちます</code>) ra,<br>
+                                        <strong>Có</strong> (<code class="text-sm bg-green-200 px-1 rounded">います</code>) bạn đến chơi,<br>
+                                        Liền <strong>mượn</strong> (<code class="text-sm bg-green-200 px-1 rounded">かります</code>) bạn tiền,<br>
+                                        Để <strong>có thể</strong> (<code class="text-sm bg-green-200 px-1 rounded">できます</code>) <strong>đủ</strong> (<code class="text-sm bg-green-200 px-1 rounded">たります</code>) 2 vé đi <strong>xem</strong> (<code class="text-sm bg-green-200 px-1 rounded">みます</code>) phim.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Accordion Item 3 -->
+                    <div class="accordion-item border rounded-lg overflow-hidden">
+                        <button class="accordion-header w-full flex justify-between items-center p-4 bg-purple-100 hover:bg-purple-200 transition">
+                            <span class="font-bold text-xl text-purple-800">Nhóm 1 (Godan)</span>
+                            <svg class="accordion-icon w-6 h-6 text-purple-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4">
+                                <p><strong class="font-semibold">Công thức:</strong> Bao gồm tất cả các động từ còn lại. Hầu hết các động từ này có âm tiết trước <code class="bg-gray-200 px-2 py-1 rounded">ます</code> thuộc <strong>hàng い (i)</strong>.</p>
+                                 <p class="mt-4"><strong class="font-semibold text-red-500">Chú ý về ngoại lệ:</strong></p>
+                                <ul class="list-disc list-inside mt-2 pl-4 space-y-2">
+                                    <li>Ngoại lệ quan trọng nhất là phải <strong>loại trừ</strong> danh sách các động từ đặc biệt của Nhóm 2 đã nêu ở trên.</li>
+                                    <li>Một số động từ trông giống Nhóm 2 (vì có âm <code class="bg-gray-200 px-1 rounded">え</code>) nhưng thực chất lại là Nhóm 1: <br><code class="bg-purple-100 text-purple-800 p-1 rounded">帰ります (かえります)</code>, <code class="bg-purple-100 text-purple-800 p-1 rounded">入ります (はいります)</code>, <code class="bg-purple-100 text-purple-800 p-1 rounded">知ります (しります)</code>, <code class="bg-purple-100 text-purple-800 p-1 rounded">切ります (きります)</code>.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theory: Te Form -->
+            <div id="theory-te" class="tab-content bg-white p-6 rounded-xl shadow-lg hidden">
+                 <h2 class="text-2xl md:text-3xl font-bold mb-6 text-blue-700">Lý Thuyết: Chinh Phục Thể て</h2>
+                 <div class="space-y-4 accordion-container">
+                    <!-- Accordion Item 1 -->
+                    <div class="accordion-item border rounded-lg overflow-hidden">
+                        <button class="accordion-header w-full flex justify-between items-center p-4 bg-green-100 hover:bg-green-200 transition">
+                            <span class="font-bold text-xl text-green-800">Nhóm 2 & 3 (Dễ nhất)</span>
+                            <svg class="accordion-icon w-6 h-6 text-green-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4">
+                                <p><strong class="font-semibold">Công thức:</strong> Bỏ <code class="bg-gray-200 px-2 py-1 rounded">ます</code> thêm <code class="bg-green-200 px-2 py-1 rounded">て</code>.</p>
+                                <ul class="list-disc list-inside mt-2 pl-4 space-y-1">
+                                    <li>Nhóm 2: <code class="bg-gray-200 px-1 rounded">食べます</code> → <code class="bg-green-100 px-1 rounded">食べて</code></li>
+                                    <li>Nhóm 3: <code class="bg-gray-200 px-1 rounded">勉強します</code> → <code class="bg-green-100 px-1 rounded">勉強して</code></li>
+                                    <li>Ngoại lệ Nhóm 3: <code class="bg-gray-200 px-1 rounded">来ます (きます)</code> → <code class="bg-green-100 px-1 rounded">来て (きて)</code></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion Item 2 -->
+                    <div class="accordion-item border rounded-lg overflow-hidden">
+                        <button class="accordion-header w-full flex justify-between items-center p-4 bg-purple-100 hover:bg-purple-200 transition">
+                            <span class="font-bold text-xl text-purple-800">Nhóm 1 (Thử thách)</span>
+                            <svg class="accordion-icon w-6 h-6 text-purple-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4">
+                                <p>Quy tắc chia phụ thuộc vào âm tiết cuối cùng đứng trước <code class="bg-gray-200 px-2 py-1 rounded">ます</code>.</p>
+                                <div class="overflow-x-auto mt-4">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead class="bg-purple-100">
+                                            <tr>
+                                                <th class="p-3 font-bold uppercase text-purple-800 border border-purple-200">Âm tiết trước ます</th>
+                                                <th class="p-3 font-bold uppercase text-purple-800 border border-purple-200">Chuyển thành</th>
+                                                <th class="p-3 font-bold uppercase text-purple-800 border border-purple-200">Ví dụ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="p-3 border border-purple-200 font-mono">い・ち・り</td>
+                                                <td class="p-3 border border-purple-200 font-mono text-red-600 font-bold">って</td>
+                                                <td class="p-3 border border-purple-200">会います → 会って</td>
+                                            </tr>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="p-3 border border-purple-200 font-mono">に・び・み</td>
+                                                <td class="p-3 border border-purple-200 font-mono text-red-600 font-bold">んで</td>
+                                                <td class="p-3 border border-purple-200">飲みます → 飲んで</td>
+                                            </tr>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="p-3 border border-purple-200 font-mono">き</td>
+                                                <td class="p-3 border border-purple-200 font-mono text-red-600 font-bold">いて</td>
+                                                <td class="p-3 border border-purple-200">書きます → 書いて</td>
+                                            </tr>
+                                             <tr class="hover:bg-gray-50">
+                                                <td class="p-3 border border-purple-200 font-mono">ぎ</td>
+                                                <td class="p-3 border border-purple-200 font-mono text-red-600 font-bold">いで</td>
+                                                <td class="p-3 border border-purple-200">泳ぎます → 泳いで</td>
+                                            </tr>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="p-3 border border-purple-200 font-mono">し</td>
+                                                <td class="p-3 border border-purple-200 font-mono text-red-600 font-bold">して</td>
+                                                <td class="p-3 border border-purple-200">話します → 話して</td>
+                                            </tr>
+                                            <tr class="bg-red-50 hover:bg-red-100">
+                                                <td class="p-3 border border-purple-200 font-mono font-bold">Đặc biệt: 行きます</td>
+                                                <td class="p-3 border border-purple-200 font-mono text-red-600 font-bold">いって</td>
+                                                <td class="p-3 border border-purple-200">行きます → 行って</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-400 rounded">
+                                    <h4 class="font-bold text-lg text-yellow-800">🎵 Bài Hát Mẹo Nhớ</h4>
+                                    <p class="mt-2 italic">
+                                        I, chi, ri → <strong class="text-red-600">tte</strong>, Ni, bi, mi → <strong class="text-red-600">n de</strong>,<br>
+                                        Ki → <strong class="text-red-600">ite</strong>, Gi → <strong class="text-red-600">ide</strong>.<br>
+                                        Ikimasu → <strong class="text-red-600">itte</strong>, Ikimasu → <strong class="text-red-600">itte</strong>,<br>
+                                        Shi, shi → <strong class="text-red-600">te</strong>, Shi, shi → <strong class="text-red-600">te</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game: Irregular Verbs -->
+            <div id="game-irregular" class="tab-content bg-white p-6 rounded-xl shadow-lg hidden">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2 text-center">Game: Săn Lùng Động Từ Nhóm 2 Đặc Biệt</h2>
+                <p class="text-center text-gray-600 mb-6">Hãy chọn tất cả các động từ Nhóm 2 có kết thúc là hàng <strong>い</strong> (i) nhé!</p>
+                <div id="irregular-verb-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <!-- Verbs will be injected here by JS -->
+                </div>
+                <div class="text-center mt-8 flex justify-center items-center gap-4">
+                    <button id="check-irregular-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition shadow-lg hover:scale-105">Kiểm tra</button>
+                    <button id="reset-irregular-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg transition shadow-lg hover:scale-105">Chơi lại</button>
+                </div>
+                <div id="irregular-feedback" class="mt-6 text-center font-semibold text-lg"></div>
+            </div>
+
+            <!-- Game: Group Classification -->
+            <div id="game-groups" class="tab-content bg-white p-6 rounded-xl shadow-lg hidden">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Game: Động Từ Này Thuộc Nhóm Nào?</h2>
+                <div id="group-game-container" class="text-center">
+                    <div id="group-question-card" class="bg-blue-50 p-6 rounded-lg min-h-[150px] flex flex-col justify-center">
+                        <p class="text-lg mb-2">Động từ:</p>
+                        <p id="group-question-verb" class="text-4xl font-bold text-blue-800 mb-1"></p>
+                        <p id="group-question-meaning" class="text-gray-600 text-xl"></p>
+                    </div>
+                    <div id="group-answers" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                        <!-- Answer buttons will be injected here -->
+                    </div>
+                    <div id="group-feedback" class="mt-6 p-4 rounded-lg border-l-4 hidden"></div>
+                    <button id="group-next-btn" class="hidden mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transition hover:scale-105">Câu tiếp theo</button>
+                </div>
+                 <div class="text-center mt-6">
+                    <button onclick="startGroupGame()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg transition shadow-lg hover:scale-105">Bắt đầu / Chơi lại</button>
+                </div>
+            </div>
+
+            <!-- Game: Te Form Conjugation -->
+            <div id="game-te" class="tab-content bg-white p-6 rounded-xl shadow-lg hidden">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Game: Chia Thể て</h2>
+                <div id="te-game-container" class="text-center">
+                    <div id="te-question-card" class="bg-yellow-50 p-6 rounded-lg min-h-[150px] flex flex-col justify-center">
+                        <p class="text-lg mb-2">Thể て của động từ sau là gì?</p>
+                        <p id="te-question-verb" class="text-4xl font-bold text-yellow-800"></p>
+                    </div>
+                    <div id="te-answers" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <!-- Answer buttons will be injected here -->
+                    </div>
+                    <div id="te-feedback" class="mt-6 p-4 rounded-lg border-l-4 hidden"></div>
+                    <button id="te-next-btn" class="hidden mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transition hover:scale-105">Câu tiếp theo</button>
+                </div>
+                 <div class="text-center mt-6">
+                    <button onclick="startTeGame()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg transition shadow-lg hover:scale-105">Bắt đầu / Chơi lại</button>
+                </div>
+            </div>
+
+            <!-- Game: Listening Reflex -->
+            <div id="game-reflex" class="tab-content bg-white p-6 rounded-xl shadow-lg hidden">
+                 <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Game: Luyện Phản Xạ Nghe</h2>
+                 <div id="reflex-game-container" class="text-center">
+                    <div class="min-h-[250px] flex flex-col items-center justify-center bg-gray-50 rounded-lg p-6">
+                        <div id="reflex-start-view">
+                             <p class="mb-4 text-gray-600">Nhấn nút bên dưới để nghe động từ và luyện phản xạ trong 5 giây.</p>
+                             <button id="reflex-start-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-10 rounded-full transition shadow-xl text-lg hover:scale-105">BẮT ĐẦU</button>
+                        </div>
+                        <div id="reflex-playing-view" class="hidden">
+                            <p class="text-2xl text-gray-700 mb-4">Lắng nghe và suy nghĩ...</p>
+                            <div id="reflex-timer" class="text-6xl font-bold text-red-500">5</div>
+                        </div>
+                        <div id="reflex-result-view" class="hidden text-center">
+                             <p class="text-2xl font-bold text-gray-800 mb-2" id="reflex-result-verb"></p>
+                             <p class="text-5xl font-bold text-green-600" id="reflex-result-te"></p>
+                             <button id="reflex-next-btn" class="mt-6 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition hover:scale-105">Tiếp tục</button>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- DATABASE ---
+        const verbs = [
+            // Data from PDF, classified
+            { id: 1, kanji: '行きます', hiragana: 'いきます', meaning: 'Đi', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1 khi chia thể て.', te_form: 'いって', is_irregular_g2: false, is_irregular_g1: true },
+            { id: 2, kanji: '寝ます', hiragana: 'ねます', meaning: 'Ngủ', group: 2, reason: 'Âm tiết trước ます là ね (ne) thuộc cột え (e).', te_form: 'ねて', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 3, kanji: '働きます', hiragana: 'はたらきます', meaning: 'Làm việc', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'はたらいて', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 4, kanji: '終わります', hiragana: 'おわります', meaning: 'Kết thúc', group: 1, reason: 'Âm tiết trước ます là り (ri) thuộc cột い (i).', te_form: 'おわって', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 5, kanji: '勉強します', hiragana: 'べんきょうします', meaning: 'Học', group: 3, reason: 'Kết thúc bằng します (shimasu).', te_form: 'べんきょうして', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 6, kanji: 'します', hiragana: 'します', meaning: 'Làm', group: 3, reason: 'Đây là động từ gốc của nhóm 3.', te_form: 'して', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 7, kanji: '起きます', hiragana: 'おきます', meaning: 'Thức dậy', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là き (ki), nó vẫn thuộc nhóm 2.', te_form: 'おきて', is_irregular_g2: true, is_irregular_g1: false },
+            { id: 8, kanji: '来ます', hiragana: 'きます', meaning: 'Đến', group: 3, reason: 'Đây là động từ bất quy tắc gốc của nhóm 3.', te_form: 'きて', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 9, kanji: '帰ります', hiragana: 'かえります', meaning: 'Về', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm え (e), nó vẫn thuộc nhóm 1.', te_form: 'かえって', is_irregular_g2: false, is_irregular_g1: true },
+            { id: 10, kanji: '食べます', hiragana: 'たべます', meaning: 'Ăn', group: 2, reason: 'Âm tiết trước ます là べ (be) thuộc cột え (e).', te_form: 'たべて', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 11, kanji: '飲みます', hiragana: 'のみます', meaning: 'Uống', group: 1, reason: 'Âm tiết trước ます là み (mi) thuộc cột い (i).', te_form: 'のんで', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 12, kanji: '見ます', hiragana: 'みます', meaning: 'Nhìn, xem', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là み (mi), nó vẫn thuộc nhóm 2.', te_form: 'みて', is_irregular_g2: true, is_irregular_g1: false },
+            { id: 13, kanji: '聞きます', hiragana: 'ききます', meaning: 'Nghe', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'きいて', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 14, kanji: '読みます', hiragana: 'よみます', meaning: 'Đọc', group: 1, reason: 'Âm tiết trước ます là み (mi) thuộc cột い (i).', te_form: 'よんで', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 15, kanji: '書きます', hiragana: 'かきます', meaning: 'Viết', group: 1, reason: 'Âm tiết trước ます là き (ki) thuộc cột い (i).', te_form: 'かいて', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 16, kanji: '会います', hiragana: 'あいます', meaning: 'Gặp', group: 1, reason: 'Âm tiết trước ます là い (i) thuộc cột い (i).', te_form: 'あって', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 18, kanji: '切ります', hiragana: 'きります', meaning: 'Cắt', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó thuộc nhóm 1.', te_form: 'きって', is_irregular_g2: false, is_irregular_g1: true },
+            { id: 23, kanji: '教えます', hiragana: 'おしえます', meaning: 'Dạy', group: 2, reason: 'Âm tiết trước ます là え (e) thuộc cột え (e).', te_form: 'おしえて', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 25, kanji: '借ります', hiragana: 'かります', meaning: 'Mượn', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là り (ri), nó vẫn thuộc nhóm 2.', te_form: 'かりて', is_irregular_g2: true, is_irregular_g1: false },
+            { id: 26, kanji: '貸します', hiragana: 'かします', meaning: 'Cho mượn', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'かして', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 37, kanji: '泳ぎます', hiragana: 'およぎます', meaning: 'Bơi', group: 1, reason: 'Âm tiết trước ます là ぎ (gi) thuộc cột い (i).', te_form: 'およいで', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 44, kanji: '急ぎます', hiragana: 'いそぎます', meaning: 'Vội', group: 1, reason: 'Âm tiết trước ます là ぎ (gi) thuộc cột い (i).', te_form: 'いそいで', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 45, kanji: '待ちます', hiragana: 'まちます', meaning: 'Đợi', group: 1, reason: 'Âm tiết trước ます là ち (chi) thuộc cột い (i).', te_form: 'まって', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 48, kanji: '呼びます', hiragana: 'よびます', meaning: 'Gọi', group: 1, reason: 'Âm tiết trước ます là び (bi) thuộc cột い (i).', te_form: 'よんで', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 49, kanji: '話します', hiragana: 'はなします', meaning: 'Nói chuyện', group: 1, reason: 'Âm tiết trước ます là し (shi) thuộc cột い (i).', te_form: 'はなして', is_irregular_g2: false, is_irregular_g1: false },
+            { id: 54, kanji: '入ります', hiragana: 'はいります', meaning: 'Vào', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó vẫn thuộc nhóm 1.', te_form: 'はいって', is_irregular_g2: false, is_irregular_g1: true },
+            { id: 64, kanji: '降ります', hiragana: 'おります', meaning: 'Xuống (xe)', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là り (ri), nó vẫn thuộc nhóm 2.', te_form: 'おりて', is_irregular_g2: true, is_irregular_g1: false },
+            { id: 88, kanji: '出来ます', hiragana: 'できます', meaning: 'Có thể', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là き (ki), nó vẫn thuộc nhóm 2.', te_form: 'できて', is_irregular_g2: true, is_irregular_g1: false },
+            { id: 99, kanji: '要ります', hiragana: 'いります', meaning: 'Cần', group: 1, reason: 'Đây là động từ đặc biệt của nhóm 1. Dù có âm い (i), nó vẫn thuộc nhóm 1.', te_form: 'いって', is_irregular_g2: false, is_irregular_g1: true },
+            { id: 130, kanji: '足ります', hiragana: 'たります', meaning: 'Đủ', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là り (ri), nó vẫn thuộc nhóm 2.', te_form: 'たりて', is_irregular_g2: true, is_irregular_g1: false },
+            // From image
+            { id: 131, kanji: '浴びます', hiragana: 'あびます', meaning: 'Tắm', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là び (bi), nó vẫn thuộc nhóm 2.', te_form: 'あびて', is_irregular_g2: true, is_irregular_g1: false },
+            { id: 132, kanji: '着ます', hiragana: 'きます', meaning: 'Mặc', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là き (ki), nó vẫn thuộc nhóm 2.', te_form: 'きて', is_irregular_g2: true, is_irregular_g1: false },
+            { id: 133, kanji: '落ちます', hiragana: 'おちます', meaning: 'Rơi, rụng', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là ち (chi), nó vẫn thuộc nhóm 2.', te_form: 'おちて', is_irregular_g2: true, is_irregular_g1: false },
+            { id: 134, kanji: 'います', hiragana: 'います', meaning: 'Ở', group: 2, reason: 'Đây là động từ đặc biệt của nhóm 2. Dù âm trước ます là い (i), nó vẫn thuộc nhóm 2.', te_form: 'いて', is_irregular_g2: true, is_irregular_g1: false },
+        ];
+
+        // --- GLOBAL STATE ---
+        let speech = new SpeechSynthesisUtterance();
+        speech.lang = "ja-JP";
+        speech.rate = 0.9;
+
+        // --- TAB MANAGEMENT ---
+        function showTab(tabId, clickedElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            document.querySelectorAll('.main-nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.sub-nav-link').forEach(link => link.classList.remove('active'));
+
+            if (clickedElement) {
+                clickedElement.classList.add('active');
+            }
+
+            if (tabId.startsWith('theory')) {
+                document.getElementById('main-nav-theory').classList.add('active');
+            } else if (tabId.startsWith('game')) {
+                if (tabId === 'game-reflex') {
+                    document.getElementById('main-nav-reflex').classList.add('active');
+                } else {
+                    document.getElementById('main-nav-game').classList.add('active');
+                }
+            }
+
+            if (tabId === 'game-irregular') initIrregularGame();
+            if (tabId === 'game-groups') startGroupGame();
+            if (tabId === 'game-te') startTeGame();
+            if (tabId === 'game-reflex') initReflexGame();
+        }
+        
+        // --- ACCORDION ---
+        function initAccordions() {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    header.classList.toggle('open');
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                });
+            });
+        }
+        
+        function goHome() {
+            // This function is now handled by a standard <a> tag
+            // but we can keep it in case we want to do more complex "home" actions later.
+            window.location.href = 'index.html';
+        }
+
+        // --- GAME 0: IRREGULAR VERB FINDER ---
+        const irregularGameVerbs = [
+            { hiragana: 'おきます', isIrregular: true }, { hiragana: 'おります', isIrregular: true },
+            { hiragana: 'あびます', isIrregular: true }, { hiragana: 'きます', isIrregular: true }, // 着ます
+            { hiragana: 'おちます', isIrregular: true }, { hiragana: 'います', isIrregular: true },
+            { hiragana: 'かります', isIrregular: true }, { hiragana: 'できます', isIrregular: true },
+            { hiragana: 'たります', isIrregular: true }, { hiragana: 'みます', isIrregular: true },
+            { hiragana: 'かえります', isIrregular: false }, { hiragana: 'はなします', isIrregular: false },
+            { hiragana: 'のみます', isIrregular: false }, { hiragana: 'きます', isIrregular: false }, // 来ます
+            { hiragana: 'つくります', isIrregular: false }
+        ].sort(() => Math.random() - 0.5);
+
+        function initIrregularGame() {
+            const grid = document.getElementById('irregular-verb-grid');
+            const feedbackEl = document.getElementById('irregular-feedback');
+            grid.innerHTML = '';
+            feedbackEl.textContent = '';
+            irregularGameVerbs.forEach(verb => {
+                const item = document.createElement('button');
+                item.textContent = verb.hiragana;
+                item.dataset.isIrregular = verb.isIrregular;
+                item.className = 'verb-grid-item p-4 border-2 rounded-lg cursor-pointer text-xl font-bold bg-gray-100 hover:bg-blue-200';
+                item.onclick = () => item.classList.toggle('selected');
+                grid.appendChild(item);
+            });
+        }
+
+        document.getElementById('check-irregular-btn').addEventListener('click', () => {
+            const items = document.querySelectorAll('#irregular-verb-grid .verb-grid-item');
+            let correctSelections = 0;
+            const totalIrregulars = irregularGameVerbs.filter(v => v.isIrregular).length;
+
+            items.forEach(item => {
+                const isSelected = item.classList.contains('selected');
+                const isIrregular = item.dataset.isIrregular === 'true';
+                item.classList.remove('bg-green-300', 'bg-red-300', 'bg-yellow-300');
+                if (isSelected && isIrregular) {
+                    item.classList.add('bg-green-300');
+                    correctSelections++;
+                } else if (isSelected && !isIrregular) {
+                    item.classList.add('bg-red-300');
+                } else if (!isSelected && isIrregular) {
+                    item.classList.add('bg-yellow-300');
+                }
+            });
+            document.getElementById('irregular-feedback').textContent = `Bạn đã tìm đúng ${correctSelections} / ${totalIrregulars} động từ. (Xanh: Đúng, Đỏ: Sai, Vàng: Bỏ sót)`;
+        });
+        
+        document.getElementById('reset-irregular-btn').addEventListener('click', initIrregularGame);
+
+        // --- GAME 1: GROUP CLASSIFICATION ---
+        let currentGroupGameVerb = null;
+        function startGroupGame() {
+            currentGroupGameVerb = verbs[Math.floor(Math.random() * verbs.length)];
+            document.getElementById('group-question-verb').textContent = currentGroupGameVerb.hiragana;
+            document.getElementById('group-question-meaning').textContent = `(${currentGroupGameVerb.meaning})`;
+            const answersContainer = document.getElementById('group-answers');
+            answersContainer.innerHTML = '';
+            [1, 2, 3].forEach(groupNum => {
+                const button = document.createElement('button');
+                button.textContent = `Nhóm ${groupNum}`;
+                button.className = 'w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg transition text-xl transform hover:scale-105';
+                button.onclick = () => checkGroupAnswer(groupNum);
+                answersContainer.appendChild(button);
+            });
+            document.getElementById('group-feedback').classList.add('hidden');
+            document.getElementById('group-next-btn').classList.add('hidden');
+        }
+
+        function checkGroupAnswer(selectedGroup) {
+            const feedbackEl = document.getElementById('group-feedback');
+            const isCorrect = selectedGroup === currentGroupGameVerb.group;
+            if (isCorrect) {
+                feedbackEl.innerHTML = `<strong class="text-green-600">Chính xác!</strong> ${currentGroupGameVerb.reason}`;
+                feedbackEl.className = 'mt-6 p-4 rounded-lg border-l-4 feedback-correct';
+            } else {
+                feedbackEl.innerHTML = `<strong class="text-red-600">Chưa đúng!</strong> Đáp án đúng là <strong>Nhóm ${currentGroupGameVerb.group}</strong>. <br>${currentGroupGameVerb.reason}`;
+                feedbackEl.className = 'mt-6 p-4 rounded-lg border-l-4 feedback-incorrect';
+            }
+            feedbackEl.classList.remove('hidden');
+            document.getElementById('group-next-btn').classList.remove('hidden');
+            document.getElementById('group-answers').innerHTML = '';
+        }
+        
+        document.getElementById('group-next-btn').addEventListener('click', startGroupGame);
+
+        // --- GAME 2: TE-FORM CONJUGATION ---
+        let currentTeGameVerb = null;
+        function startTeGame() {
+            currentTeGameVerb = verbs[Math.floor(Math.random() * verbs.length)];
+            document.getElementById('te-question-verb').textContent = currentTeGameVerb.hiragana;
+            const answersContainer = document.getElementById('te-answers');
+            answersContainer.innerHTML = '';
+            let options = [...new Set([
+                currentTeGameVerb.te_form,
+                currentTeGameVerb.hiragana + 'て',
+                currentTeGameVerb.hiragana.replace(/ます$/, 'る'),
+                currentTeGameVerb.group === 1 ? currentTeGameVerb.hiragana.replace(/ます$/, 'て') : currentTeGameVerb.hiragana.replace(/[い|ち|り]ます$/, 'って')
+            ])].sort(() => Math.random() - 0.5);
+            
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 px-4 rounded-lg transition text-2xl transform hover:scale-105';
+                button.onclick = () => checkTeAnswer(option);
+                answersContainer.appendChild(button);
+            });
+            document.getElementById('te-feedback').classList.add('hidden');
+            document.getElementById('te-next-btn').classList.add('hidden');
+        }
+
+        function checkTeAnswer(selectedAnswer) {
+            const feedbackEl = document.getElementById('te-feedback');
+            const isCorrect = selectedAnswer === currentTeGameVerb.te_form;
+            if (isCorrect) {
+                feedbackEl.innerHTML = `<strong class="text-green-600">Tuyệt vời!</strong> ${currentTeGameVerb.hiragana} (Nhóm ${currentTeGameVerb.group}) chia thành ${currentTeGameVerb.te_form}.`;
+                feedbackEl.className = 'mt-6 p-4 rounded-lg border-l-4 feedback-correct';
+            } else {
+                feedbackEl.innerHTML = `<strong class="text-red-600">Sai rồi!</strong> Đáp án đúng là <strong>${currentTeGameVerb.te_form}</strong>. <br>Vì ${currentTeGameVerb.hiragana} thuộc nhóm ${currentTeGameVerb.group}, nên ta áp dụng quy tắc chia của nhóm đó.`;
+                feedbackEl.className = 'mt-6 p-4 rounded-lg border-l-4 feedback-incorrect';
+            }
+            feedbackEl.classList.remove('hidden');
+            document.getElementById('te-next-btn').classList.remove('hidden');
+            document.getElementById('te-answers').innerHTML = '';
+        }
+
+        document.getElementById('te-next-btn').addEventListener('click', startTeGame);
+        
+        // --- GAME 3: REFLEX ---
+        let reflexTimerInterval;
+        function initReflexGame() {
+            document.getElementById('reflex-start-view').classList.remove('hidden');
+            document.getElementById('reflex-playing-view').classList.add('hidden');
+            document.getElementById('reflex-result-view').classList.add('hidden');
+            clearInterval(reflexTimerInterval);
+        }
+
+        function startReflexRound() {
+            document.getElementById('reflex-start-view').classList.add('hidden');
+            document.getElementById('reflex-result-view').classList.add('hidden');
+            document.getElementById('reflex-playing-view').classList.remove('hidden');
+            const verb = verbs[Math.floor(Math.random() * verbs.length)];
+            speech.text = verb.hiragana;
+            window.speechSynthesis.speak(speech);
+            let timeLeft = 5;
+            const timerEl = document.getElementById('reflex-timer');
+            timerEl.textContent = timeLeft;
+            reflexTimerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(reflexTimerInterval);
+                    showReflexResult(verb);
+                }
+            }, 1000);
+        }
+
+        function showReflexResult(verb) {
+            document.getElementById('reflex-playing-view').classList.add('hidden');
+            document.getElementById('reflex-result-view').classList.remove('hidden');
+            document.getElementById('reflex-result-verb').textContent = `${verb.hiragana} (${verb.kanji})`;
+            document.getElementById('reflex-result-te').textContent = verb.te_form;
+        }
+
+        document.getElementById('reflex-start-btn').addEventListener('click', startReflexRound);
+        document.getElementById('reflex-next-btn').addEventListener('click', startReflexRound);
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            const initialLink = document.getElementById('sub-nav-theory-groups');
+            showTab('theory-groups', initialLink);
+            initAccordions();
+        };
+    </script>
+
+</body>
+</html>
