@@ -705,6 +705,7 @@ let currentDetailIndex = -1;
 let currentFlashcardIndex = 0;
 let quizItems = [];
 let currentQuizIndex = 0;
+let lastScrollPosition = 0; // <<<< FIX: Variable to store scroll position
 let appSettings = {
     flashcardFront: 'kanji',
     theme: 'system'
@@ -1283,10 +1284,18 @@ function renderDetailView() {
                 case target.closest('.kanji-cell') !== null:
                     const index = parseInt(target.closest('.kanji-cell').dataset.index, 10);
                     currentDetailIndex = index;
+                    lastScrollPosition = window.scrollY; // <<<< FIX: Save scroll position
                     renderDetailView();
                     showView('detail-view');
+                    window.scrollTo({ top: 0, behavior: 'auto' }); // <<<< FIX: Scroll new view to top
                     break;
-                case targetId === 'back-to-grid-from-detail' || targetId === 'back-to-grid-from-fc' || targetId === 'back-to-grid-from-quiz':
+                case targetId === 'back-to-grid-from-detail': // <<<< FIX: Handle this case separately
+                    showView('grid-view');
+                    renderGridView();
+                    // <<<< FIX: Restore scroll position instantly
+                    window.scrollTo({ top: lastScrollPosition, behavior: 'auto' });
+                    break;
+                case targetId === 'back-to-grid-from-fc' || targetId === 'back-to-grid-from-quiz':
                     showView('grid-view');
                     renderGridView();
                     break;
