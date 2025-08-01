@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 21 - Kanji</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .japanese-text, h1, h2, h3, .main-tab { font-family: 'Noto Sans JP', sans-serif; }
+        rt { color: #c0392b; }
+        .main-tab { transition: color 0.2s, border-color 0.2s, background-color 0.2s; }
+        .main-tab.active { color: #2563eb; border-color: #2563eb; background-color: #eff6ff; }
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+        .collapsible-toggle .arrow-icon { transition: transform 0.3s ease-in-out; }
+        .collapsible-toggle.expanded .arrow-icon { transform: rotate(180deg); }
+        #review-flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        #review-flashcard-container.is-flipped #review-flashcard-inner { transform: rotateY(180deg); }
+        .review-flashcard-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 0.75rem; }
+        .review-flashcard-front { background: white; border: 2px solid #e5e7eb; }
+        .review-flashcard-back { background: #f3e8ff; border: 2px solid #e9d5ff; transform: rotateY(180deg); padding: 1rem; }
+        .match-item { cursor: pointer; transition: background-color 0.2s, border-color 0.2s, transform 0.2s; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+        .match-item:hover { background-color: #f0f9ff; border-color: #3b82f6; }
+        .match-item.selected { background-color: #dbeafe; border-color: #2563eb; transform: scale(1.05); }
+        .match-item.correct { background-color: #dcfce7; border-color: #22c55e; color: #15803d; cursor: default; transform: scale(1); }
+        .match-item.incorrect { animation: shake 0.5s; background-color: #fee2e2; border-color: #ef4444; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .memory-card { width: 100%; aspect-ratio: 1 / 1; position: relative; transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer; }
+        .memory-card.flip { transform: rotateY(180deg); }
+        .memory-card.matched { pointer-events: none; }
+        .memory-card.matched .card-back { background-color: #16a34a; border: 2px solid #15803d; }
+        .memory-card.matched .card-front { border: 2px solid #16a34a; }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .card-front { background-color: white; border: 2px solid #e5e7eb; }
+        .card-back { background-color: #60a5fa; color: white; transform: rotateY(180deg); }
+        .card-back.kanji { font-size: 2.5rem; }
+        .card-back.reading { font-size: 1.25rem; font-weight: 600; text-align: center; padding: 0.25rem;}
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="mb-6 flex items-center justify-between">
+            <div class="w-1/4 text-left">
+                 <a href="../curriculum.html" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors whitespace-nowrap">
+                    &larr; Quay lại
+                </a>
+            </div>
+            <div class="w-1/2 text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-red-700 japanese-text">
+                    Bài 21: Tôi nghĩ là...
+                </h1>
+            </div>
+            <div class="w-1/4"></div>
+        </header>
+
+        <!-- Main Navigation Tabs -->
+        <div class="mb-8 border-b-2 border-gray-200 sticky top-0 bg-gray-100 z-10">
+            <nav class="flex -mb-px" aria-label="Tabs">
+                 <a href="lesson_21_kanji.html" class="main-tab active text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Kanji
+                </a>
+                <a href="lesson_21_vocabulary.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Từ vựng
+                </a>
+                <a href="lesson_21_grammar.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Ngữ pháp
+                </a>
+                <a href="lesson_21_kaiwa.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Hội thoại
+                </a>
+                <a href="lesson_21_practice.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Bài tập
+                </a>
+            </nav>
+        </div>
+
+        <main>
+            <div id="kanji-section" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 出 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">出</span> XUẤT</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> で・る, だ・す</p><p><span class="font-bold text-blue-700">On:</span> シュツ</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ:</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>出<rt>で</rt></ruby>かけます, <ruby>出<rt>だ</rt></ruby>します, <ruby>引<rt>ひ</rt></ruby>き<ruby>出<rt>だ</rt></ruby>し, <ruby>出<rt>で</rt></ruby><ruby>口<rt>ぐち</rt></ruby></p></div></div>
+                    <!-- 入 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">入</span> NHẬP</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> はい・る, い・れる</p><p><span class="font-bold text-blue-700">On:</span> ニュウ</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ:</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>入<rt>はい</rt></ruby>ります, <ruby>入<rt>い</rt></ruby>れます, <ruby>入<rt>い</rt></ruby>り<ruby>口<rt>ぐち</rt></ruby></p></div></div>
+                    <!-- 立 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">立</span> LẬP</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> た・つ</p><p><span class="font-bold text-blue-700">On:</span> リツ</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ:</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>立<rt>た</rt></ruby>ちます, <ruby>役<rt>やく</rt></ruby>に<ruby>立<rt>た</rt></ruby>ちます</p></div></div>
+                    <!-- 言 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">言</span> NGÔN</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> い・う, こと</p><p><span class="font-bold text-blue-700">On:</span> ゲン, ゴン</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ:</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>言<rt>い</rt></ruby>います, <ruby>言葉<rt>ことば</rt></ruby></p></div></div>
+                    <!-- 話 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">話</span> THOẠI</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> はな・す, はなし</p><p><span class="font-bold text-blue-700">On:</span> ワ</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ:</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>話<rt>はな</rt></ruby>します, <ruby>話<rt>はなし</rt></ruby>, <ruby>電話<rt>でんわ</rt></ruby>, <ruby>会話<rt>かいわ</rt></ruby></p></div></div>
+                    <!-- 力 -->
+                    <div class="bg-white p-4 rounded-lg shadow"><h3 class="text-2xl font-bold text-red-600 mb-3"><span class="text-5xl japanese-text">力</span> LỰC</h3><div class="space-y-2"><p><span class="font-bold text-red-700">Kun:</span> ちから</p><p><span class="font-bold text-blue-700">On:</span> リョク, リキ</p></div><div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Ví dụ:</p><p class="japanese-text bg-gray-50 p-2 rounded"><ruby>力<rt>ちから</rt></ruby>, <ruby>体力<rt>たいりょく</rt></ruby></p></div></div>
+                </div>
+                
+                <!-- Review Vocabulary Section -->
+                <div class="bg-white p-6 rounded-lg shadow mt-8">
+                    <div class="collapsible-toggle flex justify-between items-center cursor-pointer">
+                        <h3 class="text-2xl font-bold text-gray-800">Ôn tập: Flashcard từ vựng cũ</h3>
+                        <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="collapsible-content mt-4">
+                        <p class="italic text-gray-600 mb-4">Luyện tập ghi nhớ mặt chữ Kanji và Âm Hán Việt của các từ đã học.</p>
+                        <div id="review-flashcard-container" class="w-full h-56 mx-auto cursor-pointer rounded-xl">
+                            <div id="review-flashcard-inner">
+                                <div class="review-flashcard-face review-flashcard-front flex-col items-center justify-center text-center p-4">
+                                </div>
+                                <div class="review-flashcard-face review-flashcard-back flex-col items-center justify-center text-center p-4">
+                                    <p id="review-flashcard-hanviet" class="text-3xl font-bold text-purple-700"></p>
+                                    <p id="review-flashcard-hiragana" class="text-xl font-semibold text-gray-600 mt-2 japanese-text"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <button id="review-prev-card" class="py-2 px-4 bg-gray-200 rounded-lg hover:bg-gray-300">&larr; Trước</button>
+                            <p id="review-card-counter" class="text-sm font-semibold"></p>
+                            <button id="review-next-card" class="py-2 px-4 bg-gray-200 rounded-lg hover:bg-gray-300">Tiếp &rarr;</button>
+                        </div>
+                        <div class="text-center mt-4">
+                             <button id="review-shuffle-cards" class="py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Xáo trộn</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kanji Match Game -->
+                <div class="bg-white p-6 rounded-lg shadow mt-8">
+                    <div class="collapsible-toggle flex justify-between items-center cursor-pointer">
+                        <h3 class="text-2xl font-bold text-gray-800">Bài tập: Ghép đôi Kanji và Âm Hán Việt</h3>
+                        <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="collapsible-content mt-4">
+                        <div id="kanji-match-game" class="grid grid-cols-2 gap-4 auto-rows-fr">
+                           <div id="kanji-column" class="space-y-3 flex flex-col"></div>
+                           <div id="reading-column" class="space-y-3 flex flex-col"></div>
+                        </div>
+                        <div id="completion-message" class="hidden mt-4 text-center text-green-600 font-bold text-xl">
+                            🎉 Chúc mừng, bạn đã hoàn thành! 🎉
+                        </div>
+                        <div class="text-center mt-6">
+                            <button id="reset-kanji-game" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">Làm lại</button>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Memory Game -->
+                <div class="bg-white p-6 rounded-lg shadow mt-8">
+                    <div class="collapsible-toggle flex justify-between items-center cursor-pointer">
+                        <h3 class="text-2xl font-bold text-gray-800">Bài tập: Trò chơi Lật ô</h3>
+                        <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="collapsible-content mt-4">
+                         <div id="memory-game-grid" class="grid grid-cols-4 gap-4">
+                        </div>
+                        <div id="memory-completion-message" class="hidden mt-4 text-center text-green-600 font-bold text-xl">
+                             🎉 Giỏi quá! Bạn đã tìm thấy tất cả các cặp! 🎉
+                        </div>
+                        <div class="text-center mt-6">
+                            <button id="reset-memory-game" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">Chơi lại</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="text-center mt-12 py-4 border-t">
+            <p class="text-gray-500">Tạo bởi nvnhan, Dung Mori và Gemini</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Collapse/Expand Logic
+            document.querySelectorAll('.collapsible-toggle').forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    const currentToggle = e.currentTarget;
+                    currentToggle.classList.toggle('expanded');
+                    const content = currentToggle.nextElementSibling;
+                    if (content.style.maxHeight) { 
+                        content.style.maxHeight = null; 
+                    } else { 
+                        content.style.maxHeight = content.scrollHeight + "px"; 
+                    }
+                });
+            });
+
+            // Review Vocabulary Flashcard Logic
+            (function() {
+                const reviewVocabData = [
+                    {'hiragana': 'いいます', 'kanji': '言います', 'hanviet': 'Ngôn'},
+                    {'hiragana': 'はなします', 'kanji': '話します', 'hanviet': 'Thoại'},
+                    {'hiragana': 'やくにたちます', 'kanji': '役に立ちます', 'hanviet': 'Dịch Lập'},
+                    {'hiragana': 'でかけます', 'kanji': '出かけます', 'hanviet': 'Xuất'},
+                    {'hiragana': 'はいります', 'kanji': '入ります', 'hanviet': 'Nhập'},
+                    {'hiragana': 'いれます', 'kanji': '入れます', 'hanviet': 'Nhập'},
+                    {'hiragana': 'いけん', 'kanji': '意見', 'hanviet': 'Ý Kiến'},
+                    {'hiragana': 'でんわ', 'kanji': '電話', 'hanviet': 'Điện Thoại'}
+                ];
+                let currentCardIndex = 0, deck = [...reviewVocabData];
+                const flashcardContainer = document.getElementById('review-flashcard-container');
+                if (!flashcardContainer) return;
+                const flashcardHanvietEl = document.getElementById('review-flashcard-hanviet');
+                const flashcardHiraganaEl = document.getElementById('review-flashcard-hiragana');
+                const counter = document.getElementById('review-card-counter');
+                function showCard(index) {
+                    if (!deck || deck.length === 0) return;
+                    const cardData = deck[index];
+                    const frontFace = flashcardContainer.querySelector('.review-flashcard-front');
+                    frontFace.innerHTML = `<p class="japanese-text text-5xl font-bold">${cardData.kanji}</p>`;
+                    flashcardHanvietEl.textContent = cardData.hanviet;
+                    flashcardHiraganaEl.textContent = `( ${cardData.hiragana} )`;
+                    counter.textContent = `${index + 1} / ${deck.length}`;
+                    flashcardContainer.classList.remove('is-flipped');
+                }
+                document.getElementById('review-prev-card').addEventListener('click', () => { currentCardIndex = (currentCardIndex - 1 + deck.length) % deck.length; showCard(currentCardIndex); });
+                document.getElementById('review-next-card').addEventListener('click', () => { currentCardIndex = (currentCardIndex + 1) % deck.length; showCard(currentCardIndex); });
+                document.getElementById('review-shuffle-cards').addEventListener('click', () => { deck.sort(() => Math.random() - 0.5); currentCardIndex = 0; showCard(currentCardIndex); });
+                flashcardContainer.addEventListener('click', () => flashcardContainer.classList.toggle('is-flipped'));
+                showCard(0);
+            })();
+
+            // Kanji Match Game Logic
+            (function() {
+                const kanjiData = [
+                    {'id': 1, 'kanji': '出', 'reading': 'XUẤT'},
+                    {'id': 2, 'kanji': '入', 'reading': 'NHẬP'},
+                    {'id': 3, 'kanji': '立', 'reading': 'LẬP'},
+                    {'id': 4, 'kanji': '言', 'reading': 'NGÔN'},
+                    {'id': 5, 'kanji': '話', 'reading': 'THOẠI'},
+                    {'id': 6, 'kanji': '力', 'reading': 'LỰC'}
+                ];
+                let selectedKanji = null, selectedReading = null, matchedPairs = 0;
+                const kanjiColumn = document.getElementById('kanji-column');
+                const readingColumn = document.getElementById('reading-column');
+                const resetButton = document.getElementById('reset-kanji-game');
+                const completionMessage = document.getElementById('completion-message');
+
+                function setupGame() {
+                    if (!kanjiColumn || !readingColumn) return;
+                    kanjiColumn.innerHTML = ''; readingColumn.innerHTML = '';
+                    completionMessage.classList.add('hidden');
+                    selectedKanji = null; selectedReading = null; matchedPairs = 0;
+                    
+                    const shuffledKanji = [...kanjiData].sort(() => Math.random() - 0.5);
+                    const shuffledReadings = [...kanjiData].sort(() => Math.random() - 0.5);
+
+                    shuffledKanji.forEach(item => {
+                        const div = document.createElement('div');
+                        div.textContent = item.kanji;
+                        div.dataset.id = item.id;
+                        div.className = 'match-item japanese-text text-4xl p-4 bg-white border-2 border-gray-300 rounded-lg text-center';
+                        div.addEventListener('click', handleKanjiClick);
+                        kanjiColumn.appendChild(div);
+                    });
+
+                    shuffledReadings.forEach(item => {
+                        const div = document.createElement('div');
+                        div.textContent = item.reading;
+                        div.dataset.id = item.id;
+                        div.className = 'match-item text-xl p-4 bg-white border-2 border-gray-300 rounded-lg text-center font-semibold';
+                        div.addEventListener('click', handleReadingClick);
+                        readingColumn.appendChild(div);
+                    });
+                }
+
+                function handleKanjiClick(e) { if (e.target.classList.contains('correct')) return; if (selectedKanji) { selectedKanji.classList.remove('selected'); } selectedKanji = e.target; selectedKanji.classList.add('selected'); checkMatch(); }
+                function handleReadingClick(e) { if (e.target.classList.contains('correct')) return; if (selectedReading) { selectedReading.classList.remove('selected'); } selectedReading = e.target; selectedReading.classList.add('selected'); checkMatch(); }
+                
+                function checkMatch() {
+                    if (!selectedKanji || !selectedReading) return;
+                    if (selectedKanji.dataset.id === selectedReading.dataset.id) {
+                        selectedKanji.classList.remove('selected');
+                        selectedReading.classList.remove('selected');
+                        selectedKanji.classList.add('correct');
+                        selectedReading.classList.add('correct');
+                        matchedPairs++;
+                        selectedKanji = null;
+                        selectedReading = null;
+                        if (matchedPairs === kanjiData.length) {
+                            completionMessage.classList.remove('hidden');
+                        }
+                    } else {
+                        selectedKanji.classList.add('incorrect');
+                        selectedReading.classList.add('incorrect');
+                        setTimeout(() => {
+                            if (selectedKanji) selectedKanji.classList.remove('incorrect', 'selected');
+                            if (selectedReading) selectedReading.classList.remove('incorrect', 'selected');
+                            selectedKanji = null;
+                            selectedReading = null;
+                        }, 500);
+                    }
+                }
+                if (resetButton) resetButton.addEventListener('click', setupGame);
+                setupGame();
+            })();
+
+            // Memory Game Logic
+            (function(){
+                const memoryKanjiSourceData = [
+                    {'id': 1, 'kanji': '出', 'reading': 'XUẤT'},
+                    {'id': 2, 'kanji': '入', 'reading': 'NHẬP'},
+                    {'id': 3, 'kanji': '立', 'reading': 'LẬP'},
+                    {'id': 4, 'kanji': '言', 'reading': 'NGÔN'},
+                    {'id': 5, 'kanji': '話', 'reading': 'THOẠI'},
+                    {'id': 6, 'kanji': '力', 'reading': 'LỰC'}
+                ];
+                let memoryKanjiData = [];
+                memoryKanjiSourceData.forEach(item => {
+                    memoryKanjiData.push({ type: 'kanji', content: item.kanji, pairId: item.id });
+                    memoryKanjiData.push({ type: 'reading', content: item.reading, pairId: item.id });
+                });
+                
+                const memoryGrid = document.getElementById('memory-game-grid');
+                const memoryResetBtn = document.getElementById('reset-memory-game');
+                const memoryCompletionMessage = document.getElementById('memory-completion-message');
+                let hasFlippedCard = false, lockBoard = false;
+                let firstCard, secondCard;
+                let matchedCount = 0;
+
+                function setupMemoryGame() {
+                    if (!memoryGrid) return;
+                    memoryGrid.innerHTML = '';
+                    memoryCompletionMessage.classList.add('hidden');
+                    matchedCount = 0;
+                    hasFlippedCard = false;
+                    lockBoard = false;
+                    firstCard = null;
+                    secondCard = null;
+                    const shuffledCards = memoryKanjiData.sort(() => Math.random() - 0.5);
+                    shuffledCards.forEach(cardData => {
+                        const cardElement = document.createElement('div');
+                        cardElement.classList.add('memory-card');
+                        cardElement.dataset.pairId = cardData.pairId;
+                        cardElement.innerHTML = `<div class="card-face card-front"></div><div class="card-face card-back ${cardData.type === 'kanji' ? 'kanji' : 'reading'}">${cardData.content}</div>`;
+                        cardElement.addEventListener('click', flipCard);
+                        memoryGrid.appendChild(cardElement);
+                    });
+                }
+
+                function flipCard() {
+                    if (lockBoard || this.classList.contains('matched') || this === firstCard) return;
+                    this.classList.add('flip');
+                    if (!hasFlippedCard) {
+                        hasFlippedCard = true;
+                        firstCard = this;
+                        return;
+                    }
+                    secondCard = this;
+                    checkForMemoryMatch();
+                }
+
+                function checkForMemoryMatch() {
+                    lockBoard = true;
+                    let isMatch = firstCard.dataset.pairId === secondCard.dataset.pairId;
+                    isMatch ? disableCards() : unflipCards();
+                }
+
+                function disableCards() {
+                    firstCard.removeEventListener('click', flipCard);
+                    secondCard.removeEventListener('click', flipCard);
+                    firstCard.classList.add('matched');
+                    secondCard.classList.add('matched');
+                    matchedCount++;
+                    resetBoard();
+                    if (matchedCount === memoryKanjiData.length / 2) {
+                       setTimeout(() => memoryCompletionMessage.classList.remove('hidden'), 500);
+                    }
+                }
+
+                function unflipCards() {
+                    setTimeout(() => {
+                        firstCard.classList.remove('flip');
+                        secondCard.classList.remove('flip');
+                        resetBoard();
+                    }, 1000);
+                }
+
+                function resetBoard() {
+                    [hasFlippedCard, lockBoard] = [false, false];
+                    [firstCard, secondCard] = [null, null];
+                }
+                if(memoryResetBtn) memoryResetBtn.addEventListener('click', setupMemoryGame);
+                setupMemoryGame();
+            })();
+        });
+    </script>
+</body>
+</html>
