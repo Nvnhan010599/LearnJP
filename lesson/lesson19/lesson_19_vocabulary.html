@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 19 - Từ vựng</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .japanese-text, h1, h2, h3, .main-tab { font-family: 'Noto Sans JP', sans-serif; }
+        .main-tab.active { color: #2563eb; border-color: #2563eb; background-color: #eff6ff; }
+        .main-tab { transition: color 0.2s, border-color 0.2s, background-color 0.2s; }
+
+        /* Collapse/Expand styles */
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+        .collapsible-toggle .arrow-icon { transition: transform 0.3s ease-in-out; }
+        .collapsible-toggle.expanded .arrow-icon { transform: rotate(180deg); }
+
+        /* Kanji Toggle Switch Styles */
+        .kanji-col { display: none; }
+        #vocab-table.show-kanji .kanji-col { display: table-cell; }
+
+        /* Flashcard styles */
+        #flashcard { perspective: 1000px; }
+        #flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        #flashcard.is-flipped #flashcard-inner { transform: rotateY(180deg); }
+        .flashcard-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 0.75rem; }
+        .flashcard-front { background: white; border: 2px solid #e5e7eb; }
+        .flashcard-back { background: #dbeafe; transform: rotateY(180deg); }
+
+        /* Quiz styles */
+        .quiz-option { transition: background-color 0.2s; }
+        .quiz-option.correct { background-color: #22c55e; color: white; border-color: #16a34a; }
+        .quiz-option.incorrect { background-color: #ef4444; color: white; border-color: #dc2626;}
+        .quiz-option:disabled { opacity: 0.8; cursor: not-allowed; }
+        
+        /* Mobile menu */
+        .mobile-menu-btn { display: none; }
+        
+        /* Learned words */
+        .vocab-row.learned { background-color: #f0fdf4; }
+        .vocab-row.learned td { text-decoration: line-through; color: #65a30d; }
+        
+        /* Search bar */
+        .search-container { position: relative; }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+        
+        /* Hide learned words */
+        .vocab-row.hide-learned { display: none; }
+        
+        /* Stats bar */
+        .stats-bar { display: flex; justify-content: space-between; padding: 8px 12px; background-color: #f3f4f6; border-radius: 8px; margin-bottom: 12px; }
+        .stats-item { display: flex; align-items: center; }
+        .stats-icon { margin-right: 6px; font-size: 1.2rem; }
+        .stats-value { font-weight: bold; }
+        
+        /* Toggle button */
+        .toggle-btn {
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .toggle-btn:active {
+            transform: scale(0.98);
+        }
+        
+        @media (max-width: 768px) {
+            .main-tab { font-size: 14px; padding: 8px 4px; }
+            .mobile-menu-btn { display: block; }
+            .desktop-tabs { display: none; }
+            .mobile-tabs { display: flex; }
+            .flashcard-face { font-size: 1.5rem; }
+            #flashcard { height: 200px; }
+            h1 { font-size: 1.5rem; }
+            .stats-bar { flex-direction: column; gap: 8px; }
+            .btn-group { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="mb-6 flex items-center justify-between">
+            <div class="w-1/4 text-left">
+                 <a href="../curriculum.html" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors whitespace-nowrap">
+                    &larr; Quay lại
+                </a>
+            </div>
+            <div class="w-1/2 text-center">
+                <h1 class="text-2xl md:text-3xl font-bold text-pink-700 japanese-text">
+                    Bài 19: Tôi đã từng đi Nhật
+                </h1>
+            </div>
+            <div class="w-1/4"></div>
+        </header>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" class="mobile-menu-btn w-full mb-4 py-2 bg-blue-500 text-white rounded-lg md:hidden">
+            <i class="fas fa-bars mr-2"></i> Menu
+        </button>
+
+        <!-- Main Navigation Tabs - Mobile -->
+        <div id="mobile-tabs" class="mobile-tabs mb-4 hidden flex-wrap gap-2">
+            <a href="lesson_19_kanji.html" class="main-tab text-gray-500 py-2 px-4 rounded-lg bg-gray-100 font-medium">
+                Kanji
+            </a>
+            <a href="lesson_19_vocabulary.html" class="main-tab active text-white py-2 px-4 rounded-lg bg-blue-500 font-medium">
+                Từ vựng
+            </a>
+            <a href="lesson_19_grammar.html" class="main-tab text-gray-500 py-2 px-4 rounded-lg bg-gray-100 font-medium">
+                Ngữ pháp
+            </a>
+            <a href="lesson_19_kaiwa.html" class="main-tab text-gray-500 py-2 px-4 rounded-lg bg-gray-100 font-medium">
+                Hội thoại
+            </a>
+            <a href="lesson_19_practice.html" class="main-tab text-gray-500 py-2 px-4 rounded-lg bg-gray-100 font-medium">
+                Bài tập
+            </a>
+        </div>
+
+        <!-- Main Navigation Tabs - Desktop -->
+        <div class="mb-8 border-b-2 border-gray-200 sticky top-0 bg-gray-100 z-10 desktop-tabs">
+             <nav class="flex -mb-px" aria-label="Tabs">
+                 <a href="lesson_19_kanji.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Kanji
+                </a>
+                <a href="lesson_19_vocabulary.html" class="main-tab active text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Từ vựng
+                </a>
+                <a href="lesson_19_grammar.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Ngữ pháp
+                </a>
+                <a href="lesson_19_kaiwa.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Hội thoại
+                </a>
+                <a href="lesson_19_practice.html" class="main-tab text-gray-500 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Bài tập
+                </a>
+            </nav>
+        </div>
+
+        <main>
+            <section class="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-6">
+                <div class="collapsible-toggle flex justify-between items-center cursor-pointer">
+                    <h2 class="text-2xl font-bold text-gray-800 japanese-text">ことば (Từ vựng)</h2>
+                    <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <div class="collapsible-content border-t mt-4 pt-4">
+                    <!-- Stats Bar -->
+                    <div id="stats-bar" class="stats-bar">
+                        <div class="stats-item">
+                            <i class="fas fa-book stats-icon text-blue-500"></i>
+                            <span>Tổng từ: <span id="total-words" class="stats-value">0</span></span>
+                        </div>
+                        <div class="stats-item">
+                            <i class="fas fa-check-circle stats-icon text-green-500"></i>
+                            <span>Đã học: <span id="learned-words" class="stats-value">0</span></span>
+                        </div>
+                        <div class="stats-item">
+                            <i class="fas fa-eye-slash stats-icon text-purple-500"></i>
+                            <span>Chế độ: <span id="hide-status" class="stats-value">Hiện tất cả</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+                        <div class="search-container w-full sm:w-1/2">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="vocab-search" placeholder="Tìm từ vựng..." class="w-full pl-10 py-2 border rounded-lg">
+                        </div>
+                        <div class="flex flex-wrap gap-2 btn-group">
+                            <button id="kanji-toggle-btn" class="toggle-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+                                <i class="fas fa-kanji mr-1"></i> Hiện Kanji
+                            </button>
+                            <button id="toggle-learned-btn" class="toggle-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+                                <i class="fas fa-eye-slash mr-1"></i> Ẩn từ đã học
+                            </button>
+                            <button id="reset-learned" class="toggle-btn bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+                                <i class="fas fa-sync mr-1"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="vocab-table" class="min-w-full bg-white">
+                             <thead class="bg-gray-200">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">Hiragana</th>
+                                    <th class="py-2 px-4 text-left kanji-col">Kanji</th>
+                                    <th class="py-2 px-4 text-left">Nghĩa</th>
+                                    <th class="py-2 px-4 text-left w-20">Đã học</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Vocabulary rows will be generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Vocabulary Practice Section -->
+            <section class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+                 <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center japanese-text">Luyện tập Từ vựng</h2>
+                 <div class="space-y-4">
+                     <!-- Flashcards -->
+                     <div class="border rounded-lg">
+                        <div class="collapsible-toggle flex justify-between items-center cursor-pointer p-4">
+                            <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-layer-group mr-2"></i> Flashcards</h3>
+                            <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <div class="collapsible-content border-t">
+                            <div class="p-4 bg-gray-50">
+                                <div id="flashcard" class="w-full h-64 mx-auto cursor-pointer rounded-xl">
+                                    <div id="flashcard-inner">
+                                        <div class="flashcard-face flashcard-front flex-col items-center justify-center">
+                                            <p id="flashcard-jp" class="japanese-text text-4xl font-bold"></p>
+                                            <p id="flashcard-kj" class="japanese-text text-2xl text-gray-500 mt-2"></p>
+                                        </div>
+                                        <div class="flashcard-face flashcard-back">
+                                            <p id="flashcard-vi" class="text-2xl font-semibold text-center px-4"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center mt-4">
+                                    <button id="prev-card" class="py-2 px-4 bg-gray-200 rounded-lg hover:bg-gray-300"><i class="fas fa-arrow-left mr-1"></i> Trước</button>
+                                    <p id="card-counter" class="text-sm font-semibold"></p>
+                                    <button id="next-card" class="py-2 px-4 bg-gray-200 rounded-lg hover:bg-gray-300">Tiếp <i class="fas fa-arrow-right ml-1"></i></button>
+                                </div>
+                                <div class="flex justify-center gap-3 mt-4">
+                                    <button id="shuffle-cards" class="py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600"><i class="fas fa-random mr-1"></i> Xáo trộn</button>
+                                    <button id="auto-flip" class="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600"><i class="fas fa-sync mr-1"></i> Tự động lật</button>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
+                     <!-- Multiple Choice Quiz -->
+                      <div class="border rounded-lg">
+                        <div class="collapsible-toggle flex justify-between items-center cursor-pointer p-4">
+                            <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-question-circle mr-2"></i> Trắc nghiệm nhanh</h3>
+                            <svg class="arrow-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <div class="collapsible-content border-t">
+                            <div class="p-4 bg-gray-50">
+                                <div id="quiz-question" class="text-center font-bold japanese-text mb-6 h-12 flex items-center justify-center"></div>
+                                <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                                <div class="flex justify-between items-center mt-6">
+                                    <p id="quiz-score" class="font-bold text-lg"></p>
+                                    <button id="next-quiz-question" class="py-2 px-5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 hidden">Câu tiếp theo <i class="fas fa-arrow-right ml-1"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
+                 </div>
+            </section>
+        </main>
+         <footer class="text-center mt-12 py-4 border-t">
+            <p class="text-gray-500">Tạo bởi nvnhan, Dung Mori và Gemini</p>
+        </footer>
+    </div>
+
+    <script>
+        const vocabList = [
+            { jp: 'さどう', kj: '茶道', vi: 'trà đạo' },
+            { jp: 'キス', kj: '', vi: 'nụ hôn, hôn' },
+            { jp: 'かれし', kj: '彼氏', vi: 'bạn trai' },
+            { jp: 'デートします', kj: '', vi: 'hẹn hò' },
+            { jp: 'そろそろ', kj: '', vi: 'sắp sửa' },
+            { jp: 'のぼります', kj: '登ります', vi: 'leo [núi]' },
+            { jp: 'とまります', kj: '泊まります', vi: 'trọ [ở khách sạn]' },
+            { jp: 'そうじします', kj: '掃除します', vi: 'dọn vệ sinh' },
+            { jp: 'せんたくします', kj: '洗濯します', vi: 'giặt' },
+            { jp: 'れんしゅうします', kj: '練習します', vi: 'luyện tập, thực hành' },
+            { jp: 'なります', kj: '', vi: 'trở thành, trở nên' },
+            { jp: 'しょうらい', kj: '将来', vi: 'tương lai' },
+            { jp: 'いちど', kj: '一度', vi: 'một lần' },
+            { jp: 'いちども', kj: '一度も', vi: 'chưa lần nào (dùng với phủ định)' },
+            { jp: 'だんだん', kj: '段々', vi: 'dần dần' },
+            { jp: 'もうすぐ', kj: '', vi: 'sắp' },
+            { jp: 'きたない', kj: '汚い', vi: 'bẩn' }
+        ];
+
+        // --- All JS logic goes here ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Mobile Menu Toggle ---
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileTabs = document.getElementById('mobile-tabs');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileTabs.classList.toggle('hidden');
+                    mobileTabs.classList.toggle('flex');
+                });
+            }
+            
+            // --- Vocab Table Logic ---
+            const vocabTableBody = document.querySelector('#vocab-table tbody');
+            let learnedWords = JSON.parse(localStorage.getItem('learnedWords_19')) || [];
+            let hideLearned = localStorage.getItem('hideLearned_19') === 'true';
+            const toggleLearnedBtn = document.getElementById('toggle-learned-btn');
+            const statsBar = document.getElementById('stats-bar');
+            const totalWordsEl = document.getElementById('total-words');
+            const learnedWordsEl = document.getElementById('learned-words');
+            const hideStatusEl = document.getElementById('hide-status');
+            
+            // Initialize stats
+            totalWordsEl.textContent = vocabList.length;
+            learnedWordsEl.textContent = learnedWords.length;
+            hideStatusEl.textContent = hideLearned ? 'Ẩn từ đã học' : 'Hiện tất cả';
+            
+            // Update stats
+            function updateStats() {
+                const learnedCount = learnedWords.length;
+                learnedWordsEl.textContent = learnedCount;
+                hideStatusEl.textContent = hideLearned ? 'Ẩn từ đã học' : 'Hiện tất cả';
+                
+                // Update button text
+                toggleLearnedBtn.innerHTML = hideLearned 
+                    ? '<i class="fas fa-eye mr-1"></i> Hiện từ đã học'
+                    : '<i class="fas fa-eye-slash mr-1"></i> Ẩn từ đã học';
+                
+                // Update button color
+                toggleLearnedBtn.classList.toggle('bg-purple-500', !hideLearned);
+                toggleLearnedBtn.classList.toggle('hover:bg-purple-600', !hideLearned);
+                toggleLearnedBtn.classList.toggle('bg-purple-700', hideLearned);
+                toggleLearnedBtn.classList.toggle('hover:bg-purple-800', hideLearned);
+            }
+            
+            if (vocabTableBody) {
+                vocabList.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b vocab-row';
+                    if (learnedWords.includes(index)) {
+                        row.classList.add('learned');
+                    }
+                    
+                    if (hideLearned && learnedWords.includes(index)) {
+                        row.classList.add('hide-learned');
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="py-2 px-4 japanese-text">${item.jp}</td>
+                        <td class="py-2 px-4 japanese-text kanji-col">${item.kj || ''}</td>
+                        <td class="py-2 px-4">${item.vi}</td>
+                        <td class="py-2 px-4 text-center">
+                            <input type="checkbox" class="learned-checkbox" data-index="${index}" ${learnedWords.includes(index) ? 'checked' : ''}>
+                        </td>
+                    `;
+                    vocabTableBody.appendChild(row);
+                });
+                
+                // Update stats after table is built
+                updateStats();
+            }
+            
+            // Mark word as learned
+            document.querySelectorAll('.learned-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const index = parseInt(this.dataset.index);
+                    
+                    if (this.checked) {
+                        if (!learnedWords.includes(index)) {
+                            learnedWords.push(index);
+                        }
+                        this.closest('.vocab-row').classList.add('learned');
+                    } else {
+                        learnedWords = learnedWords.filter(i => i !== index);
+                        this.closest('.vocab-row').classList.remove('learned');
+                    }
+                    
+                    localStorage.setItem('learnedWords_19', JSON.stringify(learnedWords));
+                    
+                    // Update hidden rows if needed
+                    if (hideLearned) {
+                        if (this.checked) {
+                            this.closest('.vocab-row').classList.add('hide-learned');
+                        } else {
+                            this.closest('.vocab-row').classList.remove('hide-learned');
+                        }
+                    }
+                    
+                    updateStats();
+                });
+            });
+            
+            // Reset learned words
+            document.getElementById('reset-learned').addEventListener('click', function() {
+                learnedWords = [];
+                localStorage.removeItem('learnedWords_19');
+                
+                document.querySelectorAll('.vocab-row').forEach(row => {
+                    row.classList.remove('learned');
+                    row.classList.remove('hide-learned');
+                });
+                
+                document.querySelectorAll('.learned-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                updateStats();
+            });
+            
+            // Search vocabulary
+            const searchInput = document.getElementById('vocab-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    document.querySelectorAll('.vocab-row').forEach(row => {
+                        const jp = row.children[0].textContent.toLowerCase();
+                        const kj = row.children[1].textContent.toLowerCase();
+                        const vi = row.children[2].textContent.toLowerCase();
+                        
+                        if (jp.includes(searchTerm) || kj.includes(searchTerm) || vi.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            const kanjiToggleButton = document.getElementById('kanji-toggle-btn');
+            const vocabTable = document.getElementById('vocab-table');
+            if (kanjiToggleButton) {
+                kanjiToggleButton.addEventListener('click', () => {
+                    const isShowing = vocabTable.classList.toggle('show-kanji');
+                    kanjiToggleButton.innerHTML = isShowing ? '<i class="fas fa-eye-slash mr-1"></i> Ẩn Kanji' : '<i class="fas fa-eye mr-1"></i> Hiện Kanji';
+                    kanjiToggleButton.classList.toggle('bg-blue-500'); 
+                    kanjiToggleButton.classList.toggle('hover:bg-blue-600');
+                    kanjiToggleButton.classList.toggle('bg-gray-500'); 
+                    kanjiToggleButton.classList.toggle('hover:bg-gray-600');
+                });
+            }
+            
+            // Toggle hide learned words
+            toggleLearnedBtn.addEventListener('click', () => {
+                hideLearned = !hideLearned;
+                localStorage.setItem('hideLearned_19', hideLearned);
+                
+                document.querySelectorAll('.vocab-row.learned').forEach(row => {
+                    if (hideLearned) {
+                        row.classList.add('hide-learned');
+                    } else {
+                        row.classList.remove('hide-learned');
+                    }
+                });
+                
+                updateStats();
+            });
+            
+            // Initialize toggle button state
+            updateStats();
+
+            // --- Collapse/Expand Logic ---
+            document.querySelectorAll('.collapsible-toggle').forEach((toggle, index) => {
+                const content = toggle.nextElementSibling;
+                // Expand the first section (vocabulary list) by default
+                if (index === 0) {
+                    toggle.classList.add('expanded');
+                    content.style.maxHeight = content.scrollHeight + "px";
+                } else {
+                    toggle.classList.remove('expanded');
+                    content.style.maxHeight = null;
+                }
+                
+                toggle.addEventListener('click', (e) => {
+                    const currentToggle = e.currentTarget;
+                    currentToggle.classList.toggle('expanded');
+                    const currentContent = currentToggle.nextElementSibling;
+                    if (currentContent.style.maxHeight) {
+                        currentContent.style.maxHeight = null;
+                    } else {
+                        currentContent.style.maxHeight = currentContent.scrollHeight + "px";
+                    }
+                });
+            });
+
+            // --- Flashcard Logic ---
+            const flashcard = document.getElementById('flashcard');
+            if (flashcard) {
+                let currentCardIndex = 0; 
+                let deck = [...vocabList];
+                const flashcardJp = document.getElementById('flashcard-jp');
+                const flashcardKj = document.getElementById('flashcard-kj');
+                const flashcardVi = document.getElementById('flashcard-vi');
+                const counter = document.getElementById('card-counter');
+                let autoFlipInterval = null;
+                
+                function showCard(index) {
+                    if (deck.length === 0) return;
+                    const cardData = deck[index];
+                    flashcardJp.textContent = cardData.jp; 
+                    flashcardKj.textContent = cardData.kj || '';
+                    flashcardVi.textContent = cardData.vi; 
+                    counter.textContent = `${index + 1} / ${deck.length}`;
+                    flashcard.classList.remove('is-flipped');
+                }
+                
+                document.getElementById('prev-card').addEventListener('click', () => { 
+                    currentCardIndex = (currentCardIndex - 1 + deck.length) % deck.length; 
+                    showCard(currentCardIndex); 
+                });
+                
+                document.getElementById('next-card').addEventListener('click', () => { 
+                    currentCardIndex = (currentCardIndex + 1) % deck.length; 
+                    showCard(currentCardIndex); 
+                });
+                
+                document.getElementById('shuffle-cards').addEventListener('click', () => { 
+                    for (let i = deck.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [deck[i], deck[j]] = [deck[j], deck[i]];
+                    }
+                    currentCardIndex = 0; 
+                    showCard(currentCardIndex); 
+                });
+                
+                document.getElementById('auto-flip').addEventListener('click', function() {
+                    if (autoFlipInterval) {
+                        clearInterval(autoFlipInterval);
+                        autoFlipInterval = null;
+                        this.innerHTML = '<i class="fas fa-sync mr-1"></i> Tự động lật';
+                        this.classList.remove('bg-red-500');
+                        this.classList.add('bg-green-500');
+                    } else {
+                        autoFlipInterval = setInterval(() => {
+                            flashcard.classList.toggle('is-flipped');
+                        }, 2000);
+                        this.innerHTML = '<i class="fas fa-stop mr-1"></i> Dừng';
+                        this.classList.remove('bg-green-500');
+                        this.classList.add('bg-red-500');
+                    }
+                });
+                
+                flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
+                showCard(0);
+            }
+
+            // --- Multiple Choice Quiz Logic ---
+            const quizQuestionEl = document.getElementById('quiz-question');
+            if (quizQuestionEl) {
+                let quizDeck = [...vocabList]; 
+                let currentQuestion = null; 
+                let score = 0; 
+                let totalQuestions = 0;
+                const optionsEl = document.getElementById('quiz-options');
+                const scoreEl = document.getElementById('quiz-score');
+                const nextBtn = document.getElementById('next-quiz-question');
+                
+                function generateQuestion() {
+                    optionsEl.innerHTML = ''; 
+                    nextBtn.classList.add('hidden');
+                    if (quizDeck.length === 0) {
+                         optionsEl.innerHTML = '<p class="text-center text-gray-500">Bạn đã hoàn thành tất cả câu hỏi!</p>';
+                         return;
+                    }
+                    
+                    const questionIndex = Math.floor(Math.random() * quizDeck.length);
+                    currentQuestion = quizDeck.splice(questionIndex, 1)[0];
+                    
+                    // Hiển thị câu hỏi
+                    quizQuestionEl.innerHTML = currentQuestion.kj 
+                        ? `<span class="text-4xl">${currentQuestion.jp}</span> <span class="text-2xl text-gray-500">${currentQuestion.kj}</span>`
+                        : `<span class="text-4xl">${currentQuestion.jp}</span>`;
+                    
+                    // Tạo lựa chọn
+                    const otherOptions = vocabList
+                        .filter(v => v.vi !== currentQuestion.vi)
+                        .sort(() => Math.random() - 0.5)
+                        .slice(0, 3);
+                    
+                    const options = [currentQuestion, ...otherOptions].sort(() => Math.random() - 0.5);
+                    
+                    options.forEach(option => {
+                        const button = document.createElement('button');
+                        button.textContent = option.vi;
+                        button.className = 'quiz-option p-4 border rounded-lg text-lg hover:bg-gray-100';
+                        button.addEventListener('click', () => checkAnswer(button, option));
+                        optionsEl.appendChild(button);
+                    });
+                }
+                
+                function checkAnswer(button, selectedOption) {
+                    const buttons = optionsEl.querySelectorAll('button');
+                    buttons.forEach(btn => btn.disabled = true);
+                    
+                    if (selectedOption.vi === currentQuestion.vi) { 
+                        button.classList.add('correct'); 
+                        score++; 
+                    } else { 
+                        button.classList.add('incorrect'); 
+                        // Tìm và đánh dấu câu trả lời đúng
+                        buttons.forEach(btn => {
+                            if (btn.textContent === currentQuestion.vi) {
+                                btn.classList.add('correct');
+                            }
+                        });
+                    }
+                    
+                    totalQuestions++; 
+                    scoreEl.textContent = `Điểm: ${score} / ${totalQuestions}`; 
+                    nextBtn.classList.remove('hidden');
+                }
+                
+                nextBtn.addEventListener('click', generateQuestion);
+                generateQuestion(); 
+                scoreEl.textContent = `Điểm: 0 / 0`;
+            }
+        });
+    </script>
+</body>
+</html>

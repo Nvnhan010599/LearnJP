@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 24 - Bài tập</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .japanese-text, h1, h2, h3, .main-tab { font-family: 'Noto Sans JP', sans-serif; }
+        .main-tab.active { color: #2563eb; border-color: #2563eb; background-color: #eff6ff; }
+        .main-tab { transition: color 0.2s, border-color 0.2s, background-color 0.2s; }
+        .practice-option { transition: background-color 0.3s, border-color 0.3s; }
+        .practice-option.correct { background-color: #d1fae5; border-color: #10b981; color: #065f46; }
+        .practice-option.incorrect { background-color: #fee2e2; border-color: #ef4444; color: #991b1b; }
+        .practice-option:disabled { opacity: 0.7; cursor: not-allowed; }
+        .explanation-box { display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .kanji-underline { text-decoration: underline; text-decoration-color: #2563eb; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="mb-6 flex items-center justify-between">
+            <div class="w-1/4 text-left">
+                 <a href="../curriculum.html" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors whitespace-nowrap">
+                    &larr; Quay lại
+                </a>
+            </div>
+            <div class="w-1/2 text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-purple-700 japanese-text">
+                    Bài 24: Người yêu tôi tặng nhẫn cho tôi
+                </h1>
+            </div>
+            <div class="w-1/4"></div>
+        </header>
+
+        <!-- Main Navigation Tabs -->
+        <div class="mb-8 border-b-2 border-gray-200 sticky top-0 bg-white z-10">
+             <nav class="flex -mb-px" aria-label="Tabs">
+                 <a href="lesson_24_kanji.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Kanji
+                </a>
+                <a href="lesson_24_vocabulary.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Từ vựng
+                </a>
+                <a href="lesson_24_grammar.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Ngữ pháp
+                </a>
+                <a href="lesson_24_kaiwa.html" class="main-tab text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Hội thoại
+                </a>
+                <a href="lesson_24_practice.html" class="main-tab active text-gray-500 hover:text-gray-700 hover:border-gray-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-lg">
+                    Bài tập
+                </a>
+            </nav>
+        </div>
+
+        <main>
+            <section class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center japanese-text">Luyện tập - 練習</h2>
+                <div class="space-y-10">
+                    <!-- Phần I -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2 japanese-text">I. 正しい漢字の読み方を選んでください。</h3>
+                        <div class="practice-question space-y-6">
+                            <div class="question-container"><p class="text-lg japanese-text">1. <span class="kanji-underline">体</span>を大切にしてくださいね。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2" data-correct="true">1. からだ</button><button class="practice-option border-2 rounded p-2">2. ほん</button><button class="practice-option border-2 rounded p-2">3. やすみ</button><button class="practice-option border-2 rounded p-2">4. ちらか</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> 体 (cơ thể) được đọc là からだ.</div></div>
+                            <div class="question-container"><p class="text-lg japanese-text">2. <span class="kanji-underline">体育館</span>でサッカーをしましょう。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. ていいくかん</button><button class="practice-option border-2 rounded p-2" data-correct="true">2. たいいくかん</button><button class="practice-option border-2 rounded p-2">3. だいいくかん</button><button class="practice-option border-2 rounded p-2">4. からだいくかん</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> 体育館 (nhà thi đấu thể thao) được đọc là たいいくかん.</div></div>
+                            <div class="question-container"><p class="text-lg japanese-text">3. わたしの<span class="kanji-underline">目</span>、きれいでしょう。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. み</button><button class="practice-option border-2 rounded p-2">2. もく</button><button class="practice-option border-2 rounded p-2" data-correct="true">3. め</button><button class="practice-option border-2 rounded p-2">4. めい</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> 目 (mắt) được đọc là め.</div></div>
+                            <div class="question-container"><p class="text-lg japanese-text">4. わたしは<span class="kanji-underline">耳</span>がとても悪いです。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. うで</button><button class="practice-option border-2 rounded p-2" data-correct="true">2. みみ</button><button class="practice-option border-2 rounded p-2">3. きき</button><button class="practice-option border-2 rounded p-2">4. めめ</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> 耳 (tai) được đọc là みみ.</div></div>
+                            <div class="question-container"><p class="text-lg japanese-text">5. <span class="kanji-underline">口</span>が痛いです。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. ぐち</button><button class="practice-option border-2 rounded p-2">2. ぐら</button><button class="practice-option border-2 rounded p-2">3. くら</button><button class="practice-option border-2 rounded p-2" data-correct="true">4. くち</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> 口 (miệng) được đọc là くち.</div></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phần II -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2 japanese-text">II. 正しい漢字を選んでください。</h3>
+                        <div class="practice-question space-y-6">
+                            <div class="question-container"><p class="text-lg japanese-text">1. みっつ<span class="kanji-underline">め</span>の信号を右へ曲がってください。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. 三つ見</button><button class="practice-option border-2 rounded p-2" data-correct="true">2. 三つ目</button><button class="practice-option border-2 rounded p-2">3. 三つ苜</button><button class="practice-option border-2 rounded p-2">4. 三つ日</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Hậu tố ~め dùng để chỉ thứ tự, được viết bằng chữ Hán là 目.</div></div>
+                            <div class="question-container"><p class="text-lg japanese-text">2. <span class="kanji-underline">とり</span>になりたいなあ。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2" data-correct="true">1. 鳥</button><button class="practice-option border-2 rounded p-2">2. 馬</button><button class="practice-option border-2 rounded p-2">3. 島</button><button class="practice-option border-2 rounded p-2">4. 鳴</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> とり (con chim) được viết là 鳥.</div></div>
+                            <div class="question-container"><p class="text-lg japanese-text">3. 今日は<span class="kanji-underline">いぬ</span>と散歩しました。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. 太</button><button class="practice-option border-2 rounded p-2">2. 大</button><button class="practice-option border-2 rounded p-2" data-correct="true">3. 犬</button><button class="practice-option border-2 rounded p-2">4. 木</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> いぬ (con chó) được viết là 犬.</div></div>
+                            <div class="question-container"><p class="text-lg japanese-text">4. このお茶は<span class="kanji-underline">からだ</span>にいいです。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. 本</button><button class="practice-option border-2 rounded p-2">2. 木</button><button class="practice-option border-2 rounded p-2">3. 休</button><button class="practice-option border-2 rounded p-2" data-correct="true">4. 体</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> からだ (cơ thể) được viết là 体.</div></div>
+                            <div class="question-container"><p class="text-lg japanese-text">5. 日本の<span class="kanji-underline">じんこう</span>はやく1億人だ。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2" data-correct="true">1. 人口</button><button class="practice-option border-2 rounded p-2">2. 入口</button><button class="practice-option border-2 rounded p-2">3. 人日</button><button class="practice-option border-2 rounded p-2">4. 入日</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> じんこう (dân số) được viết là 人口.</div></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phần III -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2 japanese-text">III. 正しい言葉を選んでください。</h3>
+                        <div class="practice-question space-y-6">
+                           <div class="question-container"><p class="text-lg japanese-text">1. 学校に( )を持って来ます。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. いぬ</button><button class="practice-option border-2 rounded p-2" data-correct="true">2. おべんとう</button><button class="practice-option border-2 rounded p-2">3. ねこ</button><button class="practice-option border-2 rounded p-2">4. き</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> おべんとう (cơm hộp) là thứ hợp lý nhất để mang đến trường trong các lựa chọn.</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">2. コーヒーを( )。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. たべます</button><button class="practice-option border-2 rounded p-2">2. はいります</button><button class="practice-option border-2 rounded p-2" data-correct="true">3. いれます</button><button class="practice-option border-2 rounded p-2">4. すいます</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Động từ いれます có nghĩa là "pha" (cà phê, trà).</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">3. 学校のルールを( )。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. はたらきます</button><button class="practice-option border-2 rounded p-2">2. つれてきます</button><button class="practice-option border-2 rounded p-2">3. やすみます</button><button class="practice-option border-2 rounded p-2" data-correct="true">4. せつめいします</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> せつめいします (giải thích) là hành động phù hợp nhất với "nội quy nhà trường" (学校のルール).</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">4. 駅で友達に細かいお金を( )。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2" data-correct="true">1. もらいました</button><button class="practice-option border-2 rounded p-2">2. くれました</button><button class="practice-option border-2 rounded p-2">3. しました</button><button class="practice-option border-2 rounded p-2">4. かけました</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Chủ ngữ là 私 (ẩn), hành động "nhận" từ bạn bè (友達に) nên dùng もらいました.</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">5. 毎朝( )を学校へつれていきます。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. あね</button><button class="practice-option border-2 rounded p-2">2. はは</button><button class="practice-option border-2 rounded p-2" data-correct="true">3. こども</button><button class="practice-option border-2 rounded p-2">4. あに</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Động từ つれていきます (dẫn đi) thường dùng cho người nhỏ tuổi hơn hoặc động vật. こども (con cái) là lựa chọn hợp lý nhất.</div></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phần IV -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2 japanese-text">IV. 正しい答えを選んでください。</h3>
+                         <div class="practice-question space-y-6">
+                           <div class="question-container"><p class="text-lg japanese-text">1. 恋人( )ゆびわ( )くれました。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. は / が</button><button class="practice-option border-2 rounded p-2">2. に / を</button><button class="practice-option border-2 rounded p-2" data-correct="true">3. が / を</button><button class="practice-option border-2 rounded p-2">4. は / に</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Mẫu câu 「Aは/が Bをくれます」 (A cho tôi B). Chủ thể cho là 恋人 (người yêu) đi với が hoặc は, tân ngữ là ゆびわ (nhẫn) đi với を.</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">2. 図書館で借りた本はもう( )返しました。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. ぜんぶで</button><button class="practice-option border-2 rounded p-2" data-correct="true">2. ぜんぶ</button><button class="practice-option border-2 rounded p-2">3. みんなで</button><button class="practice-option border-2 rounded p-2">4. まったく</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> ぜんぶ (toàn bộ, tất cả) là phó từ bổ nghĩa cho hành động "đã trả lại tất cả".</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">3. ビールとワインとジュースを買いました。( )何か飲み物がいりますか。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2" data-correct="true">1. ほかに</button><button class="practice-option border-2 rounded p-2">2. べつべつに</button><button class="practice-option border-2 rounded p-2">3. いっしょに</button><button class="practice-option border-2 rounded p-2">4. ぜんぶ</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> ほかに có nghĩa là "ngoài ra", dùng để hỏi xem có cần thêm gì khác không.</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">4. わたしの誕生日に父からプレゼントを( )。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. くれます</button><button class="practice-option border-2 rounded p-2" data-correct="true">2. もらいました</button><button class="practice-option border-2 rounded p-2">3. あげます</button><button class="practice-option border-2 rounded p-2">4. あげました</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Chủ ngữ là 私 (ẩn), hành động "nhận" (もらう) từ bố (父から). Vì là việc đã xảy ra nên dùng thể quá khứ もらいました.</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">5. 私はズン先生に日本語を教えて( )。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. あげます</button><button class="practice-option border-2 rounded p-2" data-correct="true">2. もらいました</button><button class="practice-option border-2 rounded p-2">3. だします</button><button class="practice-option border-2 rounded p-2">4. いきます</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Mẫu câu 「Vてもらいます」 (được ai đó làm gì cho). Tôi được thầy Dũng dạy tiếng Nhật.</div></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phần V -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2 japanese-text">V. ★ に入るものはどれですか。</h3>
+                         <div class="practice-question space-y-6">
+                           <div class="question-container"><p class="text-lg japanese-text">1. わたしは ___ ___ ★ ___ もらいました。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. レポートを</button><button class="practice-option border-2 rounded p-2">2. 山田さんに</button><button class="practice-option border-2 rounded p-2">3. もらいました</button><button class="practice-option border-2 rounded p-2" data-correct="true">4. 直して</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Câu đúng là 「わたしは山田さんにレポートを直してもらいました。」 (Tôi được anh Yamada sửa báo cáo cho). Thứ tự: 2 - 1 - 4. Từ ở vị trí ★ là 直して.</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">2. ___ ___ ★ ___ くれました。</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"><button class="practice-option border-2 rounded p-2">1. 山田さんは</button><button class="practice-option border-2 rounded p-2" data-correct="true">2. みせて</button><button class="practice-option border-2 rounded p-2">3. 写真を</button><button class="practice-option border-2 rounded p-2">4. 旅行の</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Câu đúng là 「山田さんは旅行の写真をみせてくれました。」 (Anh Yamada đã cho tôi xem ảnh du lịch). Thứ tự: 1 - 4 - 3 - 2. Từ ở vị trí ★ là みせて.</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Phần VI -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2 japanese-text">VI. 読解</h3>
+                        <div class="bg-gray-100 p-4 rounded-lg mb-6">
+                            <h4 class="font-bold text-center mb-2 japanese-text">僕のおばあちゃん</h4>
+                            <p class="japanese-text leading-relaxed">
+                                僕のおばあちゃんは72歳で、元気です。一人で住んでいます。天気がいいとき、おばあちゃんは病院へ友達に会いに行きます。病院に友達がたくさんいますから。天気が悪いとき、足の調子がよくないですから、出かけません。僕のうちへ来たとき、僕は学校で習った歌を歌ってあげます。おばあちゃんは僕に古い日本のお話をしてくれます。そしてパンやお菓子を作ってくれます。おばあちゃんがうちへ来ると、うちの中がとてもにぎやかになります。
+                            </p>
+                        </div>
+                        <div class="practice-question space-y-6">
+                           <div class="question-container"><p class="text-lg japanese-text">1. おばあちゃんは僕の家族といっしょに住んでいます。</p><div class="grid grid-cols-2 gap-4 mt-2"><button class="practice-option border-2 rounded p-2">○ Đúng</button><button class="practice-option border-2 rounded p-2" data-correct="true">× Sai</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Sai. Bài đọc nói rõ 「一人で住んでいます。」 (Bà sống một mình).</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">2. おばあちゃんは足の調子が悪いとき、病院へ行きます。</p><div class="grid grid-cols-2 gap-4 mt-2"><button class="practice-option border-2 rounded p-2">○ Đúng</button><button class="practice-option border-2 rounded p-2" data-correct="true">× Sai</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Sai. Bài đọc nói rằng khi thời tiết xấu, chân bà không khỏe nên bà không ra ngoài (天気が悪いとき、足の調子がよくないですから、出かけません). Bà đến bệnh viện khi thời tiết đẹp để thăm bạn.</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">3. おばあちゃんはパンやお菓子を作ってくれます。</p><div class="grid grid-cols-2 gap-4 mt-2"><button class="practice-option border-2 rounded p-2" data-correct="true">○ Đúng</button><button class="practice-option border-2 rounded p-2">× Sai</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Đúng. Bài đọc có câu 「そしてパンやお菓子を作ってくれます。」 (Và bà làm bánh mì và bánh kẹo cho tôi).</div></div>
+                           <div class="question-container"><p class="text-lg japanese-text">4. 僕はおばあちゃんが好きです。</p><div class="grid grid-cols-2 gap-4 mt-2"><button class="practice-option border-2 rounded p-2" data-correct="true">○ Đúng</button><button class="practice-option border-2 rounded p-2">× Sai</button></div><div class="explanation-box mt-2 p-3 bg-yellow-50 text-yellow-800 rounded"><b>Giải thích:</b> Đúng. Dù không nói trực tiếp, nhưng qua cách kể chuyện (hát cho bà nghe, bà kể chuyện và làm bánh cho, nhà trở nên nhộn nhịp khi bà đến), có thể suy ra cậu bé rất yêu quý bà của mình.</div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+         <footer class="text-center mt-12 py-4 border-t">
+            <p class="text-gray-500">Tạo bởi nvnhan, Dung Mori và Gemini</p>
+        </footer>
+    </div>
+    <script>
+        document.querySelectorAll('.question-container').forEach(question => {
+            const options = question.querySelectorAll('.practice-option');
+            const explanation = question.querySelector('.explanation-box');
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    options.forEach(btn => { btn.disabled = true; });
+                    const isCorrect = option.getAttribute('data-correct') === 'true';
+                    if (isCorrect) {
+                        option.classList.add('correct');
+                    } else {
+                        option.classList.add('incorrect');
+                        const correctOption = question.querySelector('[data-correct="true"]');
+                        if (correctOption) { correctOption.classList.add('correct'); }
+                    }
+                    if (explanation) { explanation.style.display = 'block'; }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
