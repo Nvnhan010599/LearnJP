@@ -324,13 +324,40 @@
         .modal-content { background: var(--modal-bg); box-shadow: var(--modal-shadow) !important; }
         .theme-btn.active, .theme-btn[aria-pressed="true"] { border: 2px solid var(--tab-active-border-custom) !important; background: var(--tab-active-bg-custom) !important; color: var(--tab-active-text-custom) !important; box-shadow: 0 2px 8px 0 var(--tab-active-bg-custom); z-index: 1; }
         .theme-btn:not(.active):hover { border: 2px solid var(--tab-hover-border-custom) !important; background: var(--tab-hover-bg-custom) !important; color: var(--tab-hover-text-custom) !important; }
-
+        
+        /* --- NEW: Layering System for Views --- */
+        .body-no-scroll {
+            overflow: hidden;
+        }
+        .view-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto; /* Allow scrolling within the layer */
+            background-color: var(--bg-main);
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 100;
+            visibility: hidden; /* Hide until active to prevent interaction */
+        }
+        .view-layer.is-visible {
+            transform: translateX(0);
+            visibility: visible;
+        }
+        /* Flashcard view has a transparent background to see the main page behind it */
+        #flashcard-view.view-layer {
+            background-color: rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6">
 
+    <!-- Main Grid View Container -->
     <div class="w-full max-w-4xl mx-auto">
-        <!-- Grid View -->
         <div id="grid-view" class="main-container p-6 sm:p-8 rounded-3xl space-y-8">
             <header class="text-center relative">
                 <h1 class="text-5xl font-extrabold tracking-tight header-gradient py-2">Học Hán Tự N5</h1>
@@ -362,7 +389,6 @@
                 </div>
             </div>
             
-            <!-- Progress bar and progress text -->
             <div class="my-4 flex items-center gap-4">
                 <div class="flex-1 h-3 rounded-full overflow-hidden" style="background-color: var(--progress-bar-bg);">
                     <div id="progress-bar" class="h-3 rounded-full" style="width:0%"></div>
@@ -378,13 +404,14 @@
                 <div id="kanji-grid-container"></div>
             </div>
         </div>
-
-        <main id="detail-view" class="main-container p-6 rounded-3xl hidden"></main>
-        <div id="quiz-view" class="main-container p-6 sm:p-8 rounded-2xl hidden"></div>
-        <div id="flashcard-view" class="bg-transparent hidden"></div>
     </div>
 
-    <!-- Modal Cài đặt -->
+    <!-- View Layers (Detail, Quiz, Flashcard) -->
+    <main id="detail-view" class="view-layer"></main>
+    <div id="quiz-view" class="view-layer"></div>
+    <div id="flashcard-view" class="view-layer"></div>
+
+    <!-- Modals (Settings, Confirm, etc.) -->
     <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0">
          <div class="modal-content p-6 sm:p-8 rounded-2xl w-full max-w-lg transform scale-95 transition-all duration-300">
             <div class="flex justify-between items-center">
@@ -424,7 +451,6 @@
         </div>
     </div>
     
-    <!-- Modal xác nhận xóa -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0">
         <div class="modal-content p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center transform scale-95 transition-all duration-300">
             <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full" style="background-color: var(--modal-danger-icon-bg);">
@@ -439,7 +465,6 @@
         </div>
     </div>
 
-    <!-- Modal Filter Vocab Quiz -->
     <div id="vocab-quiz-filter-modal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
         <div class="modal-content p-6 rounded-2xl w-full max-w-2xl shadow-xl relative">
             <button id="close-vocab-quiz-filter-btn" class="absolute top-2 right-2 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-full">&times;</button>
@@ -449,7 +474,6 @@
                     <label class="font-semibold mr-2">Lọc theo Hán tự:</label>
                     <select id="vocab-quiz-filter-kanji" class="border rounded px-2 py-1 bg-transparent border-border-secondary">
                         <option value="">-- Tất cả --</option>
-                        <!-- JS render -->
                     </select>
                 </div>
                 <div>
@@ -470,9 +494,7 @@
                             <th class="p-2">Trạng thái</th>
                         </tr>
                     </thead>
-                    <tbody id="vocab-quiz-filter-list">
-                        <!-- JS render -->
-                    </tbody>
+                    <tbody id="vocab-quiz-filter-list"></tbody>
                 </table>
             </div>
             <div class="mt-6 flex justify-end gap-2">
@@ -483,7 +505,6 @@
         </div>
     </div>
 
-    <!-- Help Modal -->
     <div id="help-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0">
         <div class="modal-content p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-lg transform scale-95 transition-all duration-300">
             <h3 class="text-2xl font-bold text-primary mt-2">Hướng dẫn sử dụng</h3>
@@ -499,7 +520,6 @@
         </div>
     </div>
 
-    <!-- Author Modal -->
     <div id="author-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0">
         <div class="modal-content p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-lg text-center transform scale-95 transition-all duration-300">
              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full" style="background-color: var(--modal-info-icon-bg);">
@@ -529,7 +549,6 @@
 
     <!-- Floating Action Button Menu (Left) -->
     <div id="fab-menu-container" class="fixed bottom-6 left-6 flex flex-col items-center z-40">
-        <!-- Sub-buttons (hidden by default) -->
         <div id="fab-submenu" class="flex flex-col items-center space-y-2 mb-2 invisible opacity-0">
             <button id="settings-btn-fab" title="Cài đặt" class="fab fab-submenu-item">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -544,7 +563,6 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
             </a>
         </div>
-        <!-- Main FAB -->
         <button id="fab-main-btn" class="fab fab-main transform transition-transform duration-200">
             <svg id="fab-open-icon" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
             <svg id="fab-close-icon" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 absolute opacity-0 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -552,7 +570,7 @@
     </div>
 
     <script>
-// ... (JavaScript code remains unchanged as the logic is not affected by CSS refactoring) ...
+// --- DATA ---
 const kanjiData = [
     { "char": "一", "name": "NHẤT", "kunyomi": "ひと", "onyomi": "イチ", "vocab": [ { "word": "一日", "reading": "ついたち", "meaning": "mồng 1" }, { "word": "一人で", "reading": "ひとりで", "meaning": "một mình" }, { "word": "一人", "reading": "ひとり", "meaning": "một người" }, { "word": "一つ", "reading": "ひとつ", "meaning": "một cái" }, { "word": "一番", "reading": "いちばん", "meaning": "nhất" }, { "word": "一緒に", "reading": "いっしょに", "meaning": "cùng nhau" }, { "word": "一度", "reading": "いちど", "meaning": "một lần" }, { "word": "一度も", "reading": "いちども", "meaning": "chưa lần nào" }, { "word": "一生懸命", "reading": "いっしょうけんめい", "meaning": "Sự cố gắng hết sức" } ] },
     { "char": "二", "name": "NHỊ", "kunyomi": "ふた", "onyomi": "ニ", "vocab": [ { "word": "二日", "reading": "ふつか", "meaning": "mồng 2" }, { "word": "二人", "reading": "ふたり", "meaning": "hai người" }, { "word": "二つ", "reading": "ふたつ", "meaning": "hai cái" } ] },
@@ -705,14 +723,14 @@ let currentDetailIndex = -1;
 let currentFlashcardIndex = 0;
 let quizItems = [];
 let currentQuizIndex = 0;
-let lastScrollPosition = 0; // <<<< FIX: Variable to store scroll position
+// lastScrollPosition is no longer needed with the layering system.
 let appSettings = {
     flashcardFront: 'kanji',
     theme: 'system'
 };
 
 let vocabQuizSettings = {
-    questionCount: 20, // Default number of questions for vocab quiz
+    questionCount: 20,
 };
 
 const openModal = (modal) => {
@@ -783,10 +801,22 @@ function applyTheme() {
     });
 }
 
+// REWRITTEN: showView function for the layering system
 function showView(viewId) {
-    [gridView, detailView, quizView, flashcardView].forEach(view => {
-        view.classList.toggle('hidden', view.id !== viewId);
-    });
+    const body = document.body;
+    const views = [detailView, quizView, flashcardView];
+
+    // If we want to show the grid (go back), hide all layers
+    if (viewId === 'grid-view') {
+        body.classList.remove('body-no-scroll');
+        views.forEach(view => view.classList.remove('is-visible'));
+    } else {
+        // Otherwise, show the target layer
+        body.classList.add('body-no-scroll');
+        views.forEach(view => {
+            view.classList.toggle('is-visible', view.id === viewId);
+        });
+    }
 }
 
 function renderGridView() {
@@ -835,7 +865,10 @@ function renderGridView() {
 
 
 function renderDetailView() {
+    // The content is now wrapped in another div to handle padding and centering within the layer
     detailView.innerHTML = `
+        <div class="w-full max-w-4xl mx-auto p-4 sm:p-6">
+            <div class="main-container p-6 rounded-3xl">
                 <div class="flex justify-between items-center mb-6">
                     <button id="back-to-grid-from-detail" class="btn btn-secondary py-2 px-4 flex items-center gap-2 font-semibold">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
@@ -851,109 +884,114 @@ function renderDetailView() {
                   </nav>
                 </div>
                 <div id="tab-content" class="mt-6 min-h-[350px]"></div>
-            `;
-            updateDetailContent(currentDetailIndex, 'learn');
-        }
-        function updateDetailContent(index, activeTab) {
-            const kanji = kanjiData[index];
-            const prog = kanjiProgress[index];
-            const markBtn = detailView.querySelector('#mark-as-learned-btn');
-            
-            markBtn.disabled = prog.learned;
-            if(prog.learned) {
-                markBtn.innerHTML = `Đã học`;
-                markBtn.className = `btn btn-marked font-bold py-2 px-4`;
-            } else {
-                markBtn.innerHTML = `Học`;
-                markBtn.className = `btn btn-mark-learn font-bold py-2 px-4`;
-            }
+            </div>
+        </div>
+    `;
+    updateDetailContent(currentDetailIndex, 'learn');
+}
 
-            const tabNav = detailView.querySelector('#tab-nav');
-            tabNav.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.toggle('active-tab', btn.dataset.tab === (activeTab || 'learn'));
-            });
-            const tabContent = detailView.querySelector('#tab-content');
-            const hexCode = kanji.char.charCodeAt(0).toString(16);
-            const gifUrl = `https://raw.githubusercontent.com/mistval/kanji_images/master/gifs/${hexCode}.gif`;
-            tabContent.innerHTML = `
-                <div id="learn-tab" class="tab-panel${(activeTab === 'learn' || !activeTab) ? '' : ' hidden'}">
-                    <div class="flex flex-col items-center justify-center text-center p-4">
-                        <h2 class="text-9xl font-black kanji-char">${kanji.char}</h2>
-                        <h3 class="text-4xl font-bold text-sky-600 dark:text-sky-400 mt-4">${kanji.name}</h3>
-                        <div class="mt-8 text-left text-xl space-y-3 p-6 rounded-lg border border-border-primary shadow-inner" style="background-color: var(--info-box-bg)">
-                            <p><strong>Kun'yomi:</strong> <span class="font-semibold text-rose-600 dark:text-rose-400">${kanji.kunyomi || 'N/A'}</span></p>
-                            <p><strong>On'yomi:</strong> <span class="font-semibold text-rose-600 dark:text-rose-400">${kanji.onyomi || 'N/A'}</span></p>
-                        </div>
-                    </div>
+function updateDetailContent(index, activeTab) {
+    const kanji = kanjiData[index];
+    const prog = kanjiProgress[index];
+    const markBtn = detailView.querySelector('#mark-as-learned-btn');
+    
+    markBtn.disabled = prog.learned;
+    if(prog.learned) {
+        markBtn.innerHTML = `Đã học`;
+        markBtn.className = `btn btn-marked font-bold py-2 px-4`;
+    } else {
+        markBtn.innerHTML = `Học`;
+        markBtn.className = `btn btn-mark-learn font-bold py-2 px-4`;
+    }
+
+    const tabNav = detailView.querySelector('#tab-nav');
+    tabNav.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active-tab', btn.dataset.tab === (activeTab || 'learn'));
+    });
+    const tabContent = detailView.querySelector('#tab-content');
+    const hexCode = kanji.char.charCodeAt(0).toString(16);
+    const gifUrl = `https://raw.githubusercontent.com/mistval/kanji_images/master/gifs/${hexCode}.gif`;
+    tabContent.innerHTML = `
+        <div id="learn-tab" class="tab-panel${(activeTab === 'learn' || !activeTab) ? '' : ' hidden'}">
+            <div class="flex flex-col items-center justify-center text-center p-4">
+                <h2 class="text-9xl font-black kanji-char">${kanji.char}</h2>
+                <h3 class="text-4xl font-bold text-sky-600 dark:text-sky-400 mt-4">${kanji.name}</h3>
+                <div class="mt-8 text-left text-xl space-y-3 p-6 rounded-lg border border-border-primary shadow-inner" style="background-color: var(--info-box-bg)">
+                    <p><strong>Kun'yomi:</strong> <span class="font-semibold text-rose-600 dark:text-rose-400">${kanji.kunyomi || 'N/A'}</span></p>
+                    <p><strong>On'yomi:</strong> <span class="font-semibold text-rose-600 dark:text-rose-400">${kanji.onyomi || 'N/A'}</span></p>
                 </div>
-                <div id="writing-tab" class="tab-panel${activeTab === 'writing' ? '' : ' hidden'}"><div class="flex flex-col items-center justify-center p-4"><p class="text-secondary mb-4">Thứ tự các nét viết của chữ Hán.</p><img src="${gifUrl}" class="bg-white rounded-lg shadow-md w-64 h-64 border" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" ><p class="text-rose-500 mt-4 hidden">Không tìm thấy ảnh GIF cho Hán tự này.</p></div></div>
-                <div id="vocab-tab" class="tab-panel${activeTab === 'vocab' ? '' : ' hidden'}"><table class="w-full text-left"><thead style="background-color: var(--bg-icon-container);"><tr class="border-b-2 border-border-primary"><th class="p-3 font-semibold text-secondary">Từ vựng</th><th class="p-3 font-semibold text-secondary">Cách đọc</th><th class="p-3 font-semibold text-secondary">Nghĩa</th></tr></thead><tbody>${(kanji.vocab && kanji.vocab.length > 0) ? kanji.vocab.map(v => `<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700"><td class="p-3 text-primary font-medium">${v.word}</td><td class="p-3 text-rose-600 dark:text-rose-400">${v.reading}</td><td class="p-3 text-secondary">${v.meaning}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center p-4 text-secondary">Chưa có từ vựng cho Hán tự này.</td></tr>'}</tbody></table></div>
-            `;
-            tabNav.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.onclick = () => {
-                    updateDetailContent(index, btn.dataset.tab);
-                };
-            });
-        }
+            </div>
+        </div>
+        <div id="writing-tab" class="tab-panel${activeTab === 'writing' ? '' : ' hidden'}"><div class="flex flex-col items-center justify-center p-4"><p class="text-secondary mb-4">Thứ tự các nét viết của chữ Hán.</p><img src="${gifUrl}" class="bg-white rounded-lg shadow-md w-64 h-64 border" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" ><p class="text-rose-500 mt-4 hidden">Không tìm thấy ảnh GIF cho Hán tự này.</p></div></div>
+        <div id="vocab-tab" class="tab-panel${activeTab === 'vocab' ? '' : ' hidden'}"><table class="w-full text-left"><thead style="background-color: var(--bg-icon-container);"><tr class="border-b-2 border-border-primary"><th class="p-3 font-semibold text-secondary">Từ vựng</th><th class="p-3 font-semibold text-secondary">Cách đọc</th><th class="p-3 font-semibold text-secondary">Nghĩa</th></tr></thead><tbody>${(kanji.vocab && kanji.vocab.length > 0) ? kanji.vocab.map(v => `<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700"><td class="p-3 text-primary font-medium">${v.word}</td><td class="p-3 text-rose-600 dark:text-rose-400">${v.reading}</td><td class="p-3 text-secondary">${v.meaning}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center p-4 text-secondary">Chưa có từ vựng cho Hán tự này.</td></tr>'}</tbody></table></div>
+    `;
+    tabNav.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            updateDetailContent(index, btn.dataset.tab);
+        };
+    });
+}
 
-        function renderFlashcardView() {
-            currentFlashcardIndex = 0;
-            flashcardView.innerHTML = `
-                 <div class="main-container bg-transparent p-6 rounded-3xl shadow-none border-none">
-                    <div class="flex justify-between items-center mb-6">
-                        <button id="back-to-grid-from-fc" class="py-2 px-4 rounded-full transition-colors duration-300 flex items-center gap-2 font-semibold btn-secondary">
-                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                            Quay lại
-                        </button>
-                        <div id="fc-progress" class="text-primary font-semibold"></div>
-                    </div>
-                    <div id="fc-card-container" class="w-full h-80 perspective-1000 cursor-pointer">
-                        <div class="flashcard-inner relative w-full h-full">
-                            <div class="flashcard-front"></div>
-                            <div class="flashcard-back"></div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center mt-6">
-                        <button id="fc-prev-btn" class="fab fab-submenu-item">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <polyline points="15 19 8 12 15 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                        <div class="text-sm text-secondary">Chạm vào thẻ để lật</div>
-                        <button id="fc-next-btn" class="fab fab-submenu-item">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <polyline points="9 5 16 12 9 19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </div>
+function renderFlashcardView() {
+    currentFlashcardIndex = 0;
+    flashcardView.innerHTML = `
+        <div class="w-full max-w-4xl mx-auto p-4 sm:p-6 flex flex-col justify-center h-full">
+            <div class="flex justify-between items-center mb-6">
+                <button id="back-to-grid-from-fc" class="py-2 px-4 rounded-full transition-colors duration-300 flex items-center gap-2 font-semibold btn-secondary text-white bg-white/20 hover:bg-white/30">
+                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                    Quay lại
+                </button>
+                <div id="fc-progress" class="text-white font-semibold"></div>
+            </div>
+            <div id="fc-card-container" class="w-full h-80 perspective-1000 cursor-pointer">
+                <div class="flashcard-inner relative w-full h-full">
+                    <div class="flashcard-front"></div>
+                    <div class="flashcard-back"></div>
                 </div>
-            `;
-            updateFlashcard();
-            showView('flashcard-view');
-            const fcCardContainer = flashcardView.querySelector('#fc-card-container');
-            const fcCardInner = flashcardView.querySelector('.flashcard-inner');
-            fcCardContainer.addEventListener('click', function(e) {
-                if (e.target.closest('#fc-prev-btn') || e.target.closest('#fc-next-btn')) return;
-                fcCardInner.classList.toggle('is-flipped');
-            });
-        }
-        function updateFlashcard() {
-            const card = kanjiData[currentFlashcardIndex];
-            const frontEl = flashcardView.querySelector('.flashcard-front');
-            const backEl = flashcardView.querySelector('.flashcard-back');
-            const frontText = appSettings.flashcardFront === 'kanji' ? card.char : card.name;
-            const backText = appSettings.flashcardFront === 'kanji' ? card.name : card.char;
-            frontEl.innerHTML = `<span class="text-7xl sm:text-8xl font-black">${frontText}</span>`;
-            backEl.innerHTML = `<span class="text-5xl sm:text-6xl font-bold">${backText}</span>`;
-            flashcardView.querySelector('#fc-progress').textContent = `${currentFlashcardIndex + 1} / ${kanjiData.length}`;
-            flashcardView.querySelector('#fc-prev-btn').disabled = currentFlashcardIndex === 0;
-            flashcardView.querySelector('#fc-next-btn').disabled = currentFlashcardIndex === kanjiData.length - 1;
-            const fcCardInner = flashcardView.querySelector('.flashcard-inner');
-            fcCardInner.classList.remove('is-flipped');
-        }
+            </div>
+            <div class="flex justify-between items-center mt-6">
+                <button id="fc-prev-btn" class="fab fab-submenu-item">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <polyline points="15 19 8 12 15 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <div class="text-sm text-white/80">Chạm vào thẻ để lật</div>
+                <button id="fc-next-btn" class="fab fab-submenu-item">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <polyline points="9 5 16 12 9 19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `;
+    updateFlashcard();
+    showView('flashcard-view');
+    const fcCardContainer = flashcardView.querySelector('#fc-card-container');
+    const fcCardInner = flashcardView.querySelector('.flashcard-inner');
+    fcCardContainer.addEventListener('click', function(e) {
+        if (e.target.closest('#fc-prev-btn') || e.target.closest('#fc-next-btn')) return;
+        fcCardInner.classList.toggle('is-flipped');
+    });
+}
+function updateFlashcard() {
+    const card = kanjiData[currentFlashcardIndex];
+    const frontEl = flashcardView.querySelector('.flashcard-front');
+    const backEl = flashcardView.querySelector('.flashcard-back');
+    const frontText = appSettings.flashcardFront === 'kanji' ? card.char : card.name;
+    const backText = appSettings.flashcardFront === 'kanji' ? card.name : card.char;
+    frontEl.innerHTML = `<span class="text-7xl sm:text-8xl font-black">${frontText}</span>`;
+    backEl.innerHTML = `<span class="text-5xl sm:text-6xl font-bold">${backText}</span>`;
+    flashcardView.querySelector('#fc-progress').textContent = `${currentFlashcardIndex + 1} / ${kanjiData.length}`;
+    flashcardView.querySelector('#fc-prev-btn').disabled = currentFlashcardIndex === 0;
+    flashcardView.querySelector('#fc-next-btn').disabled = currentFlashcardIndex === kanjiData.length - 1;
+    const fcCardInner = flashcardView.querySelector('.flashcard-inner');
+    fcCardInner.classList.remove('is-flipped');
+}
 
-        function renderQuizView(quizType) {
-            quizView.innerHTML = `
+function renderQuizView(quizType) {
+    quizView.innerHTML = `
+        <div class="w-full max-w-4xl mx-auto p-4 sm:p-6">
+            <div class="main-container p-6 sm:p-8 rounded-2xl">
                 <header class="text-center mb-6">
                     <h1 class="text-3xl font-bold text-primary">${quizType === 'vocab' ? 'Kiểm tra Từ vựng' : 'Kiểm tra Hán-Việt'}</h1>
                     <p id="quiz-progress-text" class="text-secondary mt-2"></p>
@@ -970,492 +1008,480 @@ function renderDetailView() {
                     <button id="next-question-btn" class="btn btn-primary hidden">Câu tiếp theo &rarr;</button>
                     <button id="finish-quiz-btn" class="btn btn-primary hidden">Hoàn thành</button>
                 </div>
-            `;
-            showView('quiz-view');
+            </div>
+        </div>
+    `;
+    showView('quiz-view');
+}
+function displayVocabQuestion() {
+    const questionData = quizItems[currentQuizIndex];
+    quizView.querySelector('#quiz-question').textContent = questionData.word;
+    quizView.querySelector('#quiz-question-prompt').textContent = `Cách đọc của từ này là gì?`;
+    quizView.querySelector('#quiz-progress-text').textContent = `Câu ${currentQuizIndex + 1} / ${quizItems.length}`;
+    const correctAnswer = questionData.reading;
+    const allPossibleAnswers = kanjiData.flatMap(k => (k.vocab || []).map(v => v.reading));
+    const uniqueAnswers = [...new Set(allPossibleAnswers)].filter(Boolean);
+    const distractors = uniqueAnswers.filter(ans => ans !== correctAnswer);
+    displayQuizOptions(correctAnswer, distractors, () => {
+        handleVocabQuizCorrect(questionData.sourceKanjiIndex, questionData.vocabIdx);
+    });
+}
+function displayHVQuestion() {
+    const questionData = quizItems[currentQuizIndex];
+    quizView.querySelector('#quiz-question').textContent = questionData.char;
+    quizView.querySelector('#quiz-question-prompt').textContent = `Âm Hán-Việt của chữ này là gì?`;
+    quizView.querySelector('#quiz-progress-text').textContent = `Câu ${currentQuizIndex + 1} / ${quizItems.length}`;
+    const correctAnswer = questionData.name;
+    const allPossibleAnswers = kanjiData.map(k => k.name);
+    const distractors = allPossibleAnswers.filter(ans => ans !== correctAnswer);
+    displayQuizOptions(correctAnswer, distractors, () => {
+        handleHVQuizCorrect(questionData.sourceKanjiIndex);
+    });
+}
+function displayQuizOptions(correctAnswer, distractors, onCorrect) {
+    for (let i = distractors.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [distractors[i], distractors[j]] = [distractors[j], distractors[i]];}
+    const finalOptions = [correctAnswer, ...distractors.slice(0, 3)];
+    for (let i = finalOptions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [finalOptions[i], finalOptions[j]] = [finalOptions[j], finalOptions[i]];}
+    const optionsContainer = quizView.querySelector('#quiz-options');
+    optionsContainer.innerHTML = '';
+    finalOptions.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'quiz-option text-left p-4';
+        button.textContent = option;
+        if (option === correctAnswer) { button.dataset.correct = 'true'; }
+        optionsContainer.appendChild(button);
+    });
+    optionsContainer.dataset.answered = '';
+    optionsContainer.onclick = function(e) {
+        const selectedButton = e.target.closest('.quiz-option');
+        if (!selectedButton || optionsContainer.dataset.answered) return;
+        optionsContainer.querySelectorAll('.quiz-option').forEach(btn => btn.classList.remove('selected'));
+        selectedButton.classList.add('selected');
+        optionsContainer.dataset.answered = 'true';
+        const isCorrect = selectedButton.dataset.correct === 'true';
+        if (isCorrect) {
+            selectedButton.classList.add('correct');
+            if (typeof onCorrect === 'function') onCorrect();
+        } else {
+            selectedButton.classList.add('incorrect');
+            const correctButton = optionsContainer.querySelector('.quiz-option[data-correct="true"]');
+            if (correctButton) correctButton.classList.add('correct');
         }
-        function displayVocabQuestion() {
-            const questionData = quizItems[currentQuizIndex];
-            quizView.querySelector('#quiz-question').textContent = questionData.word;
-            quizView.querySelector('#quiz-question-prompt').textContent = `Cách đọc của từ này là gì?`;
-            quizView.querySelector('#quiz-progress-text').textContent = `Câu ${currentQuizIndex + 1} / ${quizItems.length}`;
-            const correctAnswer = questionData.reading;
-            const allPossibleAnswers = kanjiData.flatMap(k => (k.vocab || []).map(v => v.reading));
-            const uniqueAnswers = [...new Set(allPossibleAnswers)].filter(Boolean);
-            const distractors = uniqueAnswers.filter(ans => ans !== correctAnswer);
-            displayQuizOptions(correctAnswer, distractors, () => {
-                handleVocabQuizCorrect(questionData.sourceKanjiIndex, questionData.vocabIdx);
-            });
+        optionsContainer.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
+        if (currentQuizIndex < quizItems.length - 1) {
+            quizView.querySelector('#next-question-btn').classList.remove('hidden');
+        } else {
+            quizView.querySelector('#finish-quiz-btn').classList.remove('hidden');
         }
-        function displayHVQuestion() {
-            const questionData = quizItems[currentQuizIndex];
-            quizView.querySelector('#quiz-question').textContent = questionData.char;
-            quizView.querySelector('#quiz-question-prompt').textContent = `Âm Hán-Việt của chữ này là gì?`;
-            quizView.querySelector('#quiz-progress-text').textContent = `Câu ${currentQuizIndex + 1} / ${quizItems.length}`;
-            const correctAnswer = questionData.name;
-            const allPossibleAnswers = kanjiData.map(k => k.name);
-            const distractors = allPossibleAnswers.filter(ans => ans !== correctAnswer);
-            displayQuizOptions(correctAnswer, distractors, () => {
-                handleHVQuizCorrect(questionData.sourceKanjiIndex);
-            });
-        }
-        function displayQuizOptions(correctAnswer, distractors, onCorrect) {
-            for (let i = distractors.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [distractors[i], distractors[j]] = [distractors[j], distractors[i]];}
-            const finalOptions = [correctAnswer, ...distractors.slice(0, 3)];
-            for (let i = finalOptions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [finalOptions[i], finalOptions[j]] = [finalOptions[j], finalOptions[i]];}
-            const optionsContainer = quizView.querySelector('#quiz-options');
-            optionsContainer.innerHTML = '';
-            finalOptions.forEach(option => {
-                const button = document.createElement('button');
-                button.className = 'quiz-option text-left p-4';
-                button.textContent = option;
-                if (option === correctAnswer) { button.dataset.correct = 'true'; }
-                optionsContainer.appendChild(button);
-            });
-            optionsContainer.dataset.answered = '';
-            optionsContainer.onclick = function(e) {
-                const selectedButton = e.target.closest('.quiz-option');
-                if (!selectedButton || optionsContainer.dataset.answered) return;
-                optionsContainer.querySelectorAll('.quiz-option').forEach(btn => btn.classList.remove('selected'));
-                selectedButton.classList.add('selected');
-                optionsContainer.dataset.answered = 'true';
-                const isCorrect = selectedButton.dataset.correct === 'true';
-                if (isCorrect) {
-                    selectedButton.classList.add('correct');
-                    if (typeof onCorrect === 'function') onCorrect();
-                } else {
-                    selectedButton.classList.add('incorrect');
-                    const correctButton = optionsContainer.querySelector('.quiz-option[data-correct="true"]');
-                    if (correctButton) correctButton.classList.add('correct');
-                }
-                optionsContainer.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
-                if (currentQuizIndex < quizItems.length - 1) {
-                    quizView.querySelector('#next-question-btn').classList.remove('hidden');
-                } else {
-                    quizView.querySelector('#finish-quiz-btn').classList.remove('hidden');
-                }
-            };
-        }
-        function handleHVQuizCorrect(kanjiIndex) {
-            if (!kanjiProgress[kanjiIndex].progress.hanviet) {
-                kanjiProgress[kanjiIndex].progress.hanviet = true;
-                saveProgress();
-                renderGridView();
-            }
-        }
-        function handleVocabQuizCorrect(kanjiIndex, vocabIdx) {
-            if (!kanjiProgress[kanjiIndex].progress.vocab[vocabIdx]) {
-                kanjiProgress[kanjiIndex].progress.vocab[vocabIdx] = true;
-                saveProgress();
-                renderGridView();
-            }
-        }
+    };
+}
+function handleHVQuizCorrect(kanjiIndex) {
+    if (!kanjiProgress[kanjiIndex].progress.hanviet) {
+        kanjiProgress[kanjiIndex].progress.hanviet = true;
+        saveProgress();
+        renderGridView();
+    }
+}
+function handleVocabQuizCorrect(kanjiIndex, vocabIdx) {
+    if (!kanjiProgress[kanjiIndex].progress.vocab[vocabIdx]) {
+        kanjiProgress[kanjiIndex].progress.vocab[vocabIdx] = true;
+        saveProgress();
+        renderGridView();
+    }
+}
        
-        function openSettingsModal() {
-            settingsModal.querySelector(`input[name="flashcard_front"][value="${appSettings.flashcardFront}"]`).checked = true;
-            
-            const themeBtns = settingsModal.querySelectorAll('.theme-btn');
-            themeBtns.forEach(btn => {
-                const isActive = btn.dataset.theme === appSettings.theme;
-                btn.classList.toggle('active', isActive);
-                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-            });
-            themeBtns.forEach(btn => {
-                btn.onclick = () => {
-                    appSettings.theme = btn.dataset.theme;
-                    applyTheme();
-                };
-            });
-            openModal(settingsModal);
-        }
-
-        function closeSettingsModal() {
-            appSettings.flashcardFront = settingsModal.querySelector('input[name="flashcard_front"]:checked').value;
-            saveSettings();
-            closeModal(settingsModal);
-        }
-        
-        function openConfirmModal() {
-            openModal(confirmModal);
-        }
-        function closeConfirmModal() {
-            closeModal(confirmModal);
-        }
-       
-        
-        // --- START: VOCAB QUIZ FILTER LOGIC ---
-        let vocabQuizFilterState = {
-            kanji: "",
-            learned: true,
-            mastered: true
-        };
-        let vocabQuizFinalSelection = null;
-        let modalSelectionState = {};
-
-        const getVocabKey = (kIdx, vIdx) => `${kIdx}-${vIdx}`;
-
-        function openVocabFilterModal() {
-            modalSelectionState = {};
-            const allEligibleVocab = getEligibleVocabForQuiz(true);
-
-            allEligibleVocab.forEach(vocab => {
-                const key = getVocabKey(vocab.sourceKanjiIndex, vocab.vocabIdx);
-                if (Array.isArray(vocabQuizFinalSelection)) {
-                    modalSelectionState[key] = vocabQuizFinalSelection.some(
-                        sel => sel.sourceKanjiIndex === vocab.sourceKanjiIndex && sel.vocabIdx === vocab.vocabIdx
-                    );
-                } else {
-                    modalSelectionState[key] = true;
-                }
-            });
-            
-            renderVocabQuizFilterModal();
-            openModal(document.getElementById('vocab-quiz-filter-modal'));
-        }
-        
-        function renderVocabQuizFilterModal() {
-            const tbody = document.getElementById('vocab-quiz-filter-list');
-            const kanjiSelect = document.getElementById('vocab-quiz-filter-kanji');
-            
-            kanjiSelect.innerHTML = `<option value="">-- Tất cả --</option>`;
-            kanjiData.forEach((k, idx) => {
-                const prog = kanjiProgress[idx];
-                const total = 1 + (k.vocab ? k.vocab.length : 0);
-                let masteredCount = (prog.progress.hanviet ? 1 : 0) + (prog.progress.vocab ? prog.progress.vocab.filter(Boolean).length : 0);
-                const mastered = masteredCount === total && total > 0;
-                if (prog.learned || mastered) {
-                    kanjiSelect.innerHTML += `<option value="${idx}">${k.char} - ${k.name}</option>`;
-                }
-            });
-            kanjiSelect.value = vocabQuizFilterState.kanji;
-            document.getElementById('vocab-quiz-filter-learned').checked = vocabQuizFilterState.learned;
-            document.getElementById('vocab-quiz-filter-mastered').checked = vocabQuizFilterState.mastered;
-
-            tbody.innerHTML = '';
-            const vocabsToShow = getVisibleVocabsInModal();
-
-            vocabsToShow.forEach(vocab => {
-                const key = getVocabKey(vocab.sourceKanjiIndex, vocab.vocabIdx);
-                const isChecked = modalSelectionState[key];
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-2 text-center">
-                        <input type="checkbox" class="vocab-quiz-filter-checkbox" data-key="${key}" ${isChecked ? 'checked' : ''}>
-                    </td>
-                    <td class="p-2 text-xl font-bold">${vocab.kanjiChar}</td>
-                    <td class="p-2">${vocab.word}</td>
-                    <td class="p-2 text-rose-600">${vocab.reading}</td>
-                    <td class="p-2">${vocab.meaning}</td>
-                    <td class="p-2">${vocab.mastered ? '<span class="text-green-600 font-semibold">Đã thuộc</span>' : (vocab.learned ? '<span class="text-orange-500 font-semibold">Đã học</span>' : '')}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        function getVisibleVocabsInModal() {
-            let vocabs = [];
-            kanjiProgress.forEach((prog, idx) => {
-                const k = kanjiData[idx];
-                const total = 1 + (k.vocab ? k.vocab.length : 0);
-                let masteredCount = (prog.progress.hanviet ? 1 : 0) + (prog.progress.vocab ? prog.progress.vocab.filter(Boolean).length : 0);
-                const mastered = masteredCount === total && total > 0;
-                
-                if (vocabQuizFilterState.kanji && vocabQuizFilterState.kanji !== idx.toString()) return;
-                if (!vocabQuizFilterState.learned && prog.learned && !mastered) return;
-                if (!vocabQuizFilterState.mastered && mastered) return;
-                if (!prog.learned && !mastered) return;
-
-                if (k.vocab && k.vocab.length) {
-                    k.vocab.forEach((v, vi) => {
-                        const vocabMastered = prog.progress.vocab && prog.progress.vocab[vi];
-                        if (!vocabQuizFilterState.learned && prog.learned && !vocabMastered) return;
-                        if (!vocabQuizFilterState.mastered && vocabMastered) return;
-                        if (!prog.learned && !vocabMastered) return;
-                        vocabs.push({
-                            ...v,
-                            sourceKanjiIndex: idx, vocabIdx: vi,
-                            kanjiChar: k.char, kanjiName: k.name,
-                            mastered: vocabMastered, learned: prog.learned
-                        });
-                    });
-                }
-            });
-            return vocabs;
-        }
-
-        function getEligibleVocabForQuiz(getAll = false) {
-            let eligibleVocab = [];
-            kanjiProgress.forEach((prog, idx) => {
-                const k = kanjiData[idx];
-                if (k.vocab && k.vocab.length) {
-                    k.vocab.forEach((v, vi) => {
-                        if(prog.learned) {
-                             const item = { ...v, sourceKanjiIndex: idx, vocabIdx: vi };
-                             if (!getAll && Array.isArray(vocabQuizFinalSelection)) {
-                                 if (vocabQuizFinalSelection.some(sel => sel.sourceKanjiIndex === idx && sel.vocabIdx === vi)) {
-                                     eligibleVocab.push(item);
-                                 }
-                             } else {
-                                 eligibleVocab.push(item);
-                             }
-                        }
-                    });
-                }
-            });
-            return eligibleVocab;
-        }
-
-        function updateQuizButtonState() {
-            const vocabsForQuiz = getEligibleVocabForQuiz();
-            if (startVocabQuizBtn) {
-                startVocabQuizBtn.disabled = vocabsForQuiz.length < 4;
-            }
-            if (quizPromptText) {
-                if (vocabsForQuiz.length < 4) {
-                    quizPromptText.textContent = `Cần ít nhất 4 từ vựng để bắt đầu. Hiện có ${vocabsForQuiz.length} từ.`;
-                } else {
-                    quizPromptText.textContent = `Sẵn sàng kiểm tra với ${vocabsForQuiz.length} từ!`;
-                }
-            }
-        }
-        
-        document.addEventListener('click', (e) => {
-            const targetId = e.target.closest('button')?.id;
-            if (targetId === 'vocab-quiz-filter-btn') {
-                openVocabFilterModal();
-            } else if (targetId === 'close-vocab-quiz-filter-btn') {
-                closeModal(document.getElementById('vocab-quiz-filter-modal'));
-            } else if (targetId === 'vocab-quiz-filter-selectall-btn') {
-                document.querySelectorAll('.vocab-quiz-filter-checkbox').forEach(cb => {
-                    cb.checked = true;
-                    modalSelectionState[cb.dataset.key] = true;
-                });
-            } else if (targetId === 'vocab-quiz-filter-clear-btn') {
-                document.querySelectorAll('.vocab-quiz-filter-checkbox').forEach(cb => {
-                    cb.checked = false;
-                    modalSelectionState[cb.dataset.key] = false;
-                });
-            } else if (targetId === 'vocab-quiz-filter-apply-btn') {
-                const allPossibleVocabs = getEligibleVocabForQuiz(true);
-                const selectedItems = Object.keys(modalSelectionState).filter(key => modalSelectionState[key]);
-                
-                if (selectedItems.length === allPossibleVocabs.length) {
-                    vocabQuizFinalSelection = null;
-                } else {
-                    vocabQuizFinalSelection = selectedItems.map(key => {
-                        const [kIdx, vIdx] = key.split('-').map(Number);
-                        return { sourceKanjiIndex: kIdx, vocabIdx: vIdx };
-                    });
-                }
-                
-                closeModal(document.getElementById('vocab-quiz-filter-modal'));
-                updateQuizButtonState();
-            }
-        });
-
-        document.getElementById('vocab-quiz-filter-list').addEventListener('change', (e) => {
-            if (e.target.classList.contains('vocab-quiz-filter-checkbox')) {
-                const key = e.target.dataset.key;
-                modalSelectionState[key] = e.target.checked;
-            }
-        });
-        
-        document.getElementById('vocab-quiz-filter-kanji').addEventListener('change', (e) => {
-             vocabQuizFilterState.kanji = e.target.value;
-             renderVocabQuizFilterModal();
-        });
-        document.getElementById('vocab-quiz-filter-learned').addEventListener('change', (e) => {
-             vocabQuizFilterState.learned = e.target.checked;
-             renderVocabQuizFilterModal();
-        });
-        document.getElementById('vocab-quiz-filter-mastered').addEventListener('change', (e) => {
-             vocabQuizFilterState.mastered = e.target.checked;
-             renderVocabQuizFilterModal();
-        });
-        // --- END: VOCAB QUIZ FILTER LOGIC ---
-
-
-        // General click handler
-        document.addEventListener('click', (e) => {
-            const target = e.target;
-            const closestButton = target.closest('button');
-            const targetId = target.id || closestButton?.id;
-            switch(true) {
-                case target.closest('.kanji-cell') !== null:
-                    const index = parseInt(target.closest('.kanji-cell').dataset.index, 10);
-                    currentDetailIndex = index;
-                    lastScrollPosition = window.scrollY; // <<<< FIX: Save scroll position
-                    renderDetailView();
-                    showView('detail-view');
-                    window.scrollTo({ top: 0, behavior: 'auto' }); // <<<< FIX: Scroll new view to top
-                    break;
-                case targetId === 'back-to-grid-from-detail': // <<<< FIX: Handle this case separately
-                    showView('grid-view');
-                    renderGridView();
-                    // <<<< FIX: Restore scroll position instantly
-                    window.scrollTo({ top: lastScrollPosition, behavior: 'auto' });
-                    break;
-                case targetId === 'back-to-grid-from-fc' || targetId === 'back-to-grid-from-quiz':
-                    showView('grid-view');
-                    renderGridView();
-                    break;
-                case target.closest('.tab-btn') !== null: break;
-                case targetId === 'mark-as-learned-btn':
-                    if (currentDetailIndex !== -1 && !kanjiProgress[currentDetailIndex].learned) {
-                        kanjiProgress[currentDetailIndex].learned = true;
-                        saveProgress();
-                        updateDetailContent(currentDetailIndex);
-                        renderGridView();
-                    }
-                    break;
-                case targetId === 'start-flashcard-btn': renderFlashcardView(); break;
-                case target.closest('#fc-card-container') !== null: break;
-                case targetId === 'fc-prev-btn': if (currentFlashcardIndex > 0) { currentFlashcardIndex--; updateFlashcard(); } break;
-                case targetId === 'fc-next-btn': if (currentFlashcardIndex < kanjiData.length - 1) { currentFlashcardIndex++; updateFlashcard(); } break;
-                case targetId === 'start-vocab-quiz-btn':
-                    let allVocabs = getEligibleVocabForQuiz();
-
-                    for (let i = allVocabs.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [allVocabs[i], allVocabs[j]] = [allVocabs[j], allVocabs[i]];
-                    }
-                    quizItems = allVocabs.slice(0, vocabQuizSettings.questionCount); 
-                    if (quizItems.length < 4) {
-                        alert('Bạn cần chọn ít nhất 4 từ vựng để bắt đầu kiểm tra. Hãy thử thay đổi bộ lọc.');
-                        return;
-                    }
-                    renderQuizView('vocab');
-                    currentQuizIndex = 0;
-                    displayVocabQuestion();
-                    break;
-                case targetId === 'start-hv-quiz-btn':
-                    quizItems = kanjiData
-                        .map((k, i) => ({...k, sourceKanjiIndex: i, learned: kanjiProgress[i].learned}))
-                        .filter(k => k.learned); 
-                    
-                    for (let i = quizItems.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [quizItems[i], quizItems[j]] = [quizItems[j], quizItems[i]];
-                    }
-                    
-                    if (quizItems.length === 0) {
-                        alert('Bạn cần học ít nhất 1 Hán tự để bắt đầu kiểm tra Hán-Việt.');
-                        return;
-                    }
-
-                    renderQuizView('hv');
-                    currentQuizIndex = 0;
-                    displayHVQuestion();
-                    break;
-                case target.closest('.quiz-option') !== null: break;
-                case targetId === 'next-question-btn':
-                    currentQuizIndex++;
-                    quizView.querySelector('#next-question-btn').classList.add('hidden');
-                    quizView.querySelector('h1').textContent.includes('Từ vựng') ? displayVocabQuestion() : displayHVQuestion();
-                    break;
-                case targetId === 'finish-quiz-btn': 
-                    showView('grid-view'); 
-                    renderGridView();
-                    break;
-                case targetId === 'close-settings-btn' || targetId === 'save-settings-btn': closeSettingsModal(); break;
-                case targetId === 'reset-progress-btn': openConfirmModal(); break;
-                case targetId === 'cancel-delete-btn' || target.id === 'confirm-modal': closeConfirmModal(); break;
-                case targetId === 'confirm-delete-btn':
-                    kanjiProgress = kanjiData.map(k => ({
-                        learned: false,
-                        progress: {
-                            hanviet: false,
-                            vocab: Array.isArray(k.vocab) ? k.vocab.map(() => false) : []
-                        }
-                    }));
-                    saveProgress();
-                    renderGridView();
-                    closeConfirmModal();
-                    if(!settingsModal.classList.contains('hidden')) closeSettingsModal();
-                    break;
-            }
-        });
-        
-
-        window.onload = () => {
-            loadData();
+function openSettingsModal() {
+    settingsModal.querySelector(`input[name="flashcard_front"][value="${appSettings.flashcardFront}"]`).checked = true;
+    
+    const themeBtns = settingsModal.querySelectorAll('.theme-btn');
+    themeBtns.forEach(btn => {
+        const isActive = btn.dataset.theme === appSettings.theme;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+    themeBtns.forEach(btn => {
+        btn.onclick = () => {
+            appSettings.theme = btn.dataset.theme;
             applyTheme();
-            renderGridView();
-            showView('grid-view');
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
-
-            // --- Scroll to Top Logic ---
-            const scrollToTopBtn = document.getElementById('scroll-to-top-btn');
-
-            if (scrollToTopBtn) {
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 400) {
-                        scrollToTopBtn.classList.remove('invisible', 'opacity-0', 'scale-90');
-                    } else {
-                        scrollToTopBtn.classList.add('invisible', 'opacity-0', 'scale-90');
-                    }
-                });
-
-                scrollToTopBtn.addEventListener('click', () => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                });
-            }
-
-            // --- FAB Menu Logic ---
-            const fabMenuContainer = document.getElementById('fab-menu-container');
-            const fabMainBtn = document.getElementById('fab-main-btn');
-            const fabOpenIcon = document.getElementById('fab-open-icon');
-            const fabCloseIcon = document.getElementById('fab-close-icon');
-
-            if (fabMainBtn) {
-                 fabMainBtn.addEventListener('click', (e) => {
-                     e.stopPropagation();
-                     fabMenuContainer.classList.toggle('active');
-                     fabMainBtn.classList.toggle('rotate-45');
-                     fabOpenIcon.classList.toggle('opacity-0');
-                     fabCloseIcon.classList.toggle('opacity-0');
-                 });
-            }
-
-            // --- Help & Author Modals Logic ---
-            const helpBtn = document.getElementById('help-btn');
-            const authorBtn = document.getElementById('author-btn');
-            const settingsBtnFab = document.getElementById('settings-btn-fab');
-            const helpModal = document.getElementById('help-modal');
-            const authorModal = document.getElementById('author-modal');
-            const closeHelpBtn = document.getElementById('close-help-modal-btn');
-            const closeAuthorBtn = document.getElementById('close-author-modal-btn');
-            
-            helpBtn?.addEventListener('click', () => openModal(helpModal));
-            authorBtn?.addEventListener('click', () => openModal(authorModal));
-            settingsBtnFab?.addEventListener('click', openSettingsModal);
-
-            closeHelpBtn?.addEventListener('click', () => closeModal(helpModal));
-            closeAuthorBtn?.addEventListener('click', () => closeModal(authorModal));
-            
-            helpModal?.addEventListener('click', (e) => {
-                if (e.target === helpModal) closeModal(helpModal);
-            });
-            authorModal?.addEventListener('click', (e) => {
-                if (e.target === authorModal) closeModal(authorModal);
-            });
-             settingsModal?.addEventListener('click', (e) => {
-                if(e.target === settingsModal) closeSettingsModal();
-            });
-            
-             // Close FAB menu when clicking outside
-            window.addEventListener('click', (e) => {
-                 if (fabMenuContainer.classList.contains('active') && !fabMenuContainer.contains(e.target)) {
-                    fabMenuContainer.classList.remove('active');
-                    fabMainBtn.classList.remove('rotate-45');
-                    fabOpenIcon.classList.remove('opacity-0');
-                    fabCloseIcon.classList.add('opacity-0');
-                 }
-            });
         };
+    });
+    openModal(settingsModal);
+}
+
+function closeSettingsModal() {
+    appSettings.flashcardFront = settingsModal.querySelector('input[name="flashcard_front"]:checked').value;
+    saveSettings();
+    closeModal(settingsModal);
+}
+
+function openConfirmModal() {
+    openModal(confirmModal);
+}
+function closeConfirmModal() {
+    closeModal(confirmModal);
+}
+       
+// --- VOCAB QUIZ FILTER LOGIC (Unchanged) ---
+let vocabQuizFilterState = {
+    kanji: "",
+    learned: true,
+    mastered: true
+};
+let vocabQuizFinalSelection = null;
+let modalSelectionState = {};
+
+const getVocabKey = (kIdx, vIdx) => `${kIdx}-${vIdx}`;
+
+function openVocabFilterModal() {
+    modalSelectionState = {};
+    const allEligibleVocab = getEligibleVocabForQuiz(true);
+
+    allEligibleVocab.forEach(vocab => {
+        const key = getVocabKey(vocab.sourceKanjiIndex, vocab.vocabIdx);
+        if (Array.isArray(vocabQuizFinalSelection)) {
+            modalSelectionState[key] = vocabQuizFinalSelection.some(
+                sel => sel.sourceKanjiIndex === vocab.sourceKanjiIndex && sel.vocabIdx === vocab.vocabIdx
+            );
+        } else {
+            modalSelectionState[key] = true;
+        }
+    });
+    
+    renderVocabQuizFilterModal();
+    openModal(document.getElementById('vocab-quiz-filter-modal'));
+}
+
+function renderVocabQuizFilterModal() {
+    const tbody = document.getElementById('vocab-quiz-filter-list');
+    const kanjiSelect = document.getElementById('vocab-quiz-filter-kanji');
+    
+    kanjiSelect.innerHTML = `<option value="">-- Tất cả --</option>`;
+    kanjiData.forEach((k, idx) => {
+        const prog = kanjiProgress[idx];
+        const total = 1 + (k.vocab ? k.vocab.length : 0);
+        let masteredCount = (prog.progress.hanviet ? 1 : 0) + (prog.progress.vocab ? prog.progress.vocab.filter(Boolean).length : 0);
+        const mastered = masteredCount === total && total > 0;
+        if (prog.learned || mastered) {
+            kanjiSelect.innerHTML += `<option value="${idx}">${k.char} - ${k.name}</option>`;
+        }
+    });
+    kanjiSelect.value = vocabQuizFilterState.kanji;
+    document.getElementById('vocab-quiz-filter-learned').checked = vocabQuizFilterState.learned;
+    document.getElementById('vocab-quiz-filter-mastered').checked = vocabQuizFilterState.mastered;
+
+    tbody.innerHTML = '';
+    const vocabsToShow = getVisibleVocabsInModal();
+
+    vocabsToShow.forEach(vocab => {
+        const key = getVocabKey(vocab.sourceKanjiIndex, vocab.vocabIdx);
+        const isChecked = modalSelectionState[key];
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="p-2 text-center">
+                <input type="checkbox" class="vocab-quiz-filter-checkbox" data-key="${key}" ${isChecked ? 'checked' : ''}>
+            </td>
+            <td class="p-2 text-xl font-bold">${vocab.kanjiChar}</td>
+            <td class="p-2">${vocab.word}</td>
+            <td class="p-2 text-rose-600">${vocab.reading}</td>
+            <td class="p-2">${vocab.meaning}</td>
+            <td class="p-2">${vocab.mastered ? '<span class="text-green-600 font-semibold">Đã thuộc</span>' : (vocab.learned ? '<span class="text-orange-500 font-semibold">Đã học</span>' : '')}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function getVisibleVocabsInModal() {
+    let vocabs = [];
+    kanjiProgress.forEach((prog, idx) => {
+        const k = kanjiData[idx];
+        const total = 1 + (k.vocab ? k.vocab.length : 0);
+        let masteredCount = (prog.progress.hanviet ? 1 : 0) + (prog.progress.vocab ? prog.progress.vocab.filter(Boolean).length : 0);
+        const mastered = masteredCount === total && total > 0;
+        
+        if (vocabQuizFilterState.kanji && vocabQuizFilterState.kanji !== idx.toString()) return;
+        if (!vocabQuizFilterState.learned && prog.learned && !mastered) return;
+        if (!vocabQuizFilterState.mastered && mastered) return;
+        if (!prog.learned && !mastered) return;
+
+        if (k.vocab && k.vocab.length) {
+            k.vocab.forEach((v, vi) => {
+                const vocabMastered = prog.progress.vocab && prog.progress.vocab[vi];
+                if (!vocabQuizFilterState.learned && prog.learned && !vocabMastered) return;
+                if (!vocabQuizFilterState.mastered && vocabMastered) return;
+                if (!prog.learned && !vocabMastered) return;
+                vocabs.push({
+                    ...v,
+                    sourceKanjiIndex: idx, vocabIdx: vi,
+                    kanjiChar: k.char, kanjiName: k.name,
+                    mastered: vocabMastered, learned: prog.learned
+                });
+            });
+        }
+    });
+    return vocabs;
+}
+
+function getEligibleVocabForQuiz(getAll = false) {
+    let eligibleVocab = [];
+    kanjiProgress.forEach((prog, idx) => {
+        const k = kanjiData[idx];
+        if (k.vocab && k.vocab.length) {
+            k.vocab.forEach((v, vi) => {
+                if(prog.learned) {
+                     const item = { ...v, sourceKanjiIndex: idx, vocabIdx: vi };
+                     if (!getAll && Array.isArray(vocabQuizFinalSelection)) {
+                         if (vocabQuizFinalSelection.some(sel => sel.sourceKanjiIndex === idx && sel.vocabIdx === vi)) {
+                             eligibleVocab.push(item);
+                         }
+                     } else {
+                         eligibleVocab.push(item);
+                     }
+                }
+            });
+        }
+    });
+    return eligibleVocab;
+}
+
+function updateQuizButtonState() {
+    const vocabsForQuiz = getEligibleVocabForQuiz();
+    if (startVocabQuizBtn) {
+        startVocabQuizBtn.disabled = vocabsForQuiz.length < 4;
+    }
+    if (quizPromptText) {
+        if (vocabsForQuiz.length < 4) {
+            quizPromptText.textContent = `Cần ít nhất 4 từ vựng để bắt đầu. Hiện có ${vocabsForQuiz.length} từ.`;
+        } else {
+            quizPromptText.textContent = `Sẵn sàng kiểm tra với ${vocabsForQuiz.length} từ!`;
+        }
+    }
+}
+
+document.addEventListener('click', (e) => {
+    const targetId = e.target.closest('button')?.id;
+    if (targetId === 'vocab-quiz-filter-btn') {
+        openVocabFilterModal();
+    } else if (targetId === 'close-vocab-quiz-filter-btn') {
+        closeModal(document.getElementById('vocab-quiz-filter-modal'));
+    } else if (targetId === 'vocab-quiz-filter-selectall-btn') {
+        document.querySelectorAll('.vocab-quiz-filter-checkbox').forEach(cb => {
+            cb.checked = true;
+            modalSelectionState[cb.dataset.key] = true;
+        });
+    } else if (targetId === 'vocab-quiz-filter-clear-btn') {
+        document.querySelectorAll('.vocab-quiz-filter-checkbox').forEach(cb => {
+            cb.checked = false;
+            modalSelectionState[cb.dataset.key] = false;
+        });
+    } else if (targetId === 'vocab-quiz-filter-apply-btn') {
+        const allPossibleVocabs = getEligibleVocabForQuiz(true);
+        const selectedItems = Object.keys(modalSelectionState).filter(key => modalSelectionState[key]);
+        
+        if (selectedItems.length === allPossibleVocabs.length) {
+            vocabQuizFinalSelection = null;
+        } else {
+            vocabQuizFinalSelection = selectedItems.map(key => {
+                const [kIdx, vIdx] = key.split('-').map(Number);
+                return { sourceKanjiIndex: kIdx, vocabIdx: vIdx };
+            });
+        }
+        
+        closeModal(document.getElementById('vocab-quiz-filter-modal'));
+        updateQuizButtonState();
+    }
+});
+
+document.getElementById('vocab-quiz-filter-list').addEventListener('change', (e) => {
+    if (e.target.classList.contains('vocab-quiz-filter-checkbox')) {
+        const key = e.target.dataset.key;
+        modalSelectionState[key] = e.target.checked;
+    }
+});
+
+document.getElementById('vocab-quiz-filter-kanji').addEventListener('change', (e) => {
+     vocabQuizFilterState.kanji = e.target.value;
+     renderVocabQuizFilterModal();
+});
+document.getElementById('vocab-quiz-filter-learned').addEventListener('change', (e) => {
+     vocabQuizFilterState.learned = e.target.checked;
+     renderVocabQuizFilterModal();
+});
+document.getElementById('vocab-quiz-filter-mastered').addEventListener('change', (e) => {
+     vocabQuizFilterState.mastered = e.target.checked;
+     renderVocabQuizFilterModal();
+});
+// --- END: VOCAB QUIZ FILTER LOGIC ---
+
+
+// UPDATED: Main click handler
+document.addEventListener('click', (e) => {
+    const target = e.target;
+    const closestButton = target.closest('button');
+    const targetId = target.id || closestButton?.id;
+    switch(true) {
+        case target.closest('.kanji-cell') !== null:
+            const index = parseInt(target.closest('.kanji-cell').dataset.index, 10);
+            currentDetailIndex = index;
+            renderDetailView();
+            showView('detail-view');
+            break;
+        case targetId === 'back-to-grid-from-detail' || targetId === 'back-to-grid-from-fc' || targetId === 'back-to-grid-from-quiz':
+            showView('grid-view');
+            renderGridView(); // Re-render to show potential progress updates
+            break;
+        case target.closest('.tab-btn') !== null: break;
+        case targetId === 'mark-as-learned-btn':
+            if (currentDetailIndex !== -1 && !kanjiProgress[currentDetailIndex].learned) {
+                kanjiProgress[currentDetailIndex].learned = true;
+                saveProgress();
+                updateDetailContent(currentDetailIndex);
+                // No need to render full grid here, it will be updated on back
+            }
+            break;
+        case targetId === 'start-flashcard-btn': renderFlashcardView(); break;
+        case target.closest('#fc-card-container') !== null: break;
+        case targetId === 'fc-prev-btn': if (currentFlashcardIndex > 0) { currentFlashcardIndex--; updateFlashcard(); } break;
+        case targetId === 'fc-next-btn': if (currentFlashcardIndex < kanjiData.length - 1) { currentFlashcardIndex++; updateFlashcard(); } break;
+        case targetId === 'start-vocab-quiz-btn':
+            let allVocabs = getEligibleVocabForQuiz();
+
+            for (let i = allVocabs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allVocabs[i], allVocabs[j]] = [allVocabs[j], allVocabs[i]];
+            }
+            quizItems = allVocabs.slice(0, vocabQuizSettings.questionCount); 
+            if (quizItems.length < 4) {
+                alert('Bạn cần chọn ít nhất 4 từ vựng để bắt đầu kiểm tra. Hãy thử thay đổi bộ lọc.');
+                return;
+            }
+            renderQuizView('vocab');
+            currentQuizIndex = 0;
+            displayVocabQuestion();
+            break;
+        case targetId === 'start-hv-quiz-btn':
+            quizItems = kanjiData
+                .map((k, i) => ({...k, sourceKanjiIndex: i, learned: kanjiProgress[i].learned}))
+                .filter(k => k.learned); 
+            
+            for (let i = quizItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [quizItems[i], quizItems[j]] = [quizItems[j], quizItems[i]];
+            }
+            
+            if (quizItems.length === 0) {
+                alert('Bạn cần học ít nhất 1 Hán tự để bắt đầu kiểm tra Hán-Việt.');
+                return;
+            }
+
+            renderQuizView('hv');
+            currentQuizIndex = 0;
+            displayHVQuestion();
+            break;
+        case target.closest('.quiz-option') !== null: break;
+        case targetId === 'next-question-btn':
+            currentQuizIndex++;
+            quizView.querySelector('#next-question-btn').classList.add('hidden');
+            quizView.querySelector('h1').textContent.includes('Từ vựng') ? displayVocabQuestion() : displayHVQuestion();
+            break;
+        case targetId === 'finish-quiz-btn': 
+            showView('grid-view'); 
+            renderGridView();
+            break;
+        case targetId === 'close-settings-btn' || targetId === 'save-settings-btn': closeSettingsModal(); break;
+        case targetId === 'reset-progress-btn': openConfirmModal(); break;
+        case targetId === 'cancel-delete-btn' || target.id === 'confirm-modal': closeConfirmModal(); break;
+        case targetId === 'confirm-delete-btn':
+            kanjiProgress = kanjiData.map(k => ({
+                learned: false,
+                progress: {
+                    hanviet: false,
+                    vocab: Array.isArray(k.vocab) ? k.vocab.map(() => false) : []
+                }
+            }));
+            saveProgress();
+            renderGridView();
+            closeConfirmModal();
+            if(!settingsModal.classList.contains('hidden')) closeSettingsModal();
+            break;
+    }
+});
+        
+
+window.onload = () => {
+    loadData();
+    applyTheme();
+    renderGridView();
+    // No initial showView call needed, default state is correct.
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+
+    const scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+    if (scrollToTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                scrollToTopBtn.classList.remove('invisible', 'opacity-0', 'scale-90');
+            } else {
+                scrollToTopBtn.classList.add('invisible', 'opacity-0', 'scale-90');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+
+    const fabMenuContainer = document.getElementById('fab-menu-container');
+    const fabMainBtn = document.getElementById('fab-main-btn');
+    const fabOpenIcon = document.getElementById('fab-open-icon');
+    const fabCloseIcon = document.getElementById('fab-close-icon');
+
+    if (fabMainBtn) {
+         fabMainBtn.addEventListener('click', (e) => {
+             e.stopPropagation();
+             fabMenuContainer.classList.toggle('active');
+             fabMainBtn.classList.toggle('rotate-45');
+             fabOpenIcon.classList.toggle('opacity-0');
+             fabCloseIcon.classList.toggle('opacity-0');
+         });
+    }
+
+    const helpBtn = document.getElementById('help-btn');
+    const authorBtn = document.getElementById('author-btn');
+    const settingsBtnFab = document.getElementById('settings-btn-fab');
+    const helpModal = document.getElementById('help-modal');
+    const authorModal = document.getElementById('author-modal');
+    const closeHelpBtn = document.getElementById('close-help-modal-btn');
+    const closeAuthorBtn = document.getElementById('close-author-modal-btn');
+    
+    helpBtn?.addEventListener('click', () => openModal(helpModal));
+    authorBtn?.addEventListener('click', () => openModal(authorModal));
+    settingsBtnFab?.addEventListener('click', openSettingsModal);
+
+    closeHelpBtn?.addEventListener('click', () => closeModal(helpModal));
+    closeAuthorBtn?.addEventListener('click', () => closeModal(authorModal));
+    
+    helpModal?.addEventListener('click', (e) => {
+        if (e.target === helpModal) closeModal(helpModal);
+    });
+    authorModal?.addEventListener('click', (e) => {
+        if (e.target === authorModal) closeModal(authorModal);
+    });
+     settingsModal?.addEventListener('click', (e) => {
+        if(e.target === settingsModal) closeSettingsModal();
+    });
+    
+    window.addEventListener('click', (e) => {
+         if (fabMenuContainer.classList.contains('active') && !fabMenuContainer.contains(e.target)) {
+            fabMenuContainer.classList.remove('active');
+            fabMainBtn.classList.remove('rotate-45');
+            fabOpenIcon.classList.remove('opacity-0');
+            fabCloseIcon.classList.add('opacity-0');
+         }
+    });
+};
     </script>
 </body>
 </html>
