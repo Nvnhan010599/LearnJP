@@ -227,9 +227,6 @@ function cleanJapaneseTerm(rawTerm) {
     }
 }
 
-/**
- * Cập nhật hiển thị của ô chọn chiều (direction).
- */
 function updateDirectionVisibility() {
     const directionSelect = document.getElementById('direction');
     const quizMode = document.getElementById('quizMode').value;
@@ -377,10 +374,6 @@ function startPackage(lesson, packageIndex) {
     updateBackButton();
 }
 
-/**
- * **HÀM MỚI**: Hiển thị màn hình chờ trước khi bắt đầu chế độ ôn tập.
- * @param {string} title - Tiêu đề của chế độ ôn tập (ví dụ: "Tổng kết").
- */
 function showReviewModeStartScreen(title) {
     const container = document.getElementById('cardContainer');
     container.innerHTML = `
@@ -408,8 +401,52 @@ function startInfiniteChallenge(lessonNum) {
     updateBackButton();
     updateStats();
     
-    // **THAY ĐỔI**: Hiển thị màn hình bắt đầu thay vì câu hỏi ngay lập tức
     showReviewModeStartScreen(`Thử thách vô hạn Bài ${lessonNum}`);
+}
+
+/**
+ * **HÀM MỚI**: Hiển thị danh sách từ vựng của gói vừa hoàn thành.
+ */
+function reviewPackageWords() {
+    const container = document.getElementById('cardContainer');
+    const totalWordsInLesson = (allWords.get(currentLesson) || []).length;
+    const totalPackages = Math.ceil(totalWordsInLesson / PACKAGE_SIZE);
+
+    let reviewHtml = `
+        <div class="card">
+            <h3>Từ vựng Gói ${currentPackageIndex + 1}</h3>
+            <table class="review-table">
+                <thead>
+                    <tr>
+                        <th>Tiếng Nhật</th>
+                        <th>Nghĩa Tiếng Việt</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    sessionWords.forEach(word => {
+        const japaneseTerm = word.kanji ? `${word.term} (${word.kanji})` : word.term;
+        reviewHtml += `
+            <tr>
+                <td>${japaneseTerm}</td>
+                <td>${word.meaning}</td>
+            </tr>
+        `;
+    });
+
+    reviewHtml += `
+                </tbody>
+            </table>
+    `;
+
+    if (currentPackageIndex + 1 < totalPackages) {
+        reviewHtml += `<button class="action-btn" onclick="startPackage('${currentLesson}', ${currentPackageIndex + 1})">Học Gói tiếp theo</button>`;
+    }
+    reviewHtml += `<button class="back-button" onclick="displayPackageSelection('${currentLesson}')">Quay lại chọn gói</button>`;
+    
+    reviewHtml += `</div>`;
+    container.innerHTML = reviewHtml;
 }
 
 
@@ -454,13 +491,19 @@ function showNextCard() {
         if (allMasteredInPackage) {
             const totalWordsInLesson = (allWords.get(currentLesson) || []).length;
             const totalPackages = Math.ceil(totalWordsInLesson / PACKAGE_SIZE);
+            
             let completionHtml = `<div class="card result-feedback"><p class="feedback-correct">🎉 Chúc mừng! Bạn đã hoàn thành Gói ${currentPackageIndex + 1}.</p>`;
+            
+            // **THAY ĐỔI**: Thêm nút xem lại
+            completionHtml += `<button class="action-btn review-btn" onclick="reviewPackageWords()">📝 Xem lại từ vựng</button>`;
+
             if (currentPackageIndex + 1 < totalPackages) {
                 completionHtml += `<button class="action-btn" onclick="startPackage('${currentLesson}', ${currentPackageIndex + 1})">Học Gói tiếp theo</button>`;
             } else {
                 completionHtml += `<p>Bạn đã hoàn thành tất cả các gói cho Bài ${currentLesson}!</p>`;
             }
             completionHtml += `<button class="back-button" onclick="displayPackageSelection('${currentLesson}')">Quay lại chọn gói</button></div>`;
+            
             container.innerHTML = completionHtml;
             updateStats();
             return;
@@ -734,7 +777,6 @@ function initSessionForSummary() {
     updateDirectionVisibility();
     updateBackButton();
     
-    // **THAY ĐỔI**: Hiển thị màn hình bắt đầu
     const masteredCount = sessionWords.length;
     showReviewModeStartScreen(`Tổng kết (${masteredCount} từ)`);
 }
@@ -765,7 +807,6 @@ function onQuizModeChange() {
     quizMode = document.getElementById('quizMode').value;
     updateDirectionVisibility();
     
-    // Nếu đang ở màn hình chờ, không làm gì cả
     if(document.querySelector('.review-start-screen')) return;
 
     if (sessionWords.length > 0 || quizQueue.length > 0) showNextCard();
@@ -774,7 +815,6 @@ function onQuizModeChange() {
 function onDirectionChange() {
     currentDirection = document.getElementById('direction').value;
 
-    // Nếu đang ở màn hình chờ, không làm gì cả
     if(document.querySelector('.review-start-screen')) return;
 
     if (sessionWords.length > 0 || quizQueue.length > 0) showNextCard();
@@ -990,7 +1030,7 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
 .footer-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
 .footer-btn:hover { background: var(--bg-card); color: var(--text-primary); }
 .back-button, .action-btn { width: 100%; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; border: none; }
-.back-button { background: rgba(108, 117, 125, 0.5); color: var(--text-primary); }
+.back-button { background: rgba(108, 117, 125, 0.5); color: var(--text-primary); margin-top: 10px; }
 .action-btn { background: var(--primary-gradient); color: white; margin-top: 15px; }
 .action-btn:hover { transform: scale(1.02); opacity: 0.9; }
 .mastered-tag { color: var(--success-color); }
@@ -1002,23 +1042,17 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
 .feedback-correct { font-size: 1.2rem; font-weight: bold; color: var(--success-color); }
 .feedback-incorrect { font-size: 1.2rem; font-weight: bold; color: var(--error-color); }
 
-/* **CSS MỚI**: Màn hình bắt đầu ôn tập */
-.review-start-screen {
-    text-align: center;
-}
-.review-start-screen h3 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-}
-.review-start-screen p {
-    color: var(--text-secondary);
-    margin-bottom: 25px;
-}
-.review-start-screen .action-btn {
-    width: auto;
-    padding: 12px 30px;
-    font-size: 1.1rem;
-}
+.review-start-screen { text-align: center; }
+.review-start-screen h3 { font-size: 1.5rem; margin-bottom: 10px; }
+.review-start-screen p { color: var(--text-secondary); margin-bottom: 25px; }
+.review-start-screen .action-btn { width: auto; padding: 12px 30px; font-size: 1.1rem; }
+
+/* **CSS MỚI** */
+.review-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 16px; }
+.review-table th, .review-table td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: left; }
+.review-table th { background-color: var(--bg-main); font-weight: 700; }
+.action-btn.review-btn { background: var(--warning-color); color: var(--text-primary); margin-top: 15px; margin-bottom: 10px; }
+.result-feedback > .action-btn.review-btn { margin-top: 0; }
 
 @media (max-width: 600px) {
     body { padding: 5px; }
@@ -1030,25 +1064,8 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
     .lesson-controls { flex-direction: column; }
     .header-top h1 { font-size: 1.5rem; }
 }
-/* Định dạng cho vùng chứa nút để căn lề trái và tạo khoảng cách */
-.header-nav { 
-    text-align: left; 
-    margin-bottom: 15px; 
-}
-
-/* Định dạng cho chính liên kết "Quay lại trang chủ" */
-.back-to-home { 
-    text-decoration: none;      /* Bỏ gạch chân mặc định của liên kết */
-    color: var(--text-accent);  /* Dùng màu nhấn của theme (xanh dương hoặc sáng hơn) */
-    font-weight: 500;           /* Độ đậm vừa phải */
-    font-size: 14px;            /* Cỡ chữ nhỏ */
-    transition: color 0.2s ease;/* Hiệu ứng chuyển màu mượt mà */
-}
-
-/* Định dạng khi người dùng di chuột qua liên kết */
-.back-to-home:hover { 
-    color: var(--text-primary); /* Đổi sang màu chữ chính của theme */
-    text-decoration: underline; /* Thêm lại gạch chân để báo hiệu có thể nhấn */
-}
+.header-nav { text-align: left; margin-bottom: 15px; }
+.back-to-home { text-decoration: none; color: var(--text-accent); font-weight: 500; font-size: 14px; transition: color 0.2s ease; }
+.back-to-home:hover { color: var(--text-primary); text-decoration: underline; }
 `;
 document.head.appendChild(style);
