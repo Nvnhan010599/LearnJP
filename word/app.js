@@ -147,6 +147,7 @@ let quizMode = "multipleChoice";
 let isShowingResult = false;
 let currentDirection = "jpToVn";
 let sessionWords = [];
+let quizQueue = []; // <-- BIẾN MỚI: Hàng đợi câu hỏi cho chế độ Tổng kết và Thử thách
 let usedWords = [];
 let currentCard = null;
 let currentPackageIndex = 0;
@@ -203,37 +204,24 @@ function romajiToHiragana(text) {
     return result;
 }
 
-/**
- * HÀM MỚI: Dọn dẹp và chuẩn hóa từ vựng tiếng Nhật từ file Excel.
- * Chức năng: Loại bỏ thể từ điển, nhóm động từ (I, II, III) và chỉ giữ lại thể lịch sự (~masu).
- * @param {string} rawTerm - Chuỗi từ vựng thô từ file Excel.
- * @returns {string} Chuỗi từ vựng đã được làm sạch.
- */
 function cleanJapaneseTerm(rawTerm) {
     if (!rawTerm) return '';
 
     let prefix = '';
     let mainPart = rawTerm.trim();
 
-    // Xử lý các tiền tố trong ngoặc, ví dụ: [こどもが～]
     const bracketMatch = mainPart.match(/^(\[.*?\]\s*)/);
     if (bracketMatch) {
         prefix = bracketMatch[1];
         mainPart = mainPart.substring(prefix.length).trim();
     }
 
-    // Tách các phần của từ bằng khoảng trắng
     const parts = mainPart.split(/\s+/).filter(p => p);
-
-    // Ưu tiên tìm thể lịch sự (kết thúc bằng ます)
     const politeForm = parts.find(p => p.endsWith('ます'));
 
     if (politeForm) {
-        // Nếu tìm thấy, đây là dạng từ chúng ta muốn giữ lại
         return (prefix + politeForm).trim();
     } else {
-        // Nếu không có thể ~masu (ví dụ: danh từ, tính từ),
-        // thì chỉ cần loại bỏ các ký hiệu nhóm động từ La Mã.
         const filteredParts = parts.filter(p => !/^(I|II|III)$/.test(p.trim()));
         return (prefix + filteredParts.join(' ')).trim();
     }
@@ -256,11 +244,8 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
         allWords = new Map();
         jsonData.slice(1).forEach(row => {
             const lesson = (row[LESSON_COLUMN]?.toString() || '0').trim();
-            
-            // **NÂNG CẤP: Sử dụng hàm dọn dẹp dữ liệu**
             const rawTerm = (row[JP_WORD_COLUMN] || '').trim();
-            const term = cleanJapaneseTerm(rawTerm); // <-- Áp dụng hàm làm sạch
-            
+            const term = cleanJapaneseTerm(rawTerm);
             const kanji = (row[KANJI_COLUMN] || '').trim();
             const meaning = (row[VN_WORD_COLUMN] || '').trim();
 
@@ -367,6 +352,7 @@ function startPackage(lesson, packageIndex) {
     const startIndex = packageIndex * PACKAGE_SIZE;
     const endIndex = startIndex + PACKAGE_SIZE;
     sessionWords = wordsInLesson.slice(startIndex, endIndex);
+    quizQueue = []; // Xóa hàng đợi cũ
     usedWords = [];
     showNextCard();
     updateBackButton();
@@ -376,10 +362,15 @@ function startInfiniteChallenge(lessonNum) {
     currentLesson = `infinite_challenge_${lessonNum}`;
     sessionWords = allWords.get(lessonNum) || [];
     usedWords = [];
+
     if (sessionWords.length === 0) {
         document.getElementById('cardContainer').innerHTML = `<p class="placeholder-text">Bài ${lessonNum} không có từ vựng để thử thách vô hạn.</p>`;
         return;
     }
+    
+    // **THAY ĐỔI**: Tạo hàng đợi câu hỏi ban đầu
+    quizQueue = shuffleArray([...sessionWords]);
+
     showNextCard();
     updateBackButton();
     updateStats();
@@ -404,21 +395,30 @@ function showNextCard() {
     clearInterval(timerInterval);
 
     const container = document.getElementById('cardContainer');
-    if (!sessionWords || sessionWords.length === 0) return;
-
     let availableWords;
+
+    // **THAY ĐỔI**: Logic mới cho chế độ Tổng kết và Thử thách vô hạn
     if (currentLesson === 'summary' || currentLesson.startsWith('infinite_challenge_')) {
-        availableWords = sessionWords.filter(word => !usedWords.slice(-3).includes(word));
-        if (availableWords.length === 0 && sessionWords.length > 0) {
-            usedWords = [];
-            availableWords = sessionWords;
-        }
-        if (!availableWords || availableWords.length === 0) {
-            container.innerHTML = `<p>🎉 Bạn đã ôn tập hết các từ trong phiên này.</p>`;
+        // Nếu hàng đợi rỗng, tạo lại một vòng mới
+        if (!quizQueue || quizQueue.length === 0) {
+            // Nếu không còn từ nào trong phiên (ví dụ: mục tổng kết bị trả lời sai hết)
+            if (sessionWords.length === 0) {
+                 container.innerHTML = `<p class="placeholder-text">🎉 Bạn đã ôn tập hết các từ trong phiên này.</p>`;
+                 return;
+            }
+            console.log("Hết vòng! Xáo trộn và bắt đầu lại...");
+            container.innerHTML = `<div class="card result-feedback"><p class="feedback-correct">🎉 Hết vòng! Bắt đầu lại...</p></div>`;
+            quizQueue = shuffleArray([...sessionWords]);
+            setTimeout(() => showNextCard(), 1500); // Chờ một chút rồi hiển thị thẻ mới
             return;
         }
-    } 
-    else {
+        
+        // Lấy từ tiếp theo từ hàng đợi
+        currentCard = quizQueue.shift();
+
+    } else { // Logic cũ cho chế độ học theo gói
+        if (!sessionWords || sessionWords.length === 0) return;
+
         const allMasteredInPackage = sessionWords.every(word => word.mastered);
         if (allMasteredInPackage) {
             const totalWordsInLesson = (allWords.get(currentLesson) || []).length;
@@ -439,19 +439,17 @@ function showNextCard() {
             usedWords = [];
             availableWords = sessionWords.filter(word => !word.mastered);
         }
-    }
-
-    if (!availableWords || availableWords.length === 0) {
-        if (currentLesson !== 'summary' && !currentLesson.startsWith('infinite_challenge_')) {
+        
+        if (!availableWords || availableWords.length === 0) {
             displayPackageSelection(currentLesson);
-        } else {
-            container.innerHTML = `<p>🎉 Bạn đã ôn tập hết các từ trong phiên này.</p>`;
+            return;
         }
-        return;
+
+        currentCard = availableWords[Math.floor(Math.random() * availableWords.length)];
+        usedWords.push(currentCard);
     }
     
-    currentCard = availableWords[Math.floor(Math.random() * availableWords.length)];
-    usedWords.push(currentCard);
+    // Phần hiển thị thẻ không đổi
     if (quizMode === "input") {
         showInputCard(currentCard);
     } else {
@@ -559,17 +557,19 @@ function handleChoiceClick(button, selectedValue, correctAnswer, isReverse) {
 
     let delayBeforeNextAction = 1000;
 
-    if (isCorrectAttempt) {
-        delayBeforeNextAction = 1000;
-    } else if (currentLesson === 'summary' && !isCorrectAttempt) { 
+    // **THAY ĐỔI**: Logic khi trả lời sai trong mục Tổng kết
+    if (currentLesson === 'summary' && !isCorrectAttempt) { 
         const originalLesson = currentCard.lesson;
+        // Xóa từ khỏi phiên tổng kết hiện tại
         sessionWords = sessionWords.filter(word => word.term !== currentCard.term); 
+        // Không cần xóa khỏi quizQueue vì nó sẽ được tạo lại từ sessionWords ở vòng sau
+        
         setTimeout(() => {
             document.getElementById('cardContainer').innerHTML = `<div class="card result-feedback"><p class="feedback-incorrect">🔴 Trả lời sai!</p><p>Từ này đã được chuyển về <strong>Bài ${originalLesson}</strong> để ôn tập lại.</p></div>`;
             setTimeout(() => { showNextCard(); updateStats(); updateLessonDropdown(); }, 2500);
         }, 1500);
         return; 
-    } else { 
+    } else if (!isCorrectAttempt) { 
         delayBeforeNextAction = 2000;
     }
 
@@ -694,6 +694,10 @@ function initSessionForSummary() {
         document.getElementById('cardContainer').innerHTML = '<p class="placeholder-text">Chưa có từ nào được học thuộc để tổng kết.</p>';
         return;
     }
+    
+    // **THAY ĐỔI**: Tạo hàng đợi câu hỏi ban đầu
+    quizQueue = shuffleArray([...sessionWords]);
+
     showNextCard();
 }
 
@@ -702,6 +706,7 @@ function onLessonChange() {
     clearInterval(timerInterval);
     currentPackageIndex = 0;
     sessionWords = [];
+    quizQueue = []; // Xóa hàng đợi khi đổi bài
 
     const selectedValue = document.getElementById('lessonSelect').value;
     
@@ -720,12 +725,12 @@ function onLessonChange() {
 function onQuizModeChange() {
     quizMode = document.getElementById('quizMode').value;
     document.getElementById('direction').style.display = quizMode === "input" ? "inline-block" : "none";
-    if (sessionWords.length > 0) showNextCard();
+    if (sessionWords.length > 0 || quizQueue.length > 0) showNextCard();
 }
 
 function onDirectionChange() {
     currentDirection = document.getElementById('direction').value;
-    if (sessionWords.length > 0) showNextCard();
+    if (sessionWords.length > 0 || quizQueue.length > 0) showNextCard();
 }
 
 function updateBackButton() {
@@ -745,6 +750,7 @@ function resetToHome() {
     document.getElementById('lessonSelect').value = '';
     currentLesson = null;
     sessionWords = [];
+    quizQueue = [];
     updateBackButton();
     if (currentUser) {
         document.getElementById('cardContainer').innerHTML = '<p class="placeholder-text">Vui lòng chọn một bài học để bắt đầu.</p>';
@@ -822,7 +828,7 @@ function updateThemeButton() {
         themeToggleBtn.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="bi bi-moon-stars-fill">
               <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
-              <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162h1.212a.217.217 0 0 1 .134.386l-.979.713.387 1.162a.217.217 0 0 1-.316.242l-.979-.712-1.03.752a.217.217 0 0 1-.316-.242l.387-1.162-.979-.713a.217.217 0 0 1 .134-.386h1.212l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a.715.715 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a.715.715 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+              <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162h1.212a.217.217 0 0 1 .134.386l-.979.713.387 1.162a.217.217 0 0 1-.316.242l-.979-.712-1.03.752a.217.217 0 0 1-.316-.242l.387-1.162-.979-.713a.217.217 0 0 1 .134-.386h1.212l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a.715.715 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a.715.715 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774.258c.346-.115.617-.386.732-.732L13.863.1z"/>
             </svg>
             <span>Giao diện Tối</span>
         `;
@@ -944,6 +950,9 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
 .mastered-tag, .review-tag { font-size: 0.8rem; vertical-align: middle; font-family: var(--font-heading); }
 .placeholder-text { text-align: center; color: var(--text-secondary); padding: 40px 20px; }
 .infinite-challenge-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); text-align: center; }
+.card.result-feedback { text-align: center; }
+.feedback-correct { font-size: 1.2rem; font-weight: bold; color: var(--success-color); }
+.feedback-incorrect { font-size: 1.2rem; font-weight: bold; color: var(--error-color); }
 @media (max-width: 600px) {
     body { padding: 5px; }
     .container { padding: 15px; }
