@@ -147,7 +147,7 @@ let quizMode = "multipleChoice";
 let isShowingResult = false;
 let currentDirection = "jpToVn";
 let sessionWords = [];
-let quizQueue = []; // <-- BIẾN MỚI: Hàng đợi câu hỏi cho chế độ Tổng kết và Thử thách
+let quizQueue = []; 
 let usedWords = [];
 let currentCard = null;
 let currentPackageIndex = 0;
@@ -224,6 +224,21 @@ function cleanJapaneseTerm(rawTerm) {
     } else {
         const filteredParts = parts.filter(p => !/^(I|II|III)$/.test(p.trim()));
         return (prefix + filteredParts.join(' ')).trim();
+    }
+}
+
+/**
+ * Cập nhật hiển thị của ô chọn chiều (direction).
+ */
+function updateDirectionVisibility() {
+    const directionSelect = document.getElementById('direction');
+    const quizMode = document.getElementById('quizMode').value;
+    const isReviewMode = currentLesson === 'summary' || currentLesson.startsWith('infinite_challenge_');
+
+    if (quizMode === 'input' || (quizMode === 'multipleChoice' && isReviewMode)) {
+        directionSelect.style.display = 'inline-block';
+    } else {
+        directionSelect.style.display = 'none';
     }
 }
 
@@ -305,6 +320,8 @@ function updateLessonDropdown() {
 function displayPackageSelection(lesson) {
     clearTimeout(quizTimer);
     clearInterval(timerInterval);
+    updateDirectionVisibility();
+    
     const wordsInLesson = allWords.get(lesson) || [];
     const totalWords = wordsInLesson.length;
 
@@ -352,10 +369,27 @@ function startPackage(lesson, packageIndex) {
     const startIndex = packageIndex * PACKAGE_SIZE;
     const endIndex = startIndex + PACKAGE_SIZE;
     sessionWords = wordsInLesson.slice(startIndex, endIndex);
-    quizQueue = []; // Xóa hàng đợi cũ
+    quizQueue = []; 
     usedWords = [];
+    
+    updateDirectionVisibility();
     showNextCard();
     updateBackButton();
+}
+
+/**
+ * **HÀM MỚI**: Hiển thị màn hình chờ trước khi bắt đầu chế độ ôn tập.
+ * @param {string} title - Tiêu đề của chế độ ôn tập (ví dụ: "Tổng kết").
+ */
+function showReviewModeStartScreen(title) {
+    const container = document.getElementById('cardContainer');
+    container.innerHTML = `
+        <div class="card review-start-screen">
+            <h3>${title}</h3>
+            <p>Sẵn sàng để ôn tập? Hãy kiểm tra các cài đặt bên trên và nhấn bắt đầu.</p>
+            <button class="action-btn" onclick="showNextCard()">🚀 Bắt đầu</button>
+        </div>
+    `;
 }
 
 function startInfiniteChallenge(lessonNum) {
@@ -368,12 +402,14 @@ function startInfiniteChallenge(lessonNum) {
         return;
     }
     
-    // **THAY ĐỔI**: Tạo hàng đợi câu hỏi ban đầu
     quizQueue = shuffleArray([...sessionWords]);
-
-    showNextCard();
+    
+    updateDirectionVisibility();
     updateBackButton();
     updateStats();
+    
+    // **THAY ĐỔI**: Hiển thị màn hình bắt đầu thay vì câu hỏi ngay lập tức
+    showReviewModeStartScreen(`Thử thách vô hạn Bài ${lessonNum}`);
 }
 
 
@@ -397,11 +433,8 @@ function showNextCard() {
     const container = document.getElementById('cardContainer');
     let availableWords;
 
-    // **THAY ĐỔI**: Logic mới cho chế độ Tổng kết và Thử thách vô hạn
     if (currentLesson === 'summary' || currentLesson.startsWith('infinite_challenge_')) {
-        // Nếu hàng đợi rỗng, tạo lại một vòng mới
         if (!quizQueue || quizQueue.length === 0) {
-            // Nếu không còn từ nào trong phiên (ví dụ: mục tổng kết bị trả lời sai hết)
             if (sessionWords.length === 0) {
                  container.innerHTML = `<p class="placeholder-text">🎉 Bạn đã ôn tập hết các từ trong phiên này.</p>`;
                  return;
@@ -409,14 +442,12 @@ function showNextCard() {
             console.log("Hết vòng! Xáo trộn và bắt đầu lại...");
             container.innerHTML = `<div class="card result-feedback"><p class="feedback-correct">🎉 Hết vòng! Bắt đầu lại...</p></div>`;
             quizQueue = shuffleArray([...sessionWords]);
-            setTimeout(() => showNextCard(), 1500); // Chờ một chút rồi hiển thị thẻ mới
+            setTimeout(() => showNextCard(), 1500); 
             return;
         }
-        
-        // Lấy từ tiếp theo từ hàng đợi
         currentCard = quizQueue.shift();
 
-    } else { // Logic cũ cho chế độ học theo gói
+    } else { 
         if (!sessionWords || sessionWords.length === 0) return;
 
         const allMasteredInPackage = sessionWords.every(word => word.mastered);
@@ -449,7 +480,6 @@ function showNextCard() {
         usedWords.push(currentCard);
     }
     
-    // Phần hiển thị thẻ không đổi
     if (quizMode === "input") {
         showInputCard(currentCard);
     } else {
@@ -468,22 +498,30 @@ function showNextCard() {
 
 function showMultipleChoiceCard(card) {
     let isReverse;
-    const { jpToVn, vnToJp } = card.srs;
-    const needsJpVn = jpToVn < 3;
-    const needsVnJp = vnToJp < 3;
+
+    const isReviewMode = currentLesson === 'summary' || currentLesson.startsWith('infinite_challenge_');
     
-    if (needsJpVn && needsVnJp) {
-        isReverse = Math.random() < 0.5;
-    } else if (needsVnJp) {
-        isReverse = true;
+    if (isReviewMode) {
+        const directionValue = document.getElementById('direction').value;
+        isReverse = (directionValue === 'vnToJp');
     } else {
-        isReverse = false;
+        const { jpToVn, vnToJp } = card.srs;
+        const needsJpVn = jpToVn < 3;
+        const needsVnJp = vnToJp < 3;
+        
+        if (needsJpVn && needsVnJp) {
+            isReverse = Math.random() < 0.5;
+        } else if (needsVnJp) {
+            isReverse = true;
+        } else {
+            isReverse = false;
+        }
     }
 
     const displayText = isReverse ? card.meaning : (card.kanji ? `${card.term} (${card.kanji})` : card.term);
     const correctAnswer = isReverse ? (card.kanji ? `${card.term} (${card.kanji})` : card.term) : card.meaning;
     const choices = generateChoices(isReverse, card);
-    const statusTag = card.mastered ? '<span class="mastered-tag">✓ Đã thuộc</span>' : (jpToVn > 0 || vnToJp > 0 ? '<span class="review-tag">⏳ Đang học...</span>' : '');
+    const statusTag = card.mastered ? '<span class="mastered-tag">✓ Đã thuộc</span>' : (card.srs.jpToVn > 0 || card.srs.vnToJp > 0 ? '<span class="review-tag">⏳ Đang học...</span>' : '');
     
     document.getElementById('cardContainer').innerHTML = `
         <div class="card">
@@ -557,12 +595,9 @@ function handleChoiceClick(button, selectedValue, correctAnswer, isReverse) {
 
     let delayBeforeNextAction = 1000;
 
-    // **THAY ĐỔI**: Logic khi trả lời sai trong mục Tổng kết
     if (currentLesson === 'summary' && !isCorrectAttempt) { 
         const originalLesson = currentCard.lesson;
-        // Xóa từ khỏi phiên tổng kết hiện tại
         sessionWords = sessionWords.filter(word => word.term !== currentCard.term); 
-        // Không cần xóa khỏi quizQueue vì nó sẽ được tạo lại từ sessionWords ở vòng sau
         
         setTimeout(() => {
             document.getElementById('cardContainer').innerHTML = `<div class="card result-feedback"><p class="feedback-incorrect">🔴 Trả lời sai!</p><p>Từ này đã được chuyển về <strong>Bài ${originalLesson}</strong> để ôn tập lại.</p></div>`;
@@ -689,16 +724,19 @@ function initSessionForSummary() {
     currentLesson = 'summary';
     sessionWords = getMasteredWords();
     usedWords = [];
-    updateBackButton();
+    
     if (sessionWords.length === 0) {
         document.getElementById('cardContainer').innerHTML = '<p class="placeholder-text">Chưa có từ nào được học thuộc để tổng kết.</p>';
         return;
     }
     
-    // **THAY ĐỔI**: Tạo hàng đợi câu hỏi ban đầu
     quizQueue = shuffleArray([...sessionWords]);
-
-    showNextCard();
+    updateDirectionVisibility();
+    updateBackButton();
+    
+    // **THAY ĐỔI**: Hiển thị màn hình bắt đầu
+    const masteredCount = sessionWords.length;
+    showReviewModeStartScreen(`Tổng kết (${masteredCount} từ)`);
 }
 
 function onLessonChange() {
@@ -706,7 +744,7 @@ function onLessonChange() {
     clearInterval(timerInterval);
     currentPackageIndex = 0;
     sessionWords = [];
-    quizQueue = []; // Xóa hàng đợi khi đổi bài
+    quizQueue = []; 
 
     const selectedValue = document.getElementById('lessonSelect').value;
     
@@ -720,22 +758,31 @@ function onLessonChange() {
     }
     updateBackButton();
     updateStats();
+    updateDirectionVisibility();
 }
 
 function onQuizModeChange() {
     quizMode = document.getElementById('quizMode').value;
-    document.getElementById('direction').style.display = quizMode === "input" ? "inline-block" : "none";
+    updateDirectionVisibility();
+    
+    // Nếu đang ở màn hình chờ, không làm gì cả
+    if(document.querySelector('.review-start-screen')) return;
+
     if (sessionWords.length > 0 || quizQueue.length > 0) showNextCard();
 }
 
 function onDirectionChange() {
     currentDirection = document.getElementById('direction').value;
+
+    // Nếu đang ở màn hình chờ, không làm gì cả
+    if(document.querySelector('.review-start-screen')) return;
+
     if (sessionWords.length > 0 || quizQueue.length > 0) showNextCard();
 }
 
 function updateBackButton() {
     const container = document.getElementById('backButtonContainer');
-    if (currentLesson && currentLesson !== 'summary' && !currentLesson.startsWith('infinite_challenge_') && sessionWords.length > 0) {
+    if (currentLesson && currentLesson !== 'summary' && !currentLesson.startsWith('infinite_challenge_')) {
         container.innerHTML = `<button class="back-button" onclick="displayPackageSelection('${currentLesson}')">← Quay lại chọn gói</button>`;
     } else if (currentLesson) {
         container.innerHTML = `<button class="back-button" onclick="resetToHome()">← Quay lại danh sách bài</button>`;
@@ -756,6 +803,7 @@ function resetToHome() {
         document.getElementById('cardContainer').innerHTML = '<p class="placeholder-text">Vui lòng chọn một bài học để bắt đầu.</p>';
     }
     updateStats();
+    updateDirectionVisibility();
 }
 
 function exportData() {
@@ -953,6 +1001,25 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
 .card.result-feedback { text-align: center; }
 .feedback-correct { font-size: 1.2rem; font-weight: bold; color: var(--success-color); }
 .feedback-incorrect { font-size: 1.2rem; font-weight: bold; color: var(--error-color); }
+
+/* **CSS MỚI**: Màn hình bắt đầu ôn tập */
+.review-start-screen {
+    text-align: center;
+}
+.review-start-screen h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+.review-start-screen p {
+    color: var(--text-secondary);
+    margin-bottom: 25px;
+}
+.review-start-screen .action-btn {
+    width: auto;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+
 @media (max-width: 600px) {
     body { padding: 5px; }
     .container { padding: 15px; }

@@ -13,7 +13,6 @@
 <body>
     <div class="container">
         <header>
-            <!-- **THÊM LẠI NÚT QUAY LẠI TRANG CHỦ** -->
             <div class="header-nav">
                 <a href="../index.html" class="back-to-home">&larr; Quay lại trang chủ</a>
             </div>
@@ -40,7 +39,8 @@
                 <option value="input">Nhập nghĩa</option>
             </select>
             
-            <select id="direction" onchange="onDirectionChange()">
+            <!-- Ô chọn chiều, ẩn đi theo mặc định và sẽ được JS điều khiển -->
+            <select id="direction" onchange="onDirectionChange()" style="display: none;">
                 <option value="jpToVn">Nhật ➔ Việt</option>
                 <option value="vnToJp">Việt ➔ Nhật</option>
             </select>
@@ -80,7 +80,7 @@
         </footer>
     </div>
 
-    <!-- Firebase SDK (Sử dụng phiên bản 8 để tương thích với cú pháp trong app.js) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
