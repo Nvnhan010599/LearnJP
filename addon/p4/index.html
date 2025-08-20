@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark"> <!-- Bắt đầu với dark mode -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học 130 Động Từ N5</title>
+    <!-- Sử dụng Tailwind CSS cho giao diện hiện đại -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thư viện icon -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- File dữ liệu động từ -->
+    <script src="data.js"></script>
+    <style>
+        /* --- Hiệu ứng nền động --- */
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            background: linear-gradient(-45deg, #1a202c, #2d3748, #4a5568, #2c5282);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: #e2e8f0;
+            transition: background-color 0.5s;
+        }
+        
+        html.light body {
+             background: linear-gradient(-45deg, #e0e7ff, #c7d2fe, #a5b4fc, #818cf8);
+             background-size: 400% 400%;
+             animation: gradient 15s ease infinite;
+             color: #1f2937;
+        }
+
+        /* --- Phong cách Glassmorphism --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.25rem; /* 20px */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        html.light .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        /* Tùy chỉnh thanh cuộn */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+        /* --- Tùy chỉnh các thành phần --- */
+        .nav-item {
+            @apply flex items-center px-4 py-3 text-gray-300 hover:text-white rounded-lg cursor-pointer transition-all duration-200;
+        }
+        html.light .nav-item {
+             @apply text-gray-600 hover:text-black;
+        }
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.7);
+            @apply text-white font-semibold shadow-lg;
+        }
+        html.light .nav-item.active {
+             background: rgba(99, 102, 241, 1);
+        }
+
+        .btn-primary {
+            @apply px-5 py-2.5 bg-indigo-500 text-white font-semibold rounded-xl shadow-lg hover:bg-indigo-600 focus:outline-none focus:ring-4 focus:ring-indigo-400 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105;
+        }
+        .btn-secondary {
+            @apply px-5 py-2.5 bg-white/20 text-white font-semibold rounded-xl shadow-md hover:bg-white/30 focus:outline-none focus:ring-4 focus:ring-white/30 focus:ring-opacity-75 transition-all duration-300;
+        }
+        html.light .btn-secondary {
+             @apply bg-black/10 text-black/80 hover:bg-black/20;
+        }
+        
+        .note-editor {
+            min-height: 80px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 12px;
+            outline: none;
+        }
+        html.light .note-editor {
+            background: rgba(255,255,255,0.5);
+            border-color: rgba(0,0,0,0.1);
+        }
+        
+        #theme-toggle:checked + div .dot {
+            transform: translateX(24px);
+        }
+        
+        /* --- Modal Style --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+
+    </style>
+</head>
+<body class="font-sans">
+
+    <div id="app" class="flex h-screen">
+        <!-- Thanh điều hướng bên trái -->
+        <nav class="w-64 p-4 m-4 glass-card flex-shrink-0 flex flex-col">
+            <h1 class="text-2xl font-bold text-white mb-8 text-center">
+                N5 Verbs
+            </h1>
+            <ul class="space-y-2">
+                <li><a href="#" class="nav-item active" data-view="overview">
+                    <i data-lucide="layout-grid" class="mr-3 h-5 w-5"></i>Tổng quan</a>
+                </li>
+                <li><a href="#" class="nav-item" data-view="progress">
+                    <i data-lucide="pie-chart" class="mr-3 h-5 w-5"></i>Tiến độ</a>
+                </li>
+                <li><a href="#" class="nav-item" data-view="learn">
+                    <i data-lucide="graduation-cap" class="mr-3 h-5 w-5"></i>Học tập</a>
+                </li>
+                <li><a href="#" class="nav-item" data-view="te-form">
+                    <i data-lucide="puzzle" class="mr-3 h-5 w-5"></i>Trắc nghiệm Thể Tê</a>
+                </li>
+                <li><a href="#" class="nav-item" data-view="nai-form">
+                    <i data-lucide="puzzle" class="mr-3 h-5 w-5"></i>Trắc nghiệm Thể Nai</a>
+                </li>
+            </ul>
+            <div class="mt-auto">
+                 <a href="#" class="nav-item" data-view="settings">
+                    <i data-lucide="settings-2" class="mr-3 h-5 w-5"></i>Cài đặt</a>
+            </div>
+        </nav>
+
+        <!-- Nội dung chính -->
+        <main class="flex-1 p-8 pr-6 pl-0 overflow-y-auto">
+            <div id="view-overview" class="view"></div>
+            <div id="view-progress" class="view hidden"></div>
+            <div id="view-learn" class="view hidden"></div>
+            <div id="view-te-form" class="view hidden"></div>
+            <div id="view-nai-form" class="view hidden"></div>
+            <div id="view-settings" class="view hidden"></div>
+        </main>
+        
+        <!-- Modal Container -->
+        <div id="modal-container"></div>
+    </div>
+
+    <script>
+        // --- KHỞI TẠO VÀ QUẢN LÝ TRẠNG THÁI ---
+        const App = {
+            state: {
+                currentView: 'overview',
+                searchTerm: '', // Thêm dòng này
+                verbs: [],
+                settings: {
+                    theme: 'dark' // Bắt đầu với dark mode
+                },
+                quiz: {
+                    type: null, // 'te' or 'nai'
+                    questions: [],
+                    currentQuestionIndex: 0,
+                    correctAnswers: 0,
+                    showAnswer: false,
+                },
+                learn: {
+                    currentPackage: 0,
+                    wordsInPackage: [],
+                    currentWordIndex: 0,
+                    currentQuizType: 'hiragana', // 'hiragana' or 'kanji'
+                    showAnswer: false,
+                }
+            },
+
+            init() {
+                this.loadData();
+                this.loadSettings();
+                this.setupEventListeners();
+                this.render();
+                lucide.createIcons();
+            },
+
+            // --- QUẢN LÝ DỮ LIỆU (LOCALSTORAGE) ---
+            loadData() {
+                const savedData = localStorage.getItem('n5VerbData');
+                if (savedData) {
+                    this.state.verbs = JSON.parse(savedData);
+                } else {
+                    this.state.verbs = JSON.parse(JSON.stringify(n5Verbs));
+                }
+            },
+            saveData() {
+                localStorage.setItem('n5VerbData', JSON.stringify(this.state.verbs));
+            },
+            loadSettings() {
+                const savedSettings = localStorage.getItem('n5AppSettings');
+                if (savedSettings) {
+                    this.state.settings = JSON.parse(savedSettings);
+                }
+                this.applyTheme();
+            },
+            saveSettings() {
+                localStorage.setItem('n5AppSettings', JSON.stringify(this.state.settings));
+                this.applyTheme();
+            },
+            
+            // --- GẮN SỰ KIỆN ---
+            setupEventListeners() {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.state.currentView = e.currentTarget.dataset.view;
+                        this.render();
+                    });
+                });
+            },
+            
+            // --- CÁC HÀM RENDER ---
+            render() {
+                document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.toggle('active', item.dataset.view === this.state.currentView);
+                });
+
+                const currentViewEl = document.getElementById(`view-${this.state.currentView}`);
+                currentViewEl.classList.remove('hidden');
+                
+                switch(this.state.currentView) {
+                    case 'overview': this.renderOverview(); break;
+                    case 'progress': this.renderProgress(); break;
+                    case 'learn': this.renderLearn(); break;
+                    case 'te-form': this.renderQuiz('te'); break;
+                    case 'nai-form': this.renderQuiz('nai'); break;
+                    case 'settings': this.renderSettings(); break;
+                }
+                lucide.createIcons();
+            },
+
+            // --- RENDER CÁC VIEW CỤ THỂ ---
+
+            // 1. TỔNG QUAN
+            renderOverview() {
+                const container = document.getElementById('view-overview');
+                const searchBox = container.querySelector('#search-verbs');
+                const cursorPosition = searchBox ? searchBox.selectionStart : 0;
+                
+                const filteredVerbs = this.state.verbs.filter(verb => {
+                    const searchTerm = this.state.searchTerm.toLowerCase();
+                    return searchTerm === '' || 
+                           verb.kanji.toLowerCase().includes(searchTerm) ||
+                           verb.hiragana.toLowerCase().includes(searchTerm) ||
+                           verb.meaning.toLowerCase().includes(searchTerm);
+                });
+
+                // Chỉ render lại bảng kết quả nếu đã có container
+                if (container.querySelector('.verb-table-container')) {
+                    const tableContainer = container.querySelector('.verb-table-container');
+                    tableContainer.innerHTML = `
+                        <table class="w-full text-left">
+                            <thead class="sticky top-0 bg-indigo-100 dark:bg-slate-800 border-b border-slate-300 dark:border-white/10">
+                                <tr>
+                                    <th class="p-4 w-16">STT</th>
+                                    <th class="p-4">Kanji</th>
+                                    <th class="p-4">Hiragana</th>
+                                    <th class="p-4">Nghĩa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filteredVerbs.map(verb => `
+                                    <tr class="border-t border-white/10 hover:bg-white/10 cursor-pointer" data-verb-id="${verb.id}" ondblclick="App.showVerbModal(${verb.id})">
+                                        <td class="p-4 font-semibold">${verb.id}</td>
+                                        <td class="p-4 text-lg font-bold">${verb.kanji}</td>
+                                        <td class="p-4">${verb.hiragana}</td>
+                                        <td class="p-4 text-indigo-300">${verb.meaning}</td>
+                                    </tr>
+                                `).join('')}
+                                ${filteredVerbs.length === 0 ? `
+                                    <tr>
+                                        <td colspan="4" class="text-center p-8 text-gray-400">
+                                            ${this.state.searchTerm ? 'Không tìm thấy kết quả phù hợp.' : 'Không có dữ liệu.'}
+                                        </td>
+                                    </tr>
+                                ` : ''}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    // Render toàn bộ view lần đầu tiên
+                    container.innerHTML = `
+                        <div class="mb-6 space-y-4">
+                            <h2 class="text-4xl font-bold text-white">Tổng quan 130 động từ</h2>
+                            <div class="glass-card p-3 flex items-center space-x-3 max-w-md">
+                                <i data-lucide="search" class="w-5 h-5 text-gray-400"></i>
+                                <input 
+                                    type="text" 
+                                    id="search-verbs" 
+                                    placeholder="Tìm kiếm theo kanji, hiragana hoặc nghĩa..." 
+                                    class="w-full bg-transparent border-none outline-none text-white placeholder-gray-400"
+                                    value="${this.state.searchTerm}">
+                                ${this.state.searchTerm ? `
+                                    <button id="clear-search" class="text-gray-400 hover:text-white">
+                                        <i data-lucide="x" class="w-5 h-5"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="glass-card h-[calc(100vh-12rem)] overflow-auto verb-table-container">
+                            <table class="w-full text-left">
+                                <thead class="sticky top-0 bg-indigo-100 dark:bg-slate-800 border-b border-slate-300 dark:border-white/10">
+                                    <tr>
+                                        <th class="p-4 w-16">STT</th>
+                                        <th class="p-4">Kanji</th>
+                                        <th class="p-4">Hiragana</th>
+                                        <th class="p-4">Nghĩa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${filteredVerbs.map(verb => `
+                                        <tr class="border-t border-white/10 hover:bg-white/10 cursor-pointer" data-verb-id="${verb.id}" ondblclick="App.showVerbModal(${verb.id})">
+                                            <td class="p-4 font-semibold">${verb.id}</td>
+                                            <td class="p-4 text-lg font-bold">${verb.kanji}</td>
+                                            <td class="p-4">${verb.hiragana}</td>
+                                            <td class="p-4 text-indigo-300">${verb.meaning}</td>
+                                        </tr>
+                                    `).join('')}
+                                    ${filteredVerbs.length === 0 ? `
+                                        <tr>
+                                            <td colspan="4" class="text-center p-8 text-gray-400">
+                                                ${this.state.searchTerm ? 'Không tìm thấy kết quả phù hợp.' : 'Không có dữ liệu.'}
+                                            </td>
+                                        </tr>
+                                    ` : ''}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+
+                    // Gắn event listeners lần đầu
+                    const searchInput = container.querySelector('#search-verbs');
+                    searchInput.addEventListener('input', (e) => {
+                        this.state.searchTerm = e.target.value;
+                        this.renderOverview();
+                    });
+
+                    const clearButton = container.querySelector('#clear-search');
+                    if (clearButton) {
+                        clearButton.addEventListener('click', () => {
+                            this.state.searchTerm = '';
+                            this.renderOverview();
+                        });
+                    }
+                }
+
+                // Khôi phục focus và vị trí con trỏ
+                const newSearchBox = container.querySelector('#search-verbs');
+                if (newSearchBox) {
+                    newSearchBox.focus();
+                    newSearchBox.setSelectionRange(cursorPosition, cursorPosition);
+                }
+
+                lucide.createIcons();
+            },
+            
+            showVerbModal(verbId) {
+                const verb = this.state.verbs.find(v => v.id === verbId);
+                if (!verb) return;
+
+                const modalContainer = document.getElementById('modal-container');
+                modalContainer.innerHTML = `
+                    <div id="modal-overlay" class="modal-overlay visible" onclick="App.closeVerbModal()">
+                        <div class="modal-content glass-card w-full max-w-2xl m-4" onclick="event.stopPropagation()">
+                            <div class="p-6 space-y-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-3xl font-bold text-white">${verb.kanji} <span class="text-xl font-normal text-gray-300">${verb.hiragana}</span></p>
+                                        <p class="text-2xl text-indigo-300 font-semibold">${verb.meaning}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm font-bold bg-white/20 text-white px-3 py-1 rounded-full">Nhóm ${verb.group}</span>
+                                        <button onclick="App.closeVerbModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-gray-300 pt-2">
+                                    <p><strong class="font-semibold text-gray-200 block">Từ điển:</strong> ${verb.dictionaryForm}</p>
+                                    <p><strong class="font-semibold text-gray-200 block">Thể て:</strong> ${verb.teForm}</p>
+                                    <p><strong class="font-semibold text-gray-200 block">Thể ない:</strong> ${verb.naiForm}</p>
+                                </div>
+                                <p class="text-md italic text-gray-400"><strong>Ví dụ:</strong> ${verb.example}</p>
+                                
+                                <!-- Mini Editor cho Ghi chú -->
+                                <div class="pt-3">
+                                    <label class="font-semibold text-sm mb-2 block text-gray-200">Ghi chú:</label>
+                                    <div class="flex items-center space-x-2 mb-2 p-2 bg-black/20 rounded-lg">
+                                        <button class="editor-btn p-1.5 rounded hover:bg-white/20" data-command="bold" data-verb-id="${verb.id}"><i data-lucide="bold" class="w-4 h-4"></i></button>
+                                        <button class="editor-btn p-1.5 rounded hover:bg-white/20" data-command="italic" data-verb-id="${verb.id}"><i data-lucide="italic" class="w-4 h-4"></i></button>
+                                        <button class="editor-btn p-1.5 rounded hover:bg-white/20" data-command="underline" data-verb-id="${verb.id}"><i data-lucide="underline" class="w-4 h-4"></i></button>
+                                        <div class="h-5 w-px bg-white/20"></div>
+                                        <button class="color-btn w-5 h-5 rounded-full ring-2 ring-transparent hover:ring-white" style="background-color:#FBBF24" data-color="#FBBF24" data-verb-id="${verb.id}"></button>
+                                        <button class="color-btn w-5 h-5 rounded-full ring-2 ring-transparent hover:ring-white" style="background-color:#4ADE80" data-color="#4ADE80" data-verb-id="${verb.id}"></button>
+                                        <button class="color-btn w-5 h-5 rounded-full ring-2 ring-transparent hover:ring-white" style="background-color:#F87171" data-color="#F87171" data-verb-id="${verb.id}"></button>
+                                        <button class="color-btn w-5 h-5 rounded-full ring-2 ring-transparent hover:ring-white" style="background-color:#A78BFA" data-color="#A78BFA" data-verb-id="${verb.id}"></button>
+                                        <input type="color" class="custom-color-picker w-6 h-6 p-0 border-none rounded-full cursor-pointer bg-transparent" data-verb-id="${verb.id}" value="#60A5FA">
+                                    </div>
+                                    <div id="note-editor-modal-${verb.id}" contenteditable="true" class="note-editor text-white" data-verb-id="${verb.id}">${verb.note || ''}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+                this.setupModalListeners(verb.id);
+            },
+            
+            closeVerbModal() {
+                const modalOverlay = document.getElementById('modal-overlay');
+                if (modalOverlay) {
+                    modalOverlay.classList.remove('visible');
+                    setTimeout(() => {
+                        modalOverlay.parentElement.innerHTML = '';
+                    }, 300); // Wait for transition to finish
+                }
+            },
+            
+            setupModalListeners(verbId) {
+                const editor = document.getElementById(`note-editor-modal-${verbId}`);
+                editor.addEventListener('blur', (e) => {
+                    const verb = this.state.verbs.find(v => v.id === verbId);
+                    if (verb) {
+                        verb.note = e.target.innerHTML;
+                        this.saveData();
+                    }
+                });
+
+                const modal = document.querySelector('.modal-content');
+                modal.querySelectorAll('.editor-btn, .color-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const command = e.currentTarget.dataset.command || 'foreColor';
+                        const value = e.currentTarget.dataset.color || null;
+                        document.execCommand(command, false, value);
+                        editor.focus();
+                    });
+                });
+
+                modal.querySelector('.custom-color-picker').addEventListener('input', (e) => {
+                    document.execCommand('foreColor', false, e.target.value);
+                    editor.focus();
+                });
+            },
+
+            // 2. TIẾN ĐỘ
+            renderProgress() {
+                const container = document.getElementById('view-progress');
+                const learnedCount = this.state.verbs.filter(v => (v.progress.hiragana >= 3 && v.progress.kanji >= 4)).length;
+                const totalCount = this.state.verbs.length;
+                const percentage = totalCount > 0 ? ((learnedCount / totalCount) * 100) : 0;
+
+                container.innerHTML = `
+                    <h2 class="text-4xl font-bold mb-8 text-white">Tiến độ học tập</h2>
+                    <div class="glass-card p-8 max-w-2xl mx-auto text-center">
+                        <p class="text-xl mb-4 text-gray-300">Bạn đã học được</p>
+                        <p class="text-7xl font-bold text-white">${learnedCount} <span class="text-5xl text-gray-400">/ ${totalCount}</span></p>
+                        <p class="text-xl mt-4 text-gray-300">động từ</p>
+                        <div class="w-full bg-black/20 rounded-full h-8 mt-8 overflow-hidden">
+                            <div class="bg-gradient-to-r from-green-400 to-blue-500 h-8 rounded-full flex items-center justify-center text-white font-bold transition-all duration-500" style="width: ${percentage.toFixed(1)}%">
+                                ${percentage.toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            // 3. HỌC TẬP
+            renderLearn() {
+                const container = document.getElementById('view-learn');
+                const wordsToLearn = this.state.verbs.filter(v => !(v.progress.hiragana >= 3 && v.progress.kanji >= 4));
+                
+                if (wordsToLearn.length === 0) {
+                    container.innerHTML = `
+                        <h2 class="text-4xl font-bold mb-8 text-white">Học tập</h2>
+                        <div class="glass-card p-8 text-center">
+                            <i data-lucide="party-popper" class="mx-auto h-16 w-16 text-yellow-300 mb-4"></i>
+                            <h3 class="text-2xl font-bold text-white">Chúc mừng!</h3>
+                            <p class="mt-2 text-lg text-gray-300">Bạn đã học hết 130 động từ. Hãy tiếp tục ôn tập ở phần trắc nghiệm nhé!</p>
+                        </div>`;
+                    return;
+                }
+
+                const packages = [];
+                for (let i = 0; i < wordsToLearn.length; i += 5) {
+                    packages.push(wordsToLearn.slice(i, i + 5));
+                }
+                
+                if (!this.state.learn.wordsInPackage || this.state.learn.wordsInPackage.length === 0) {
+                     let html = `<h2 class="text-4xl font-bold mb-8 text-white">Chọn gói học</h2>
+                                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">`;
+                    packages.forEach((pkg, index) => {
+                        const start = this.state.verbs.indexOf(pkg[0]) + 1;
+                        const end = this.state.verbs.indexOf(pkg[pkg.length - 1]) + 1;
+                        html += `<button class="btn-secondary p-6 text-lg" data-package-index="${index}">Gói ${start}-${end}</button>`;
+                    });
+                     html += `</div>`;
+                     container.innerHTML = html;
+
+                     document.querySelectorAll('[data-package-index]').forEach(btn => {
+                         btn.addEventListener('click', e => {
+                             const index = parseInt(e.currentTarget.dataset.packageIndex);
+                             this.state.learn.currentPackage = index;
+                             this.state.learn.wordsInPackage = packages[index];
+                             this.state.learn.currentWordIndex = 0;
+                             this.state.learn.currentQuizType = 'hiragana';
+                             this.renderLearnQuiz();
+                         });
+                     });
+                } else {
+                    this.renderLearnQuiz();
+                }
+            },
+            
+            renderLearnQuiz() {
+                const container = document.getElementById('view-learn');
+                const learnState = this.state.learn;
+                const currentWord = learnState.wordsInPackage[learnState.currentWordIndex];
+                
+                if (!currentWord) {
+                    learnState.wordsInPackage = [];
+                    this.renderLearn();
+                    return;
+                }
+
+                const question = learnState.currentQuizType === 'hiragana' ? currentWord.hiragana : currentWord.kanji;
+                const progress = learnState.currentQuizType === 'hiragana' ? currentWord.progress.hiragana : currentWord.progress.kanji;
+                const target = learnState.currentQuizType === 'hiragana' ? 3 : 4;
+
+                const wrongOptions = this.state.verbs.filter(v => v.id !== currentWord.id).sort(() => 0.5 - Math.random()).slice(0, 3).map(v => v.meaning);
+                const options = [currentWord.meaning, ...wrongOptions].sort(() => 0.5 - Math.random());
+
+                let html = `
+                    <div class="max-w-2xl mx-auto">
+                        <div class="flex justify-between items-center mb-4">
+                             <h2 class="text-3xl font-bold text-white">Học từ vựng</h2>
+                             <button id="back-to-packages" class="btn-secondary text-sm !px-3 !py-1.5">Chọn gói khác</button>
+                        </div>
+                        <div class="glass-card p-8">
+                            <p class="text-center text-gray-400 mb-2">
+                                ${learnState.currentQuizType === 'hiragana' ? 'Hiragana' : 'Kanji'} (${progress}/${target})
+                            </p>
+                            <p class="text-7xl font-bold text-center mb-8 text-white">${question}</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${options.map(opt => `<button class="learn-option-btn btn-secondary p-4 text-lg w-full">${opt}</button>`).join('')}
+                            </div>
+                            ${learnState.showAnswer ? `
+                                <div id="learn-feedback" class="mt-6 p-4 rounded-xl text-center ${learnState.lastAnswerCorrect ? 'bg-green-500/30 text-green-200' : 'bg-red-500/30 text-red-200'}">
+                                    <p class="font-bold text-lg">${learnState.lastAnswerCorrect ? 'Chính xác!' : 'Sai rồi!'}</p>
+                                    <p class="text-white">${currentWord.kanji} (${currentWord.hiragana}) : ${currentWord.meaning}</p>
+                                    <button id="next-learn-btn" class="btn-primary mt-4">Tiếp theo</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = html;
+
+                document.getElementById('back-to-packages').addEventListener('click', () => {
+                    this.state.learn.wordsInPackage = [];
+                    this.renderLearn();
+                });
+
+                if (learnState.showAnswer) {
+                    document.getElementById('next-learn-btn').addEventListener('click', () => this.nextLearnQuestion());
+                } else {
+                    document.querySelectorAll('.learn-option-btn').forEach(btn => {
+                        btn.addEventListener('click', e => this.checkLearnAnswer(e.target.textContent));
+                    });
+                }
+            },
+            
+            checkLearnAnswer(selectedAnswer) {
+                const learnState = this.state.learn;
+                const currentWord = learnState.wordsInPackage[learnState.currentWordIndex];
+                
+                learnState.showAnswer = true;
+                learnState.lastAnswerCorrect = selectedAnswer === currentWord.meaning;
+
+                if (learnState.lastAnswerCorrect) {
+                     if (learnState.currentQuizType === 'hiragana') currentWord.progress.hiragana++;
+                     else currentWord.progress.kanji++;
+                    this.saveData();
+                }
+                this.renderLearnQuiz();
+            },
+
+            nextLearnQuestion() {
+                const learnState = this.state.learn;
+                const currentWord = learnState.wordsInPackage[learnState.currentWordIndex];
+                learnState.showAnswer = false;
+
+                if (learnState.currentQuizType === 'hiragana' && currentWord.progress.hiragana >= 3) {
+                    learnState.currentQuizType = 'kanji';
+                } else if (learnState.currentQuizType === 'kanji' && currentWord.progress.kanji >= 4) {
+                    learnState.currentWordIndex++;
+                    learnState.currentQuizType = 'hiragana';
+                }
+                
+                this.renderLearnQuiz();
+            },
+
+            // 4 & 5. TRẮC NGHIỆM THỂ TÊ & NAI
+            renderQuiz(type) {
+                const container = document.getElementById(`view-${type}-form`);
+                
+                if (this.state.quiz.type !== type || this.state.quiz.questions.length === 0) {
+                    this.startQuiz(type);
+                }
+
+                const quizState = this.state.quiz;
+                const question = quizState.questions[quizState.currentQuestionIndex];
+
+                if (!question) {
+                    container.innerHTML = `
+                        <div class="glass-card p-8 text-center max-w-lg mx-auto">
+                            <h2 class="text-2xl font-bold text-white mb-4">Hoàn thành!</h2>
+                            <p class="text-lg mb-6 text-gray-300">Kết quả của bạn: <span class="font-bold text-green-300">${quizState.correctAnswers} / ${quizState.questions.length}</span></p>
+                            <button id="restart-quiz-btn" class="btn-primary">Làm lại</button>
+                        </div>
+                    `;
+                    document.getElementById('restart-quiz-btn').addEventListener('click', () => this.startQuiz(type));
+                    return;
+                }
+
+                const progressPercentage = (quizState.currentQuestionIndex / quizState.questions.length) * 100;
+
+                let html = `
+                    <h2 class="text-4xl font-bold mb-8 text-white">Trắc nghiệm Thể ${type.toUpperCase()}</h2>
+                    <div class="glass-card max-w-2xl mx-auto overflow-hidden">
+                        <div class="w-full bg-black/20 h-2.5">
+                           <div class="bg-indigo-500 h-2.5" style="width: ${progressPercentage}%"></div>
+                        </div>
+                        <div class="p-8">
+                            <p class="text-sm text-gray-400 text-right">Câu ${quizState.currentQuestionIndex + 1} / ${quizState.questions.length}</p>
+                            <p class="text-center text-lg my-4 text-gray-300">Chọn thể <strong>${type.toUpperCase()}</strong> của động từ:</p>
+                            <p class="text-7xl font-bold text-center mb-8 text-white">${question.verb.dictionaryForm}</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${question.options.map(opt => `<button class="quiz-option-btn btn-secondary p-4 text-lg w-full">${opt}</button>`).join('')}
+                            </div>
+                            ${quizState.showAnswer ? `
+                                <div id="quiz-feedback" class="mt-6 p-4 rounded-xl text-center ${quizState.lastAnswerCorrect ? 'bg-green-500/30 text-green-200' : 'bg-red-500/30 text-red-200'}">
+                                    <p class="font-bold text-lg">${quizState.lastAnswerCorrect ? 'Chính xác!' : 'Sai rồi!'}</p>
+                                    <p class="text-white">Đáp án đúng là: <strong class="text-xl">${question.correctAnswer}</strong></p>
+                                    <button id="next-quiz-btn" class="btn-primary mt-4">Tiếp theo</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = html;
+
+                if (quizState.showAnswer) {
+                    document.getElementById('next-quiz-btn').addEventListener('click', () => this.nextQuizQuestion());
+                } else {
+                    document.querySelectorAll('.quiz-option-btn').forEach(btn => {
+                        btn.addEventListener('click', e => this.checkQuizAnswer(e.target.textContent));
+                    });
+                }
+            },
+
+            startQuiz(type) {
+                this.state.quiz.type = type;
+                this.state.quiz.currentQuestionIndex = 0;
+                this.state.quiz.correctAnswers = 0;
+                this.state.quiz.showAnswer = false;
+
+                const shuffledVerbs = [...this.state.verbs].sort(() => 0.5 - Math.random());
+                this.state.quiz.questions = shuffledVerbs.map(verb => {
+                    const correctAnswer = type === 'te' ? verb.teForm : verb.naiForm;
+                    const wrongAnswers = this.state.verbs.filter(v => v.id !== verb.id).sort(() => 0.5 - Math.random()).slice(0, 3).map(v => type === 'te' ? v.teForm : v.naiForm);
+                    const options = [...new Set([correctAnswer, ...wrongAnswers])].sort(() => 0.5 - Math.random());
+                    while(options.length < 4) {
+                        const randomVerb = this.state.verbs[Math.floor(Math.random() * this.state.verbs.length)];
+                        const randomOption = type === 'te' ? randomVerb.teForm : randomVerb.naiForm;
+                        if (!options.includes(randomOption)) options.push(randomOption);
+                    }
+                    return { verb, correctAnswer, options: options.slice(0, 4) };
+                });
+                this.renderQuiz(type);
+            },
+
+            checkQuizAnswer(selectedAnswer) {
+                const quizState = this.state.quiz;
+                const question = quizState.questions[quizState.currentQuestionIndex];
+                quizState.showAnswer = true;
+                quizState.lastAnswerCorrect = selectedAnswer === question.correctAnswer;
+                if (quizState.lastAnswerCorrect) quizState.correctAnswers++;
+                this.renderQuiz(quizState.type);
+            },
+
+            nextQuizQuestion() {
+                this.state.quiz.currentQuestionIndex++;
+                this.state.quiz.showAnswer = false;
+                this.renderQuiz(this.state.quiz.type);
+            },
+
+            // 6. CÀI ĐẶT
+            renderSettings() {
+                const container = document.getElementById('view-settings');
+                const isDark = this.state.settings.theme === 'dark';
+                container.innerHTML = `
+                    <h2 class="text-4xl font-bold mb-8 text-white">Cài đặt</h2>
+                    <div class="space-y-8 max-w-2xl">
+                        <div class="glass-card p-6">
+                            <h3 class="text-xl font-semibold mb-4 text-white">Giao diện</h3>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-200">Giao diện tối</span>
+                                <label for="theme-toggle" class="flex items-center cursor-pointer">
+                                    <div class="relative">
+                                        <input type="checkbox" id="theme-toggle" class="sr-only" ${isDark ? 'checked' : ''}>
+                                        <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
+                                        <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform"></div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <h3 class="text-xl font-semibold mb-4 text-white">Quản lý dữ liệu</h3>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <button id="export-data" class="btn-primary flex-1"><i data-lucide="download" class="inline-block mr-2 h-5 w-5"></i>Xuất dữ liệu</button>
+                                <button id="import-data-btn" class="btn-secondary flex-1"><i data-lucide="upload" class="inline-block mr-2 h-5 w-5"></i>Nhập dữ liệu</button>
+                                <input type="file" id="import-file-input" class="hidden" accept=".json">
+                            </div>
+                             <p class="text-sm text-gray-400 mt-4">Lưu lại tiến trình học của bạn hoặc chuyển sang thiết bị khác.</p>
+                        </div>
+                        
+                        <div class="glass-card p-6">
+                           <h3 class="text-xl font-semibold mb-4 text-white">Thông tin tác giả</h3>
+                           <p class="text-gray-300">Trang web được thiết kế lại bởi Gemini theo phong cách Glassmorphism.</p>
+                           <p class="mt-2 text-gray-300">Mục tiêu: Giúp bạn chinh phục 130 động từ N5 một cách hiệu quả và vui vẻ.</p>
+                        </div>
+                    </div>
+                `;
+                this.setupSettingsListeners();
+            },
+
+            setupSettingsListeners() {
+                const toggle = document.getElementById('theme-toggle');
+                toggle.addEventListener('change', () => {
+                    this.state.settings.theme = toggle.checked ? 'dark' : 'light';
+                    this.saveSettings();
+                });
+
+                document.getElementById('export-data').addEventListener('click', () => {
+                    const dataStr = JSON.stringify(this.state.verbs);
+                    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', 'n5_verbs_progress.json');
+                    linkElement.click();
+                });
+
+                const importBtn = document.getElementById('import-data-btn');
+                const fileInput = document.getElementById('import-file-input');
+                importBtn.addEventListener('click', () => fileInput.click());
+
+                fileInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+                            if (Array.isArray(importedData) && importedData.length > 0 && 'kanji' in importedData[0]) {
+                                this.state.verbs = importedData;
+                                this.saveData();
+                                // Custom alert
+                                this.showCustomAlert('Nhập dữ liệu thành công! Trang sẽ được tải lại.');
+                                setTimeout(() => location.reload(), 2000);
+                            } else {
+                                this.showCustomAlert('Lỗi: File dữ liệu không hợp lệ.', 'error');
+                            }
+                        } catch (error) {
+                            this.showCustomAlert('Lỗi: Không thể đọc file. Vui lòng kiểm tra lại định dạng file JSON.', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                });
+            },
+
+            // --- TIỆN ÍCH ---
+            applyTheme() {
+                const html = document.documentElement;
+                if (this.state.settings.theme === 'dark') {
+                    html.classList.add('dark');
+                    html.classList.remove('light');
+                } else {
+                    html.classList.add('light');
+                    html.classList.remove('dark');
+                }
+            },
+            
+            showCustomAlert(message, type = 'success') {
+                const alertEl = document.createElement('div');
+                alertEl.style.position = 'fixed';
+                alertEl.style.top = '20px';
+                alertEl.style.right = '20px';
+                alertEl.style.padding = '16px 24px';
+                alertEl.style.borderRadius = '12px';
+                alertEl.style.color = 'white';
+                alertEl.style.zIndex = '1000';
+                alertEl.style.opacity = '0';
+                alertEl.style.transition = 'opacity 0.3s';
+                alertEl.textContent = message;
+
+                if (type === 'success') {
+                    alertEl.style.backgroundColor = 'rgba(16, 185, 129, 0.8)'; // green-500
+                } else {
+                    alertEl.style.backgroundColor = 'rgba(239, 68, 68, 0.8)'; // red-500
+                }
+                
+                // Glass effect for alert
+                alertEl.style.backdropFilter = 'blur(10px)';
+                alertEl.style.webkitBackdropFilter = 'blur(10px)';
+                alertEl.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+
+                document.body.appendChild(alertEl);
+                
+                setTimeout(() => { alertEl.style.opacity = '1'; }, 10);
+                setTimeout(() => {
+                    alertEl.style.opacity = '0';
+                    setTimeout(() => alertEl.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            App.init();
+        });
+
+    </script>
+</body>
+</html>
