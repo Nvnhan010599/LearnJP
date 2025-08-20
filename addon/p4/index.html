@@ -311,6 +311,19 @@
             background: rgba(0, 247, 255, 0.1);
             transform: translateY(-1px);
         }
+
+        /* Thêm style cho nút gói đã hoàn thành */
+        .package-btn-completed {
+            background: rgba(16, 185, 129, 0.1) !important;
+            border-color: rgb(16, 185, 129) !important;
+            color: rgb(16, 185, 129) !important;
+        }
+        .package-btn-completed:hover {
+            background: rgba(16, 185, 129, 0.2) !important;
+        }
+        .package-btn-completed i {
+            color: rgb(16, 185, 129);
+        }
     </style>
 </head>
 <body class="font-sans">
@@ -396,7 +409,8 @@
                     currentQuizType: 'hiragana', // 'hiragana' or 'kanji'
                     showAnswer: false,
                     reviewMode: false, // Thêm trạng thái ôn tập
-                    originalPackage: [] // Lưu gói học gốc để quay lại sau
+                    originalPackage: [], // Lưu gói học gốc để quay lại sau
+                    completedPackages: [], // Thêm mảng lưu trữ các gói đã hoàn thành
                 }
             },
 
@@ -411,14 +425,19 @@
             // --- QUẢN LÝ DỮ LIỆU (LOCALSTORAGE) ---
             loadData() {
                 const savedData = localStorage.getItem('n5VerbData');
+                const savedProgress = localStorage.getItem('n5LearnProgress');
                 if (savedData) {
                     this.state.verbs = JSON.parse(savedData);
                 } else {
                     this.state.verbs = JSON.parse(JSON.stringify(n5Verbs));
                 }
+                if (savedProgress) {
+                    this.state.learn.completedPackages = JSON.parse(savedProgress);
+                }
             },
             saveData() {
                 localStorage.setItem('n5VerbData', JSON.stringify(this.state.verbs));
+                localStorage.setItem('n5LearnProgress', JSON.stringify(this.state.learn.completedPackages));
             },
             loadSettings() {
                 const savedSettings = localStorage.getItem('n5AppSettings');
@@ -733,17 +752,23 @@
                 }
 
                 const packages = [];
-                for (let i = 0; i < wordsToLearn.length; i += 5) {
-                    packages.push(wordsToLearn.slice(i, i + 5));
+                for (let i = 0; i < this.state.verbs.length; i += 5) {
+                    packages.push(this.state.verbs.slice(i, i + 5));
                 }
                 
                 if (!this.state.learn.wordsInPackage || this.state.learn.wordsInPackage.length === 0) {
-                     let html = `<h2 class="text-4xl font-bold mb-8 text-white">Chọn gói học</h2>
+                    let html = `<h2 class="text-4xl font-bold mb-8 text-white">Chọn gói học</h2>
                                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">`;
                     packages.forEach((pkg, index) => {
-                        const start = this.state.verbs.indexOf(pkg[0]) + 1;
-                        const end = this.state.verbs.indexOf(pkg[pkg.length - 1]) + 1;
-                        html += `<button class="btn-secondary p-6 text-lg" data-package-index="${index}">Gói ${start}-${end}</button>`;
+                        const isCompleted = this.state.learn.completedPackages.includes(index);
+                        const start = pkg[0].id;
+                        const end = pkg[pkg.length - 1].id;
+                        const buttonClass = isCompleted ? 'package-btn-completed' : 'btn-secondary';
+                        html += `
+                            <button class="btn-secondary p-6 text-lg relative flex flex-col items-center ${buttonClass}" data-package-index="${index}">
+                                ${isCompleted ? '<i data-lucide="check-circle" class="w-5 h-5 mb-2"></i>' : ''}
+                                <span>Gói ${start}-${end}</span>
+                            </button>`;
                     });
                      html += `</div>`;
                      container.innerHTML = html;
@@ -751,21 +776,23 @@
                      document.querySelectorAll('[data-package-index]').forEach(btn => {
                          btn.addEventListener('click', e => {
                              const index = parseInt(e.currentTarget.dataset.packageIndex);
-                             this.startLearnPackage(index, packages);
+                             const isCompleted = this.state.learn.completedPackages.includes(index);
+                             this.startLearnPackage(index, packages, isCompleted);
                          });
                      });
+                     lucide.createIcons();
                 } else {
                     this.renderLearnQuiz();
                 }
             },
             
-            startLearnPackage(index, packages) {
+            startLearnPackage(index, packages, isCompleted) {
                 this.state.learn.currentPackage = index;
                 this.state.learn.originalPackage = [...packages[index]];
                 this.state.learn.wordsInPackage = this.shuffleArray([...packages[index]]);
                 this.state.learn.currentWordIndex = 0;
                 this.state.learn.currentQuizType = 'hiragana';
-                this.state.learn.reviewMode = false;
+                this.state.learn.reviewMode = isCompleted;
                 this.renderLearnQuiz();
             },
             
@@ -847,6 +874,17 @@
                 const currentWord = learnState.wordsInPackage[learnState.currentWordIndex];
                 learnState.showAnswer = false;
 
+                if (learnState.reviewMode) {
+                    // Logic ôn tập: trộn cả hiragana và kanji
+                    learnState.currentQuizType = Math.random() < 0.5 ? 'hiragana' : 'kanji';
+                    learnState.currentWordIndex = (learnState.currentWordIndex + 1) % learnState.wordsInPackage.length;
+                    if (learnState.currentWordIndex === 0) {
+                        learnState.wordsInPackage = this.shuffleArray([...learnState.wordsInPackage]);
+                    }
+                    this.renderLearnQuiz();
+                    return;
+                }
+
                 // Kiểm tra nếu từ hiện tại đã hoàn thành
                 const isCurrentWordComplete = currentWord.progress.hiragana >= 3 && currentWord.progress.kanji >= 4;
 
@@ -898,6 +936,22 @@
                             learnState.wordsInPackage = this.shuffleArray([...learnState.wordsInPackage]);
                         }
                     }
+                }
+
+                // Kiểm tra hoàn thành gói
+                const allWordsCompleted = learnState.originalPackage.every(
+                    w => w.progress.hiragana >= 3 && w.progress.kanji >= 4
+                );
+
+                if (allWordsCompleted && !this.state.learn.completedPackages.includes(learnState.currentPackage)) {
+                    this.state.learn.completedPackages.push(learnState.currentPackage);
+                    this.saveData();
+                    this.showCustomAlert('Chúc mừng! Bạn đã hoàn thành gói học này.', 'success');
+                    setTimeout(() => {
+                        learnState.wordsInPackage = [];
+                        this.renderLearn();
+                    }, 1500);
+                    return;
                 }
 
                 this.renderLearnQuiz();
@@ -1022,11 +1076,18 @@
                         <div class="glass-card p-6">
                             <h3 class="text-xl font-semibold mb-4 text-white">Quản lý dữ liệu</h3>
                             <div class="flex flex-col sm:flex-row gap-4">
-                                <button id="export-data" class="btn-primary flex-1"><i data-lucide="download" class="inline-block mr-2 h-5 w-5"></i>Xuất dữ liệu</button>
-                                <button id="import-data-btn" class="btn-secondary flex-1"><i data-lucide="upload" class="inline-block mr-2 h-5 w-5"></i>Nhập dữ liệu</button>
+                                <button id="export-data" class="btn-primary flex-1">
+                                    <i data-lucide="download" class="inline-block mr-2 h-5 w-5"></i>Xuất dữ liệu
+                                </button>
+                                <button id="import-data-btn" class="btn-secondary flex-1">
+                                    <i data-lucide="upload" class="inline-block mr-2 h-5 w-5"></i>Nhập dữ liệu
+                                </button>
+                                <button id="reset-data" class="btn-secondary flex-1 !border-red-500 !text-red-500 hover:!bg-red-500/10">
+                                    <i data-lucide="trash-2" class="inline-block mr-2 h-5 w-5"></i>Xóa dữ liệu
+                                </button>
                                 <input type="file" id="import-file-input" class="hidden" accept=".json">
                             </div>
-                             <p class="text-sm text-gray-400 mt-4">Lưu lại tiến trình học của bạn hoặc chuyển sang thiết bị khác.</p>
+                            <p class="text-sm text-gray-400 mt-4">Lưu lại tiến trình học của bạn hoặc chuyển sang thiết bị khác.</p>
                         </div>
                         
                         <div class="glass-card p-6">
@@ -1036,6 +1097,7 @@
                         </div>
                     </div>
                 `;
+                
                 this.setupSettingsListeners();
             },
 
@@ -1080,6 +1142,16 @@
                         }
                     };
                     reader.readAsText(file);
+                });
+
+                // Thêm listener cho nút reset
+                document.getElementById('reset-data').addEventListener('click', () => {
+                    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu học tập? Hành động này không thể hoàn tác.')) {
+                        this.state.verbs = JSON.parse(JSON.stringify(n5Verbs));
+                        this.saveData();
+                        this.showCustomAlert('Đã xóa toàn bộ dữ liệu học tập.', 'success');
+                        setTimeout(() => location.reload(), 2000);
+                    }
                 });
             },
 
