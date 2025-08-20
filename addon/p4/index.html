@@ -11,44 +11,140 @@
     <!-- File dữ liệu động từ -->
     <script src="data.js"></script>
     <style>
-        /* --- Hiệu ứng nền động --- */
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* --- Background & Base Colors --- */
+        body {
+            background: #000000;
+            color: #ffffff;
         }
 
-        body {
-            background: linear-gradient(-45deg, #1a202c, #2d3748, #4a5568, #2c5282);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-            color: #e2e8f0;
-            transition: background-color 0.5s;
+        /* --- Neon Colors --- */
+        :root {
+            --neon-blue: #00f7ff;
+            --neon-green: #39ff14;
+            --neon-yellow: #fff700;
+            --neon-orange: #ff9900;
+            --accent-color: var(--neon-blue);
+            --bg-dark: #000000;
         }
-        
+
+        /* --- Glassmorphism --- */
+        .glass-card {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 247, 255, 0.1);
+        }
+
+        /* --- Navigation --- */
+        .nav-item {
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: var(--accent-color);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent-color);
+            text-shadow: 0 0 8px var(--accent-color);
+        }
+
+        .nav-item.active {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            text-shadow: 0 0 8px var(--accent-color);
+        }
+
+        /* --- Buttons --- */
+        .btn-primary {
+            background: #000000;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: rgba(0, 247, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-primary:hover, .btn-secondary:hover {
+            background: rgba(0, 247, 255, 0.1);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            text-shadow: 0 0 5px var(--accent-color);
+        }
+
+        /* --- Progress Bar --- */
+        .progress-bar {
+            background: var(--accent-color);
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+
+        /* Override existing gradient styles */
+        body {
+            animation: none;
+            background: var(--bg-dark);
+        }
+
         html.light body {
-             background: linear-gradient(-45deg, #e0e7ff, #c7d2fe, #a5b4fc, #818cf8);
-             background-size: 400% 400%;
-             animation: gradient 15s ease infinite;
-             color: #1f2937;
+            background: #f0f9ff;
         }
 
         /* --- Phong cách Glassmorphism --- */
         .glass-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 1.25rem; /* 20px */
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
         
         html.light .glass-card {
-            background: rgba(255, 255, 255, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
+
+        /* Điều chỉnh màu cho các thành phần */
+        .nav-item {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-item:hover {
+            color: var(--neon-blue);
+            background: rgba(0, 247, 255, 0.1);
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .nav-item.active {
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--neon-blue);
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .nav-item.active::before {
+            background: var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        /* Màu cho text và elements khác */
+        .text-primary { color: rgb(139, 92, 246); }
+        .text-secondary { color: rgb(192, 132, 252); }
+        .bg-primary { background: rgba(139, 92, 246, 0.2); }
+        .bg-success { background: rgba(16, 185, 129, 0.2); }
+        .bg-warning { background: rgba(245, 158, 11, 0.2); }
 
         /* Tùy chỉnh thanh cuộn */
         ::-webkit-scrollbar { width: 8px; }
@@ -198,6 +294,23 @@
         .main-content {
             padding: 2rem 2.5rem;
         }
+
+        /* --- Nút chính không dùng gradient --- */
+        .btn-primary {
+            background: #000000;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: rgba(0, 247, 255, 0.1);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body class="font-sans">
@@ -206,7 +319,7 @@
         <!-- Thanh điều hướng bên trái -->
         <nav id="sidebar" class="glass-card flex-shrink-0 flex flex-col relative">
             <div class="header flex items-center justify-between">
-                <h1 class="font-bold text-white nav-text">N5 Verbs</h1>
+                <h1 class="font-bold text-white nav-text hover:text-primary">N5 Verbs</h1>
                 <button id="toggle-nav" class="p-1.5 rounded-lg hover:bg-white/10">
                     <i data-lucide="panel-left" class="w-5 h-5 text-gray-300"></i>
                 </button>
@@ -282,6 +395,8 @@
                     currentWordIndex: 0,
                     currentQuizType: 'hiragana', // 'hiragana' or 'kanji'
                     showAnswer: false,
+                    reviewMode: false, // Thêm trạng thái ôn tập
+                    originalPackage: [] // Lưu gói học gốc để quay lại sau
                 }
             },
 
@@ -636,16 +751,22 @@
                      document.querySelectorAll('[data-package-index]').forEach(btn => {
                          btn.addEventListener('click', e => {
                              const index = parseInt(e.currentTarget.dataset.packageIndex);
-                             this.state.learn.currentPackage = index;
-                             this.state.learn.wordsInPackage = packages[index];
-                             this.state.learn.currentWordIndex = 0;
-                             this.state.learn.currentQuizType = 'hiragana';
-                             this.renderLearnQuiz();
+                             this.startLearnPackage(index, packages);
                          });
                      });
                 } else {
                     this.renderLearnQuiz();
                 }
+            },
+            
+            startLearnPackage(index, packages) {
+                this.state.learn.currentPackage = index;
+                this.state.learn.originalPackage = [...packages[index]];
+                this.state.learn.wordsInPackage = this.shuffleArray([...packages[index]]);
+                this.state.learn.currentWordIndex = 0;
+                this.state.learn.currentQuizType = 'hiragana';
+                this.state.learn.reviewMode = false;
+                this.renderLearnQuiz();
             },
             
             renderLearnQuiz() {
@@ -684,7 +805,7 @@
                                 <div id="learn-feedback" class="mt-6 p-4 rounded-xl text-center ${learnState.lastAnswerCorrect ? 'bg-green-500/30 text-green-200' : 'bg-red-500/30 text-red-200'}">
                                     <p class="font-bold text-lg">${learnState.lastAnswerCorrect ? 'Chính xác!' : 'Sai rồi!'}</p>
                                     <p class="text-white">${currentWord.kanji} (${currentWord.hiragana}) : ${currentWord.meaning}</p>
-                                    <button id="next-learn-btn" class="btn-primary mt-4">Tiếp theo</button>
+                                    <button id="next-learn-btn" class="btn-primary mt-4 hover:bg-opacity-80">Tiếp theo</button>
                                 </div>
                             ` : ''}
                         </div>
@@ -726,13 +847,59 @@
                 const currentWord = learnState.wordsInPackage[learnState.currentWordIndex];
                 learnState.showAnswer = false;
 
-                if (learnState.currentQuizType === 'hiragana' && currentWord.progress.hiragana >= 3) {
-                    learnState.currentQuizType = 'kanji';
-                } else if (learnState.currentQuizType === 'kanji' && currentWord.progress.kanji >= 4) {
-                    learnState.currentWordIndex++;
-                    learnState.currentQuizType = 'hiragana';
+                // Kiểm tra nếu từ hiện tại đã hoàn thành
+                const isCurrentWordComplete = currentWord.progress.hiragana >= 3 && currentWord.progress.kanji >= 4;
+
+                if (learnState.reviewMode) {
+                    // Chế độ ôn tập: trộn cả hiragana và kanji
+                    learnState.currentQuizType = Math.random() < 0.5 ? 'hiragana' : 'kanji';
+                    learnState.currentWordIndex = (learnState.currentWordIndex + 1) % learnState.wordsInPackage.length;
+                    if (learnState.currentWordIndex === 0) {
+                        // Xáo trộn lại khi đã học hết một lượt
+                        learnState.wordsInPackage = this.shuffleArray([...learnState.wordsInPackage]);
+                    }
+                } else {
+                    // Chế độ học bình thường
+                    if (currentWord.progress.hiragana >= 3 && learnState.currentQuizType === 'hiragana') {
+                        // Chuyển sang từ tiếp theo nếu đã hoàn thành hiragana
+                        learnState.currentWordIndex++;
+                        if (learnState.currentWordIndex >= learnState.wordsInPackage.length) {
+                            // Nếu đã học hết hiragana của tất cả từ, chuyển sang kanji
+                            learnState.currentWordIndex = 0;
+                            learnState.currentQuizType = 'kanji';
+                            learnState.wordsInPackage = this.shuffleArray([...learnState.wordsInPackage]);
+                        }
+                    } else if (currentWord.progress.kanji >= 4 && learnState.currentQuizType === 'kanji') {
+                        // Chuyển sang từ tiếp theo nếu đã hoàn thành kanji
+                        learnState.currentWordIndex++;
+                        if (learnState.currentWordIndex >= learnState.wordsInPackage.length) {
+                            // Kiểm tra xem có từ nào đã hoàn thành cả hiragana và kanji không
+                            const completedWords = learnState.wordsInPackage.filter(
+                                w => w.progress.hiragana >= 3 && w.progress.kanji >= 4
+                            );
+                            if (completedWords.length > 0) {
+                                // Chuyển sang chế độ ôn tập cho các từ đã hoàn thành
+                                learnState.reviewMode = true;
+                                learnState.wordsInPackage = completedWords;
+                                learnState.currentWordIndex = 0;
+                                learnState.currentQuizType = Math.random() < 0.5 ? 'hiragana' : 'kanji';
+                            } else {
+                                // Quay lại học hiragana cho các từ chưa hoàn thành
+                                learnState.currentWordIndex = 0;
+                                learnState.currentQuizType = 'hiragana';
+                                learnState.wordsInPackage = this.shuffleArray([...learnState.originalPackage]);
+                            }
+                        }
+                    } else {
+                        // Chuyển sang từ tiếp theo trong cùng loại (hiragana/kanji)
+                        learnState.currentWordIndex = (learnState.currentWordIndex + 1) % learnState.wordsInPackage.length;
+                        if (learnState.currentWordIndex === 0) {
+                            // Xáo trộn lại khi đã học hết một lượt
+                            learnState.wordsInPackage = this.shuffleArray([...learnState.wordsInPackage]);
+                        }
+                    }
                 }
-                
+
                 this.renderLearnQuiz();
             },
 
@@ -959,7 +1126,17 @@
                     alertEl.style.opacity = '0';
                     setTimeout(() => alertEl.remove(), 300);
                 }, 3000);
-            }
+            },
+
+            // Xáo trộn mảng
+            shuffleArray(array) {
+                // Fisher-Yates shuffle algorithm
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            },
         };
 
         document.addEventListener('DOMContentLoaded', () => {
