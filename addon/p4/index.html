@@ -57,47 +57,87 @@
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
 
         /* --- Tùy chỉnh các thành phần --- */
+        .nav-collapsed {
+            width: 5rem;
+        }
+        .nav-collapsed .nav-text {
+            display: none;
+        }
+        .nav-collapsed .nav-group-title {
+            display: none;
+        }
+        .nav-group {
+            @apply space-y-1;
+        }
+        .nav-group-title {
+            @apply text-xs uppercase tracking-wider text-gray-400 font-semibold px-6 py-2;
+        }
         .nav-item {
-            @apply flex items-center px-4 py-3 text-gray-300 hover:text-white rounded-lg cursor-pointer transition-all duration-200;
-        }
-        html.light .nav-item {
-             @apply text-gray-600 hover:text-black;
-        }
-        .nav-item.active {
-            background: rgba(99, 102, 241, 0.7);
-            @apply text-white font-semibold shadow-lg;
-        }
-        html.light .nav-item.active {
-             background: rgba(99, 102, 241, 1);
+            @apply px-4 py-3;
+            display: flex;
+            align-items: center;
+            color: rgba(209, 213, 219, 1);
+            transition: all 0.2s;
+            position: relative;
         }
 
-        .btn-primary {
-            @apply px-5 py-2.5 bg-indigo-500 text-white font-semibold rounded-xl shadow-lg hover:bg-indigo-600 focus:outline-none focus:ring-4 focus:ring-indigo-400 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105;
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
         }
-        .btn-secondary {
-            @apply px-5 py-2.5 bg-white/20 text-white font-semibold rounded-xl shadow-md hover:bg-white/30 focus:outline-none focus:ring-4 focus:ring-white/30 focus:ring-opacity-75 transition-all duration-300;
+
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.1);
         }
-        html.light .btn-secondary {
-             @apply bg-black/10 text-black/80 hover:bg-black/20;
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: rgb(99, 102, 241);
+        }
+
+        .nav-icon {
+            width: 24px; /* Icon to hơn */
+            height: 24px;
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+
+        .nav-text {
+            font-size: 15px; /* Text to hơn */
+            font-weight: 500;
+            line-height: 24px; /* Line height bằng với icon */
+            white-space: nowrap;
+        }
+
+        #sidebar.nav-collapsed {
+            width: 72px !important; /* Điều chỉnh độ rộng khi thu gọn */
         }
         
-        .note-editor {
-            min-height: 80px;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 12px;
-            outline: none;
-        }
-        html.light .note-editor {
-            background: rgba(255,255,255,0.5);
-            border-color: rgba(0,0,0,0.1);
+        #sidebar.nav-collapsed .nav-text {
+            display: none;
         }
         
-        #theme-toggle:checked + div .dot {
-            transform: translateX(24px);
+        #sidebar.nav-collapsed .nav-icon {
+            margin: 0;
+            width: 26px; /* Icon to hơn chút khi thu gọn */
+            height: 26px;
+        }
+
+        /* Điều chỉnh header */
+        #sidebar .header {
+            padding: 1.25rem 1rem;
         }
         
+        #sidebar .header h1 {
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
         /* --- Modal Style --- */
         .modal-overlay {
             position: fixed;
@@ -125,47 +165,93 @@
             transform: scale(1);
         }
 
+        /* Điều chỉnh navigation */
+        #sidebar {
+            width: 220px; /* Giảm độ rộng tổng thể */
+            border-radius: 0;
+            margin: 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar.nav-collapsed {
+            width: 72px !important; /* Điều chỉnh độ rộng khi thu gọn */
+        }
+        
+        #sidebar.nav-collapsed .nav-text {
+            display: none;
+        }
+        
+        #sidebar.nav-collapsed .nav-icon {
+            margin: 0;
+            width: 26px; /* Icon to hơn chút khi thu gọn */
+            height: 26px;
+        }
+        
+        .nav-icon {
+            @apply w-5 h-5 flex-shrink-0;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        /* Điều chỉnh main content */
+        .main-content {
+            padding: 2rem 2.5rem;
+        }
     </style>
 </head>
 <body class="font-sans">
 
-    <div id="app" class="flex h-screen">
+    <div id="app" class="flex h-screen overflow-hidden">
         <!-- Thanh điều hướng bên trái -->
-        <nav class="w-64 p-4 m-4 glass-card flex-shrink-0 flex flex-col">
-            <h1 class="text-2xl font-bold text-white mb-8 text-center">
-                N5 Verbs
-            </h1>
-            <ul class="space-y-2">
-                <li><a href="#" class="nav-item active" data-view="overview">
-                    <i data-lucide="layout-grid" class="mr-3 h-5 w-5"></i>Tổng quan</a>
-                </li>
-                <li><a href="#" class="nav-item" data-view="progress">
-                    <i data-lucide="pie-chart" class="mr-3 h-5 w-5"></i>Tiến độ</a>
-                </li>
-                <li><a href="#" class="nav-item" data-view="learn">
-                    <i data-lucide="graduation-cap" class="mr-3 h-5 w-5"></i>Học tập</a>
-                </li>
-                <li><a href="#" class="nav-item" data-view="te-form">
-                    <i data-lucide="puzzle" class="mr-3 h-5 w-5"></i>Trắc nghiệm Thể Tê</a>
-                </li>
-                <li><a href="#" class="nav-item" data-view="nai-form">
-                    <i data-lucide="puzzle" class="mr-3 h-5 w-5"></i>Trắc nghiệm Thể Nai</a>
-                </li>
-            </ul>
-            <div class="mt-auto">
-                 <a href="#" class="nav-item" data-view="settings">
-                    <i data-lucide="settings-2" class="mr-3 h-5 w-5"></i>Cài đặt</a>
+        <nav id="sidebar" class="glass-card flex-shrink-0 flex flex-col relative">
+            <div class="header flex items-center justify-between">
+                <h1 class="font-bold text-white nav-text">N5 Verbs</h1>
+                <button id="toggle-nav" class="p-1.5 rounded-lg hover:bg-white/10">
+                    <i data-lucide="panel-left" class="w-5 h-5 text-gray-300"></i>
+                </button>
+            </div>
+            <div class="flex-1 flex flex-col space-y-1">
+                <a href="#" class="nav-item" data-view="overview">
+                    <i data-lucide="book-open" class="nav-icon"></i>
+                    <span class="nav-text">Tổng quan</span>
+                </a>
+                <a href="#" class="nav-item" data-view="learn">
+                    <i data-lucide="brain" class="nav-icon"></i>
+                    <span class="nav-text">Học từ vựng</span>
+                </a>
+                <a href="#" class="nav-item" data-view="te-form">
+                    <i data-lucide="check-circle" class="nav-icon"></i>
+                    <span class="nav-text">Thể て</span>
+                </a>
+                <a href="#" class="nav-item" data-view="nai-form">
+                    <i data-lucide="x-circle" class="nav-icon"></i>
+                    <span class="nav-text">Thể ない</span>
+                </a>
+                <a href="#" class="nav-item" data-view="progress">
+                    <i data-lucide="trending-up" class="nav-icon"></i>
+                    <span class="nav-text">Tiến độ</span>
+                </a>
+            </div>
+
+            <div class="border-t border-white/10">
+                <a href="#" class="nav-item" data-view="settings">
+                    <i data-lucide="settings" class="nav-icon"></i>
+                    <span class="nav-text">Cài đặt</span>
+                </a>
             </div>
         </nav>
 
         <!-- Nội dung chính -->
-        <main class="flex-1 p-8 pr-6 pl-0 overflow-y-auto">
-            <div id="view-overview" class="view"></div>
-            <div id="view-progress" class="view hidden"></div>
-            <div id="view-learn" class="view hidden"></div>
-            <div id="view-te-form" class="view hidden"></div>
-            <div id="view-nai-form" class="view hidden"></div>
-            <div id="view-settings" class="view hidden"></div>
+        <main class="flex-1 overflow-hidden flex flex-col">
+            <div class="main-content flex-1 overflow-y-auto">
+                <div id="view-overview" class="view"></div>
+                <div id="view-progress" class="view hidden"></div>
+                <div id="view-learn" class="view hidden"></div>
+                <div id="view-te-form" class="view hidden"></div>
+                <div id="view-nai-form" class="view hidden"></div>
+                <div id="view-settings" class="view hidden"></div>
+            </div>
         </main>
         
         <!-- Modal Container -->
@@ -180,7 +266,8 @@
                 searchTerm: '', // Thêm dòng này
                 verbs: [],
                 settings: {
-                    theme: 'dark' // Bắt đầu với dark mode
+                    theme: 'dark', // Bắt đầu với dark mode
+                    navCollapsed: false,
                 },
                 quiz: {
                     type: null, // 'te' or 'nai'
@@ -221,12 +308,23 @@
             loadSettings() {
                 const savedSettings = localStorage.getItem('n5AppSettings');
                 if (savedSettings) {
-                    this.state.settings = JSON.parse(savedSettings);
+                    const settings = JSON.parse(savedSettings);
+                    this.state.settings = settings;
+                    
+                    // Apply nav state
+                    const sidebar = document.getElementById('sidebar');
+                    if (settings.navCollapsed) {
+                        sidebar.classList.add('nav-collapsed');
+                    }
                 }
                 this.applyTheme();
             },
             saveSettings() {
-                localStorage.setItem('n5AppSettings', JSON.stringify(this.state.settings));
+                const settings = {
+                    ...this.state.settings,
+                    navCollapsed: this.state.navCollapsed
+                };
+                localStorage.setItem('n5AppSettings', JSON.stringify(settings));
                 this.applyTheme();
             },
             
@@ -238,6 +336,13 @@
                         this.state.currentView = e.currentTarget.dataset.view;
                         this.render();
                     });
+                });
+                
+                document.getElementById('toggle-nav').addEventListener('click', () => {
+                    const sidebar = document.getElementById('sidebar');
+                    this.state.settings.navCollapsed = !this.state.settings.navCollapsed;
+                    sidebar.classList.toggle('nav-collapsed', this.state.settings.navCollapsed);
+                    this.saveSettings();
                 });
             },
             
