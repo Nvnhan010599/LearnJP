@@ -343,17 +343,10 @@
                 display: none;
             }
 
-            #sidebar .flex-1 {
+            #sidebar .nav-container {
                 flex-direction: row;
                 justify-content: space-around;
-                margin: 0;
-                height: 100%;
-                width: 100%; /* Make sure it takes full width */
-            }
-
-            /* FIX: Hide the border-t div which is now empty */
-            #sidebar .border-t {
-                display: none;
+                width: 100%;
             }
 
             .nav-item {
@@ -363,6 +356,12 @@
                 height: 100%;
                 font-size: 0.75rem;
                 flex-grow: 1; /* Make items share space equally */
+            }
+            
+            /* FIX: Reset styles for settings item on mobile */
+            .nav-item[data-view="settings"] {
+                margin-top: 0 !important;
+                border-top: none !important;
             }
 
             .nav-icon {
@@ -547,32 +546,29 @@
                     <i data-lucide="panel-left" class="w-5 h-5 text-gray-300"></i>
                 </button>
             </div>
-            <div class="flex-1 flex flex-col">
-                <div class="flex-1 space-y-1">
-                    <a href="#" class="nav-item" data-view="overview">
-                        <i data-lucide="book-open" class="nav-icon"></i>
-                        <span class="nav-text">Tổng quan</span>
-                    </a>
-                    <a href="#" class="nav-item" data-view="learning-hub">
-                        <i data-lucide="brain" class="nav-icon"></i>
-                        <span class="nav-text">Học tập</span>
-                    </a>
-                    <a href="#" class="nav-item" data-view="progress">
-                        <i data-lucide="trending-up" class="nav-icon"></i>
-                        <span class="nav-text">Tiến độ</span>
-                    </a>
-                    <a href="#" class="nav-item" data-view="notes">
-                        <i data-lucide="sticky-note" class="nav-icon"></i>
-                        <span class="nav-text">Ghi chú</span>
-                    </a>
-                </div>
-
-                <div class="border-t border-white/10">
-                    <a href="#" class="nav-item" data-view="settings">
-                        <i data-lucide="settings" class="nav-icon"></i>
-                        <span class="nav-text">Cài đặt</span>
-                    </a>
-                </div>
+            <!-- FIX: Simplified and robust nav container for all items -->
+            <div class="nav-container flex-1 flex flex-col">
+                <a href="#" class="nav-item" data-view="overview">
+                    <i data-lucide="book-open" class="nav-icon"></i>
+                    <span class="nav-text">Tổng quan</span>
+                </a>
+                <a href="#" class="nav-item" data-view="learning-hub">
+                    <i data-lucide="brain" class="nav-icon"></i>
+                    <span class="nav-text">Học tập</span>
+                </a>
+                <a href="#" class="nav-item" data-view="progress">
+                    <i data-lucide="trending-up" class="nav-icon"></i>
+                    <span class="nav-text">Tiến độ</span>
+                </a>
+                <a href="#" class="nav-item" data-view="notes">
+                    <i data-lucide="sticky-note" class="nav-icon"></i>
+                    <span class="nav-text">Ghi chú</span>
+                </a>
+                <!-- Settings item pushed to bottom on desktop via mt-auto -->
+                <a href="#" class="nav-item mt-auto border-t border-white/10" data-view="settings">
+                    <i data-lucide="settings" class="nav-icon"></i>
+                    <span class="nav-text">Cài đặt</span>
+                </a>
             </div>
         </nav>
 
