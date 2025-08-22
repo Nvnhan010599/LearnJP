@@ -705,25 +705,23 @@
                     this.saveSettings();
                 });
 
-                // *** FIX: Delegated event listener for dynamic content inside <main> ***
+                // Delegated event listener for dynamic content inside <main>
                 const mainContent = document.querySelector('.main-content');
                 mainContent.addEventListener('click', (e) => {
+                    const target = e.target;
+
                     // Back to Hub from Quiz (te/nai) or from Learn Packages view
-                    const backToHubBtn = e.target.closest('#back-to-hub');
-                    if (backToHubBtn) {
+                    if (target.closest('#back-to-hub')) {
                         e.preventDefault();
-                        // Reset quiz state when leaving
                         this.state.quiz.questions = [];
                         this.state.quiz.type = null;
-                        
                         this.state.currentView = 'learning-hub';
                         this.render();
                         return;
                     }
 
                     // Back to Packages from Learn Quiz
-                    const backToPackagesBtn = e.target.closest('#back-to-packages');
-                    if (backToPackagesBtn) {
+                    if (target.closest('#back-to-packages')) {
                         e.preventDefault();
                         this.state.learn.wordsInPackage = [];
                         this.state.currentView = 'learn';
@@ -732,17 +730,16 @@
                     }
 
                     // Handle learning hub cards
-                    const learningCard = e.target.closest('.learning-card');
+                    const learningCard = target.closest('.learning-card');
                     if (learningCard) {
                         e.preventDefault();
-                        const subview = learningCard.dataset.subview;
-                        this.state.currentView = subview;
+                        this.state.currentView = learningCard.dataset.subview;
                         this.render();
                         return;
                     }
 
                     // Handle package selection
-                    const packageBtn = e.target.closest('[data-package-index]');
+                    const packageBtn = target.closest('[data-package-index]');
                     if (packageBtn) {
                         e.preventDefault();
                         const index = parseInt(packageBtn.dataset.packageIndex);
@@ -756,7 +753,7 @@
                     }
 
                     // Handle quiz/learn option buttons
-                    const optionBtn = e.target.closest('.quiz-option-btn, .learn-option-btn');
+                    const optionBtn = target.closest('.quiz-option-btn, .learn-option-btn');
                     if (optionBtn) {
                         e.preventDefault();
                         if (optionBtn.classList.contains('quiz-option-btn') && !this.state.quiz.showAnswer) {
@@ -768,22 +765,48 @@
                     }
 
                     // Handle next buttons
-                    const nextBtn = e.target.closest('#next-quiz-btn, #next-learn-btn');
-                    if (nextBtn) {
+                    if (target.closest('#next-quiz-btn')) {
                         e.preventDefault();
-                        if (nextBtn.id === 'next-quiz-btn') {
-                            this.nextQuizQuestion();
-                        } else {
-                            this.nextLearnQuestion();
-                        }
+                        this.nextQuizQuestion();
+                        return;
+                    }
+                    if (target.closest('#next-learn-btn')) {
+                        e.preventDefault();
+                        this.nextLearnQuestion();
                         return;
                     }
 
                     // Handle restart quiz
-                    const restartQuizBtn = e.target.closest('#restart-quiz-btn');
-                    if (restartQuizBtn) {
+                    if (target.closest('#restart-quiz-btn')) {
                         e.preventDefault();
                         this.startQuiz(this.state.quiz.type);
+                        return;
+                    }
+                    
+                    // Handle delete note button
+                    const deleteNoteBtn = target.closest('.delete-note-btn');
+                    if (deleteNoteBtn) {
+                        e.preventDefault();
+                        e.stopPropagation(); // Prevent note-item click
+                        const verbId = parseInt(deleteNoteBtn.dataset.verbId);
+                        this.showConfirmationModal('Bạn có chắc chắn muốn xóa ghi chú này không?', () => {
+                            const verb = this.state.verbs.find(v => v.id === verbId);
+                            if (verb) {
+                                verb.note = '';
+                                this.saveData();
+                                this.render();
+                                this.showCustomAlert('Đã xóa ghi chú.', 'success');
+                            }
+                        });
+                        return;
+                    }
+                    
+                    // Handle note item click to open modal (must be last)
+                    const noteItem = target.closest('.note-item');
+                    if (noteItem) {
+                        e.preventDefault();
+                        const verbId = parseInt(noteItem.dataset.verbId);
+                        this.showVerbModal(verbId);
                         return;
                     }
                 });
@@ -797,7 +820,9 @@
                 });
 
                 const currentViewEl = document.getElementById(`view-${this.state.currentView}`);
-                currentViewEl.classList.remove('hidden');
+                if (currentViewEl) {
+                    currentViewEl.classList.remove('hidden');
+                }
                 
                 switch(this.state.currentView) {
                     case 'overview': this.renderOverview(); break;
@@ -1425,53 +1450,44 @@
                 const container = document.getElementById('view-notes');
                 const verbsWithNotes = this.state.verbs.filter(verb => verb.note && verb.note.trim() !== '');
                 
+                let html = `<h2 class="text-4xl font-bold mb-8 text-white">Ghi chú</h2>`;
+
                 if (verbsWithNotes.length === 0) {
-                    container.innerHTML = `
-                        <h2 class="text-4xl font-bold mb-8 text-white">Ghi chú</h2>
+                    html += `
                         <div class="glass-card p-8 text-center">
                             <i data-lucide="sticky-note" class="mx-auto h-16 w-16 text-gray-400 mb-4"></i>
                             <h3 class="text-2xl font-bold text-white mb-2">Chưa có ghi chú</h3>
                             <p class="text-lg text-gray-300">Bạn chưa có ghi chú nào. Hãy thêm ghi chú trong phần Tổng quan!</p>
                         </div>
                     `;
-                    return;
-                }
-
-                let html = `
-                    <h2 class="text-4xl font-bold mb-8 text-white">Ghi chú</h2>
-                    <div class="glass-card overflow-hidden">
-                        <div class="p-6">
-                            <h3 class="text-xl font-semibold mb-4 text-white">Tất cả ghi chú của bạn</h3>
-                            <div class="notes-list">
-                `;
-
-                verbsWithNotes.forEach(verb => {
+                } else {
                     html += `
-                        <div class="note-item" data-verb-id="${verb.id}">
-                            <div class="note-header">
-                                <span class="note-verb">${verb.kanji} <span class="note-reading">(${verb.hiragana})</span></span>
-                                <span class="text-sm text-gray-400">#${verb.id}</span>
+                        <div class="glass-card overflow-hidden">
+                            <div class="notes-list">
+                    `;
+                    verbsWithNotes.forEach(verb => {
+                        html += `
+                            <div class="note-item cursor-pointer" data-verb-id="${verb.id}">
+                                <div class="note-header">
+                                    <div>
+                                        <span class="note-verb">${verb.kanji} <span class="note-reading">(${verb.hiragana})</span></span>
+                                        <span class="text-sm text-gray-400">#${verb.id}</span>
+                                    </div>
+                                    <button class="delete-note-btn text-gray-500 hover:text-red-400 p-1 rounded-full" data-verb-id="${verb.id}">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                                <div class="note-content">${verb.note}</div>
                             </div>
-                            <div class="note-content">${verb.note}</div>
+                        `;
+                    });
+                    html += `
+                            </div>
                         </div>
                     `;
-                });
-
-                html += `
-                            </div>
-                        </div>
-                    </div>
-                `;
-
+                }
                 container.innerHTML = html;
-
-                // Thêm sự kiện click để mở modal chỉnh sửa
-                container.querySelectorAll('.note-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const verbId = parseInt(item.dataset.verbId);
-                        this.showVerbModal(verbId);
-                    });
-                });
+                // NOTE: Event listeners are now delegated
             },
 
             // 8. CÀI ĐẶT
@@ -1553,7 +1569,6 @@
                             if (Array.isArray(importedData) && importedData.length > 0 && 'kanji' in importedData[0]) {
                                 this.state.verbs = importedData;
                                 this.saveData();
-                                // Custom alert
                                 this.showCustomAlert('Nhập dữ liệu thành công! Trang sẽ được tải lại.');
                                 setTimeout(() => location.reload(), 2000);
                             } else {
@@ -1566,18 +1581,48 @@
                     reader.readAsText(file);
                 });
 
-                // Thêm listener cho nút reset
                 document.getElementById('reset-data').addEventListener('click', () => {
-                    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu học tập? Hành động này không thể hoàn tác.')) {
+                    this.showConfirmationModal('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu học tập? Hành động này không thể hoàn tác.', () => {
                         this.state.verbs = JSON.parse(JSON.stringify(n5Verbs));
                         this.saveData();
                         this.showCustomAlert('Đã xóa toàn bộ dữ liệu học tập.', 'success');
                         setTimeout(() => location.reload(), 2000);
-                    }
+                    });
                 });
             },
 
             // --- TIỆN ÍCH ---
+            showConfirmationModal(message, onConfirm) {
+                const modalContainer = document.getElementById('modal-container');
+                modalContainer.innerHTML = `
+                    <div id="confirmation-modal-overlay" class="modal-overlay visible">
+                        <div class="modal-content glass-card w-full max-w-sm m-4 p-6 text-center" onclick="event.stopPropagation()">
+                            <p class="text-lg text-white mb-6">${message}</p>
+                            <div class="flex justify-center gap-4">
+                                <button id="confirm-yes" class="btn-primary !bg-red-500/80 !border-red-500 !text-white flex-1">Xác nhận</button>
+                                <button id="confirm-no" class="btn-secondary flex-1">Hủy</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const closeModal = () => {
+                    const overlay = document.getElementById('confirmation-modal-overlay');
+                    if (overlay) {
+                        overlay.classList.remove('visible');
+                        setTimeout(() => {
+                            overlay.parentElement.innerHTML = '';
+                        }, 300);
+                    }
+                };
+
+                document.getElementById('confirm-yes').addEventListener('click', () => {
+                    onConfirm();
+                    closeModal();
+                });
+                document.getElementById('confirm-no').addEventListener('click', closeModal);
+                document.getElementById('confirmation-modal-overlay').addEventListener('click', closeModal);
+            },
             applyTheme() {
                 const html = document.documentElement;
                 if (this.state.settings.theme === 'dark') {
@@ -1639,4 +1684,4 @@
 
     </script>
 </body>
-</html>
+</ht
