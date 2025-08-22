@@ -324,6 +324,162 @@
         .package-btn-completed i {
             color: rgb(16, 185, 129);
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            /* Sidebar */
+            #sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100% !important;
+                height: 60px;
+                flex-direction: row;
+                z-index: 50;
+            }
+
+            #sidebar .header {
+                display: none;
+            }
+
+            #sidebar .flex-1 {
+                flex-direction: row;
+                justify-content: space-around;
+                margin: 0;
+                height: 100%;
+            }
+
+            #sidebar .border-t {
+                display: none; /* Hide settings on mobile bottom nav */
+            }
+
+            .nav-item {
+                padding: 0.5rem;
+                justify-content: center;
+                flex-direction: column;
+                height: 100%;
+                font-size: 0.75rem;
+            }
+
+            .nav-icon {
+                margin: 0 0 0.25rem 0;
+                width: 20px;
+                height: 20px;
+            }
+
+            .nav-text {
+                font-size: 0.7rem;
+                margin-top: 2px;
+            }
+
+            /* Main Content */
+            .main-content {
+                padding: 1rem;
+                padding-bottom: 70px; /* Space for bottom nav */
+            }
+
+            /* Cards & Buttons */
+            .glass-card {
+                margin: 0 -1rem;
+                border-radius: 0;
+            }
+
+            .grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            /* Text Sizes */
+            h2.text-4xl {
+                font-size: 1.875rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Quiz & Learn Views */
+            .quiz-option-btn, .learn-option-btn {
+                padding: 0.75rem !important;
+                font-size: 0.9rem !important;
+            }
+
+            /* Package Buttons */
+            [data-package-index] {
+                padding: 0.75rem !important;
+                font-size: 0.9rem !important;
+            }
+
+            /* Verb Table */
+            .verb-table-container {
+                margin: 0 -1rem;
+                border-radius: 0;
+            }
+
+            .verb-table-container td {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            /* Modal */
+            .modal-content {
+                margin: 0.5rem;
+                max-height: calc(100vh - 2rem);
+                overflow-y: auto;
+            }
+        }
+
+        /* Adjust layout for mobile landscape */
+        @media (max-height: 500px) and (orientation: landscape) {
+            #sidebar {
+                display: none;
+            }
+
+            .main-content {
+                padding-bottom: 1rem;
+            }
+        }
+
+        /* Tablet adjustments */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Note Editor Styles */
+        .note-editor {
+            min-height: 100px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .note-editor:focus {
+            outline: none;
+            background: rgba(0, 0, 0, 0.4);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 247, 255, 0.1);
+        }
+
+        .note-editor:empty:before {
+            content: 'Nhập ghi chú của bạn...';
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Editor toolbar styles */
+        .editor-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
 <body class="font-sans">
@@ -418,8 +574,27 @@
                 this.loadData();
                 this.loadSettings();
                 this.setupEventListeners();
+                this.setupMobileListeners(); // Add mobile listeners
                 this.render();
                 lucide.createIcons();
+            },
+
+            setupMobileListeners() {
+                // Handle mobile orientation change
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => {
+                        this.render();
+                    }, 100);
+                });
+
+                // Handle mobile back button
+                window.addEventListener('popstate', (e) => {
+                    if (this.state.currentView !== 'overview') {
+                        e.preventDefault();
+                        this.state.currentView = 'overview';
+                        this.render();
+                    }
+                });
             },
 
             // --- QUẢN LÝ DỮ LIỆU (LOCALSTORAGE) ---
@@ -532,7 +707,9 @@
                             </thead>
                             <tbody>
                                 ${filteredVerbs.map(verb => `
-                                    <tr class="border-t border-white/10 hover:bg-white/10 cursor-pointer" data-verb-id="${verb.id}" ondblclick="App.showVerbModal(${verb.id})">
+                                    <tr class="border-t border-white/10 hover:bg-white/10 cursor-pointer" 
+                                        data-verb-id="${verb.id}" 
+                                        onclick="App.showVerbModal(${verb.id})">
                                         <td class="p-4 font-semibold">${verb.id}</td>
                                         <td class="p-4 text-lg font-bold">${verb.kanji}</td>
                                         <td class="p-4">${verb.hiragana}</td>
@@ -581,7 +758,9 @@
                                 </thead>
                                 <tbody>
                                     ${filteredVerbs.map(verb => `
-                                        <tr class="border-t border-white/10 hover:bg-white/10 cursor-pointer" data-verb-id="${verb.id}" ondblclick="App.showVerbModal(${verb.id})">
+                                        <tr class="border-t border-white/10 hover:bg-white/10 cursor-pointer" 
+                                            data-verb-id="${verb.id}" 
+                                            onclick="App.showVerbModal(${verb.id})">
                                             <td class="p-4 font-semibold">${verb.id}</td>
                                             <td class="p-4 text-lg font-bold">${verb.kanji}</td>
                                             <td class="p-4">${verb.hiragana}</td>
@@ -655,10 +834,16 @@
                                 <!-- Mini Editor cho Ghi chú -->
                                 <div class="pt-3">
                                     <label class="font-semibold text-sm mb-2 block text-gray-200">Ghi chú:</label>
-                                    <div class="flex items-center space-x-2 mb-2 p-2 bg-black/20 rounded-lg">
-                                        <button class="editor-btn p-1.5 rounded hover:bg-white/20" data-command="bold" data-verb-id="${verb.id}"><i data-lucide="bold" class="w-4 h-4"></i></button>
-                                        <button class="editor-btn p-1.5 rounded hover:bg-white/20" data-command="italic" data-verb-id="${verb.id}"><i data-lucide="italic" class="w-4 h-4"></i></button>
-                                        <button class="editor-btn p-1.5 rounded hover:bg-white/20" data-command="underline" data-verb-id="${verb.id}"><i data-lucide="underline" class="w-4 h-4"></i></button>
+                                    <div class="editor-toolbar flex items-center space-x-2 mb-2">
+                                        <button class="editor-btn p-1.5 rounded hover:bg-white/20" data-command="bold" data-verb-id="${verb.id}">
+                                            <i data-lucide="bold" class="w-4 h-4"></i>
+                                        </button>
+                                        <button class="editor-btn p-1.5 rounded hover:bg-white/20" data-command="italic" data-verb-id="${verb.id}">
+                                            <i data-lucide="italic" class="w-4 h-4"></i>
+                                        </button>
+                                        <button class="editor-btn p-1.5 rounded hover:bg-white/20" data-command="underline" data-verb-id="${verb.id}">
+                                            <i data-lucide="underline" class="w-4 h-4"></i>
+                                        </button>
                                         <div class="h-5 w-px bg-white/20"></div>
                                         <button class="color-btn w-5 h-5 rounded-full ring-2 ring-transparent hover:ring-white" style="background-color:#FBBF24" data-color="#FBBF24" data-verb-id="${verb.id}"></button>
                                         <button class="color-btn w-5 h-5 rounded-full ring-2 ring-transparent hover:ring-white" style="background-color:#4ADE80" data-color="#4ADE80" data-verb-id="${verb.id}"></button>
@@ -666,7 +851,10 @@
                                         <button class="color-btn w-5 h-5 rounded-full ring-2 ring-transparent hover:ring-white" style="background-color:#A78BFA" data-color="#A78BFA" data-verb-id="${verb.id}"></button>
                                         <input type="color" class="custom-color-picker w-6 h-6 p-0 border-none rounded-full cursor-pointer bg-transparent" data-verb-id="${verb.id}" value="#60A5FA">
                                     </div>
-                                    <div id="note-editor-modal-${verb.id}" contenteditable="true" class="note-editor text-white" data-verb-id="${verb.id}">${verb.note || ''}</div>
+                                    <div id="note-editor-modal-${verb.id}" 
+                                         contenteditable="true" 
+                                         class="note-editor text-white" 
+                                         data-verb-id="${verb.id}">${verb.note || ''}</div>
                                 </div>
                             </div>
                         </div>
@@ -674,6 +862,13 @@
                 `;
                 lucide.createIcons();
                 this.setupModalListeners(verb.id);
+
+                const modalContent = modalContainer.querySelector('.modal-content');
+                if (window.innerWidth < 768) {
+                    modalContent.style.maxHeight = '90vh';
+                    modalContent.style.width = '100%';
+                    modalContent.style.margin = '1rem';
+                }
             },
             
             closeVerbModal() {
