@@ -520,6 +520,17 @@
             padding: 2rem;
             color: rgba(255, 255, 255, 0.5);
         }
+        
+        /* Learning hub card styles */
+        .learning-card {
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .learning-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 247, 255, 0.2);
+        }
     </style>
 </head>
 <body class="font-sans">
@@ -538,17 +549,9 @@
                     <i data-lucide="book-open" class="nav-icon"></i>
                     <span class="nav-text">Tổng quan</span>
                 </a>
-                <a href="#" class="nav-item" data-view="learn">
+                <a href="#" class="nav-item" data-view="learning-hub">
                     <i data-lucide="brain" class="nav-icon"></i>
-                    <span class="nav-text">Học từ vựng</span>
-                </a>
-                <a href="#" class="nav-item" data-view="te-form">
-                    <i data-lucide="check-circle" class="nav-icon"></i>
-                    <span class="nav-text">Thể て</span>
-                </a>
-                <a href="#" class="nav-item" data-view="nai-form">
-                    <i data-lucide="x-circle" class="nav-icon"></i>
-                    <span class="nav-text">Thể ない</span>
+                    <span class="nav-text">Học tập</span>
                 </a>
                 <a href="#" class="nav-item" data-view="progress">
                     <i data-lucide="trending-up" class="nav-icon"></i>
@@ -574,6 +577,7 @@
             <div class="main-content flex-1 overflow-y-auto">
                 <div id="view-overview" class="view"></div>
                 <div id="view-progress" class="view hidden"></div>
+                <div id="view-learning-hub" class="view hidden"></div>
                 <div id="view-learn" class="view hidden"></div>
                 <div id="view-te-form" class="view hidden"></div>
                 <div id="view-nai-form" class="view hidden"></div>
@@ -685,6 +689,7 @@
             
             // --- GẮN SỰ KIỆN ---
             setupEventListeners() {
+                // Listeners for static elements (sidebar)
                 document.querySelectorAll('.nav-item').forEach(item => {
                     item.addEventListener('click', (e) => {
                         e.preventDefault();
@@ -698,6 +703,89 @@
                     this.state.settings.navCollapsed = !this.state.settings.navCollapsed;
                     sidebar.classList.toggle('nav-collapsed', this.state.settings.navCollapsed);
                     this.saveSettings();
+                });
+
+                // *** FIX: Delegated event listener for dynamic content inside <main> ***
+                const mainContent = document.querySelector('.main-content');
+                mainContent.addEventListener('click', (e) => {
+                    // Back to Hub from Quiz (te/nai) or from Learn Packages view
+                    const backToHubBtn = e.target.closest('#back-to-hub');
+                    if (backToHubBtn) {
+                        e.preventDefault();
+                        // Reset quiz state when leaving
+                        this.state.quiz.questions = [];
+                        this.state.quiz.type = null;
+                        
+                        this.state.currentView = 'learning-hub';
+                        this.render();
+                        return;
+                    }
+
+                    // Back to Packages from Learn Quiz
+                    const backToPackagesBtn = e.target.closest('#back-to-packages');
+                    if (backToPackagesBtn) {
+                        e.preventDefault();
+                        this.state.learn.wordsInPackage = [];
+                        this.state.currentView = 'learn';
+                        this.render();
+                        return;
+                    }
+
+                    // Handle learning hub cards
+                    const learningCard = e.target.closest('.learning-card');
+                    if (learningCard) {
+                        e.preventDefault();
+                        const subview = learningCard.dataset.subview;
+                        this.state.currentView = subview;
+                        this.render();
+                        return;
+                    }
+
+                    // Handle package selection
+                    const packageBtn = e.target.closest('[data-package-index]');
+                    if (packageBtn) {
+                        e.preventDefault();
+                        const index = parseInt(packageBtn.dataset.packageIndex);
+                        const isCompleted = this.state.learn.completedPackages.includes(index);
+                        const packages = [];
+                        for (let i = 0; i < this.state.verbs.length; i += 5) {
+                            packages.push(this.state.verbs.slice(i, i + 5));
+                        }
+                        this.startLearnPackage(index, packages, isCompleted);
+                        return;
+                    }
+
+                    // Handle quiz/learn option buttons
+                    const optionBtn = e.target.closest('.quiz-option-btn, .learn-option-btn');
+                    if (optionBtn) {
+                        e.preventDefault();
+                        if (optionBtn.classList.contains('quiz-option-btn') && !this.state.quiz.showAnswer) {
+                            this.checkQuizAnswer(optionBtn.textContent);
+                        } else if (optionBtn.classList.contains('learn-option-btn') && !this.state.learn.showAnswer) {
+                            this.checkLearnAnswer(optionBtn.textContent);
+                        }
+                        return;
+                    }
+
+                    // Handle next buttons
+                    const nextBtn = e.target.closest('#next-quiz-btn, #next-learn-btn');
+                    if (nextBtn) {
+                        e.preventDefault();
+                        if (nextBtn.id === 'next-quiz-btn') {
+                            this.nextQuizQuestion();
+                        } else {
+                            this.nextLearnQuestion();
+                        }
+                        return;
+                    }
+
+                    // Handle restart quiz
+                    const restartQuizBtn = e.target.closest('#restart-quiz-btn');
+                    if (restartQuizBtn) {
+                        e.preventDefault();
+                        this.startQuiz(this.state.quiz.type);
+                        return;
+                    }
                 });
             },
             
@@ -714,6 +802,7 @@
                 switch(this.state.currentView) {
                     case 'overview': this.renderOverview(); break;
                     case 'progress': this.renderProgress(); break;
+                    case 'learning-hub': this.renderLearningHub(); break;
                     case 'learn': this.renderLearn(); break;
                     case 'te-form': this.renderQuiz('te'); break;
                     case 'nai-form': this.renderQuiz('nai'); break;
@@ -977,19 +1066,61 @@
                 `;
             },
 
-            // 3. HỌC TẬP
+            // 3. HỌC TẬP - TRUNG TÂM HỌC TẬP MỚI
+            renderLearningHub() {
+                const container = document.getElementById('view-learning-hub');
+                container.innerHTML = `
+                    <h2 class="text-4xl font-bold mb-8 text-white">Trung tâm học tập</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="learning-card glass-card p-6 text-center cursor-pointer" data-subview="learn">
+                            <div class="w-16 h-16 mx-auto mb-4 bg-indigo-500/20 rounded-full flex items-center justify-center">
+                                <i data-lucide="book-open" class="w-8 h-8 text-indigo-300"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-white">Học từ vựng</h3>
+                            <p class="text-gray-300">Học 130 động từ N5 với hệ thống ghi nhớ lặp lại</p>
+                        </div>
+                        
+                        <div class="learning-card glass-card p-6 text-center cursor-pointer" data-subview="te-form">
+                            <div class="w-16 h-16 mx-auto mb-4 bg-green-500/20 rounded-full flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-8 h-8 text-green-300"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-white">Luyện thể て</h3>
+                            <p class="text-gray-300">Luyện tập cách chia động từ sang thể て</p>
+                        </div>
+                        
+                        <div class="learning-card glass-card p-6 text-center cursor-pointer" data-subview="nai-form">
+                            <div class="w-16 h-16 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
+                                <i data-lucide="x-circle" class="w-8 h-8 text-red-300"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-white">Luyện thể ない</h3>
+                            <p class="text-gray-300">Luyện tập cách chia động từ sang thể ない</p>
+                        </div>
+                    </div>
+                `;
+                // NOTE: Event listeners for cards are now handled by the delegated listener
+                lucide.createIcons();
+            },
+
+            // 4. HỌC TỪ VỰNG
             renderLearn() {
                 const container = document.getElementById('view-learn');
                 const wordsToLearn = this.state.verbs.filter(v => !(v.progress.hiragana >= 3 && v.progress.kanji >= 4));
                 
                 if (wordsToLearn.length === 0) {
                     container.innerHTML = `
-                        <h2 class="text-4xl font-bold mb-8 text-white">Học tập</h2>
+                        <div class="flex items-center mb-4">
+                            <button id="back-to-hub" class="btn-secondary mr-4 !px-3 !py-1.5">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            </button>
+                            <h2 class="text-4xl font-bold text-white">Học từ vựng</h2>
+                        </div>
                         <div class="glass-card p-8 text-center">
                             <i data-lucide="party-popper" class="mx-auto h-16 w-16 text-yellow-300 mb-4"></i>
                             <h3 class="text-2xl font-bold text-white">Chúc mừng!</h3>
                             <p class="mt-2 text-lg text-gray-300">Bạn đã học hết 130 động từ. Hãy tiếp tục ôn tập ở phần trắc nghiệm nhé!</p>
                         </div>`;
+                    
+                    // NOTE: Back button listener is now delegated
                     return;
                 }
 
@@ -999,8 +1130,14 @@
                 }
                 
                 if (!this.state.learn.wordsInPackage || this.state.learn.wordsInPackage.length === 0) {
-                    let html = `<h2 class="text-4xl font-bold mb-8 text-white">Chọn gói học</h2>
-                                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">`;
+                    let html = `
+                        <div class="flex items-center mb-6">
+                            <button id="back-to-hub" class="btn-secondary mr-4 !px-3 !py-1.5">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            </button>
+                            <h2 class="text-4xl font-bold text-white">Chọn gói học</h2>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">`;
                     packages.forEach((pkg, index) => {
                         const isCompleted = this.state.learn.completedPackages.includes(index);
                         const start = pkg[0].id;
@@ -1015,13 +1152,7 @@
                      html += `</div>`;
                      container.innerHTML = html;
 
-                     document.querySelectorAll('[data-package-index]').forEach(btn => {
-                         btn.addEventListener('click', e => {
-                             const index = parseInt(e.currentTarget.dataset.packageIndex);
-                             const isCompleted = this.state.learn.completedPackages.includes(index);
-                             this.startLearnPackage(index, packages, isCompleted);
-                         });
-                     });
+                     // NOTE: Package selection listeners are now delegated
                      lucide.createIcons();
                 } else {
                     this.renderLearnQuiz();
@@ -1035,7 +1166,7 @@
                 this.state.learn.currentWordIndex = 0;
                 this.state.learn.currentQuizType = 'hiragana';
                 this.state.learn.reviewMode = isCompleted;
-                this.renderLearnQuiz();
+                this.render();
             },
             
             renderLearnQuiz() {
@@ -1059,8 +1190,11 @@
                 let html = `
                     <div class="max-w-2xl mx-auto">
                         <div class="flex justify-between items-center mb-4">
+                            <button id="back-to-packages" class="btn-secondary text-sm !px-3 !py-1.5">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            </button>
                              <h2 class="text-3xl font-bold text-white">Học từ vựng</h2>
-                             <button id="back-to-packages" class="btn-secondary text-sm !px-3 !py-1.5">Chọn gói khác</button>
+                             <div></div> <!-- Empty div for flex alignment -->
                         </div>
                         <div class="glass-card p-8">
                             <p class="text-center text-gray-400 mb-2">
@@ -1081,19 +1215,7 @@
                     </div>
                 `;
                 container.innerHTML = html;
-
-                document.getElementById('back-to-packages').addEventListener('click', () => {
-                    this.state.learn.wordsInPackage = [];
-                    this.renderLearn();
-                });
-
-                if (learnState.showAnswer) {
-                    document.getElementById('next-learn-btn').addEventListener('click', () => this.nextLearnQuestion());
-                } else {
-                    document.querySelectorAll('.learn-option-btn').forEach(btn => {
-                        btn.addEventListener('click', e => this.checkLearnAnswer(e.target.textContent));
-                    });
-                }
+                // NOTE: All button listeners are now delegated
             },
             
             checkLearnAnswer(selectedAnswer) {
@@ -1108,7 +1230,7 @@
                      else currentWord.progress.kanji++;
                     this.saveData();
                 }
-                this.renderLearnQuiz();
+                this.render();
             },
 
             nextLearnQuestion() {
@@ -1191,15 +1313,15 @@
                     this.showCustomAlert('Chúc mừng! Bạn đã hoàn thành gói học này.', 'success');
                     setTimeout(() => {
                         learnState.wordsInPackage = [];
-                        this.renderLearn();
+                        this.render();
                     }, 1500);
                     return;
                 }
 
-                this.renderLearnQuiz();
+                this.render();
             },
 
-            // 4 & 5. TRẮC NGHIỆM THỂ TÊ & NAI
+            // 5 & 6. TRẮC NGHIỆM THỂ TÊ & NAI
             renderQuiz(type) {
                 const container = document.getElementById(`view-${type}-form`);
                 
@@ -1212,20 +1334,31 @@
 
                 if (!question) {
                     container.innerHTML = `
+                        <div class="flex items-center mb-4">
+                            <button id="back-to-hub" class="btn-secondary mr-4 !px-3 !py-1.5">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            </button>
+                            <h2 class="text-2xl font-bold text-white">Hoàn thành!</h2>
+                        </div>
                         <div class="glass-card p-8 text-center max-w-lg mx-auto">
-                            <h2 class="text-2xl font-bold text-white mb-4">Hoàn thành!</h2>
                             <p class="text-lg mb-6 text-gray-300">Kết quả của bạn: <span class="font-bold text-green-300">${quizState.correctAnswers} / ${quizState.questions.length}</span></p>
                             <button id="restart-quiz-btn" class="btn-primary">Làm lại</button>
                         </div>
                     `;
-                    document.getElementById('restart-quiz-btn').addEventListener('click', () => this.startQuiz(type));
+                    
+                    // NOTE: Back and restart button listeners are now delegated
                     return;
                 }
 
                 const progressPercentage = (quizState.currentQuestionIndex / quizState.questions.length) * 100;
 
                 let html = `
-                    <h2 class="text-4xl font-bold mb-8 text-white">Trắc nghiệm Thể ${type.toUpperCase()}</h2>
+                    <div class="flex items-center mb-6">
+                        <button id="back-to-hub" class="btn-secondary mr-4 !px-3 !py-1.5">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        </button>
+                        <h2 class="text-4xl font-bold text-white">Trắc nghiệm Thể ${type.toUpperCase()}</h2>
+                    </div>
                     <div class="glass-card max-w-2xl mx-auto overflow-hidden">
                         <div class="w-full bg-black/20 h-2.5">
                            <div class="bg-indigo-500 h-2.5" style="width: ${progressPercentage}%"></div>
@@ -1248,14 +1381,7 @@
                     </div>
                 `;
                 container.innerHTML = html;
-
-                if (quizState.showAnswer) {
-                    document.getElementById('next-quiz-btn').addEventListener('click', () => this.nextQuizQuestion());
-                } else {
-                    document.querySelectorAll('.quiz-option-btn').forEach(btn => {
-                        btn.addEventListener('click', e => this.checkQuizAnswer(e.target.textContent));
-                    });
-                }
+                // NOTE: All button listeners are now delegated
             },
 
             startQuiz(type) {
@@ -1294,7 +1420,7 @@
                 this.renderQuiz(this.state.quiz.type);
             },
 
-            // 6. HIỂN THỊ GHI CHÚ
+            // 7. HIỂN THỊ GHI CHÚ
             renderNotes() {
                 const container = document.getElementById('view-notes');
                 const verbsWithNotes = this.state.verbs.filter(verb => verb.note && verb.note.trim() !== '');
@@ -1348,7 +1474,7 @@
                 });
             },
 
-            // 7. CÀI ĐẶT
+            // 8. CÀI ĐẶT
             renderSettings() {
                 const container = document.getElementById('view-settings');
                 const isDark = this.state.settings.theme === 'dark';
