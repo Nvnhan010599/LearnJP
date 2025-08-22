@@ -480,6 +480,46 @@
             border-radius: 0.5rem;
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
+        /* Styles for notes view */
+        .note-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .note-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .note-verb {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--neon-blue);
+        }
+
+        .note-reading {
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+        }
+
+        .note-content {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+        }
+
+        .note-empty {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body class="font-sans">
@@ -514,6 +554,11 @@
                     <i data-lucide="trending-up" class="nav-icon"></i>
                     <span class="nav-text">Tiến độ</span>
                 </a>
+                <!-- Thêm mục Ghi chú mới -->
+                <a href="#" class="nav-item" data-view="notes">
+                    <i data-lucide="sticky-note" class="nav-icon"></i>
+                    <span class="nav-text">Ghi chú</span>
+                </a>
             </div>
 
             <div class="border-t border-white/10">
@@ -532,6 +577,7 @@
                 <div id="view-learn" class="view hidden"></div>
                 <div id="view-te-form" class="view hidden"></div>
                 <div id="view-nai-form" class="view hidden"></div>
+                <div id="view-notes" class="view hidden"></div>
                 <div id="view-settings" class="view hidden"></div>
             </div>
         </main>
@@ -671,6 +717,7 @@
                     case 'learn': this.renderLearn(); break;
                     case 'te-form': this.renderQuiz('te'); break;
                     case 'nai-form': this.renderQuiz('nai'); break;
+                    case 'notes': this.renderNotes(); break;
                     case 'settings': this.renderSettings(); break;
                 }
                 lucide.createIcons();
@@ -1247,7 +1294,61 @@
                 this.renderQuiz(this.state.quiz.type);
             },
 
-            // 6. CÀI ĐẶT
+            // 6. HIỂN THỊ GHI CHÚ
+            renderNotes() {
+                const container = document.getElementById('view-notes');
+                const verbsWithNotes = this.state.verbs.filter(verb => verb.note && verb.note.trim() !== '');
+                
+                if (verbsWithNotes.length === 0) {
+                    container.innerHTML = `
+                        <h2 class="text-4xl font-bold mb-8 text-white">Ghi chú</h2>
+                        <div class="glass-card p-8 text-center">
+                            <i data-lucide="sticky-note" class="mx-auto h-16 w-16 text-gray-400 mb-4"></i>
+                            <h3 class="text-2xl font-bold text-white mb-2">Chưa có ghi chú</h3>
+                            <p class="text-lg text-gray-300">Bạn chưa có ghi chú nào. Hãy thêm ghi chú trong phần Tổng quan!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <h2 class="text-4xl font-bold mb-8 text-white">Ghi chú</h2>
+                    <div class="glass-card overflow-hidden">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-4 text-white">Tất cả ghi chú của bạn</h3>
+                            <div class="notes-list">
+                `;
+
+                verbsWithNotes.forEach(verb => {
+                    html += `
+                        <div class="note-item" data-verb-id="${verb.id}">
+                            <div class="note-header">
+                                <span class="note-verb">${verb.kanji} <span class="note-reading">(${verb.hiragana})</span></span>
+                                <span class="text-sm text-gray-400">#${verb.id}</span>
+                            </div>
+                            <div class="note-content">${verb.note}</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+
+                // Thêm sự kiện click để mở modal chỉnh sửa
+                container.querySelectorAll('.note-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const verbId = parseInt(item.dataset.verbId);
+                        this.showVerbModal(verbId);
+                    });
+                });
+            },
+
+            // 7. CÀI ĐẶT
             renderSettings() {
                 const container = document.getElementById('view-settings');
                 const isDark = this.state.settings.theme === 'dark';
