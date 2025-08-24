@@ -1692,5 +1692,31 @@ const n5Verbs = [
     "example": "駅に着きました。(Tôi đã đến ga)",
     "progress": { "hiragana": 0, "kanji": 0 },
     "note": ""
+  },
+  {
+    "id": 131,
+    "kanji": "釣りをします",
+    "hiragana": "つりをします",
+    "meaning": "Câu cá",
+    "group": 3,
+    "dictionaryForm": "釣りをする",
+    "teForm": "釣りをして",
+    "naiForm": "釣りをしない",
+    "example": "川で釣りをします。(Tôi câu cá ở sông)",
+    "progress": { "hiragana": 0, "kanji": 0 },
+    "note": ""
+  },
+  {
+    "id": 132,
+    "kanji": "足ります",
+    "hiragana": "たります",
+    "meaning": "Đủ",
+    "group": 2,
+    "dictionaryForm": "足りる",
+    "teForm": "足りて",
+    "naiForm": "足りない",
+    "example": "お金が足りますか。(Bạn có đủ tiền không?)",
+    "progress": { "hiragana": 0, "kanji": 0 },
+    "note": ""
   }
 ];
