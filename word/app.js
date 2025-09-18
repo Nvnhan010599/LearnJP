@@ -57,7 +57,7 @@ auth.onAuthStateChanged(user => {
         
         updateThemeButton();
 
-        mainControls.style.display = 'block';
+        mainControls.style.display = 'flex';
         lessonControls.style.display = 'flex';
         statsContainer.style.display = 'block';
         footer.style.display = 'flex';
@@ -151,6 +151,7 @@ let quizQueue = [];
 let usedWords = [];
 let currentCard = null;
 let currentPackageIndex = 0;
+let uploadMode = 'overwrite'; // 'overwrite' or 'append'
 const PACKAGE_SIZE = 10;
 const BASE_QUIZ_TIMER_DURATION = 6;
 const CHAR_PER_SECOND_RATE = 0.5;
@@ -245,15 +246,25 @@ function updateDirectionVisibility() {
 const LESSON_COLUMN = 0, JP_WORD_COLUMN = 2, KANJI_COLUMN = 3, VN_WORD_COLUMN = 4;
 const JP_DUMMY_COLUMNS = [9, 10, 11], VN_DUMMY_COLUMNS = [12, 13, 14];
 
-document.getElementById('excelFile').addEventListener('change', function(e) {
-    const file = e.target.files[0];
+function processExcelFile(file) {
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        allWords = new Map();
+        let newWordsCount = 0;
+        let duplicateCount = 0;
+
+        // Chỉ xóa dữ liệu cũ khi ở chế độ 'overwrite'
+        if (uploadMode === 'overwrite') {
+            allWords = new Map();
+            console.log('Chế độ Ghi đè: Dữ liệu cũ đã được xóa.');
+        } else {
+            console.log('Chế độ Bổ sung: Giữ lại dữ liệu cũ.');
+        }
+
         jsonData.slice(1).forEach(row => {
             const lesson = (row[LESSON_COLUMN]?.toString() || '0').trim();
             const rawTerm = (row[JP_WORD_COLUMN] || '').trim();
@@ -269,16 +280,57 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
                 jpDummies: JP_DUMMY_COLUMNS.map(col => (row[col] || '').trim()).filter(d => d !== ''),
                 vnDummies: VN_DUMMY_COLUMNS.map(col => (row[col] || '').trim()).filter(d => d !== '')
             };
-            if (!allWords.has(lesson)) allWords.set(lesson, []);
-            allWords.get(lesson).push(vocab);
+            
+            if (!allWords.has(lesson)) {
+                allWords.set(lesson, []);
+            }
+
+            const lessonWords = allWords.get(lesson);
+            const wordExists = lessonWords.some(existingWord => existingWord.term === vocab.term);
+
+            if (!wordExists) {
+                lessonWords.push(vocab);
+                newWordsCount++;
+            } else {
+                duplicateCount++;
+                console.warn(`Bỏ qua từ bị trùng: "${vocab.term}" trong Bài ${lesson}`);
+            }
         });
+        
         updateLessonDropdown();
         saveDataToFirebase();
         resetToHome();
-        console.log('Dữ liệu từ Excel đã được tải và xử lý.', allWords);
+        
+        let alertMessage = `Tải lên hoàn tất!\nChế độ: ${uploadMode === 'overwrite' ? 'Ghi đè' : 'Bổ sung'}.\n`;
+        if (uploadMode === 'append') {
+            alertMessage += `Đã thêm ${newWordsCount} từ mới.\nBỏ qua ${duplicateCount} từ bị trùng.`;
+        }
+        alert(alertMessage);
+        
+        console.log('Dữ liệu sau khi xử lý:', allWords);
     };
     reader.readAsArrayBuffer(file);
+    
+    document.getElementById('excelFile').value = ''; 
+}
+
+// Gắn sự kiện cho các nút tải lên
+document.getElementById('uploadOverwriteBtn').addEventListener('click', () => {
+    uploadMode = 'overwrite';
+    document.getElementById('excelFile').click();
 });
+
+document.getElementById('uploadAppendBtn').addEventListener('click', () => {
+    uploadMode = 'append';
+    document.getElementById('excelFile').click();
+});
+
+document.getElementById('excelFile').addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        processExcelFile(e.target.files[0]);
+    }
+});
+
 
 function updateLessonDropdown() {
     const lessonSelect = document.getElementById('lessonSelect');
@@ -404,9 +456,6 @@ function startInfiniteChallenge(lessonNum) {
     showReviewModeStartScreen(`Thử thách vô hạn Bài ${lessonNum}`);
 }
 
-/**
- * **HÀM MỚI**: Hiển thị danh sách từ vựng của gói vừa hoàn thành.
- */
 function reviewPackageWords() {
     const container = document.getElementById('cardContainer');
     const totalWordsInLesson = (allWords.get(currentLesson) || []).length;
@@ -494,7 +543,6 @@ function showNextCard() {
             
             let completionHtml = `<div class="card result-feedback"><p class="feedback-correct">🎉 Chúc mừng! Bạn đã hoàn thành Gói ${currentPackageIndex + 1}.</p>`;
             
-            // **THAY ĐỔI**: Thêm nút xem lại
             completionHtml += `<button class="action-btn review-btn" onclick="reviewPackageWords()">📝 Xem lại từ vựng</button>`;
 
             if (currentPackageIndex + 1 < totalPackages) {
@@ -995,9 +1043,10 @@ header p { color: var(--text-secondary); }
 /* --- KẾT THÚC CSS MENU --- */
 
 h3 { font-family: var(--font-heading); font-weight: 700; margin-bottom: 15px; text-align: center; color: var(--text-accent); }
-.main-controls { text-align: center; margin-bottom: 20px; }
-.file-label { display: inline-block; padding: 12px 25px; background: var(--primary-gradient); color: white; border-radius: 8px; cursor: pointer; font-weight: 700; font-family: var(--font-heading); transition: all 0.3s ease; box-shadow: 0 4px 15px var(--shadow-light); }
+.main-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; text-align: center; margin-bottom: 20px; }
+.file-label { display: inline-block; padding: 12px 25px; background: var(--primary-gradient); color: white; border-radius: 8px; cursor: pointer; font-weight: 700; font-family: var(--font-heading); transition: all 0.3s ease; box-shadow: 0 4px 15px var(--shadow-light); border: none; font-size: 15px; }
 .file-label:hover { transform: translateY(-3px) scale(1.05); }
+.file-label.append { background: var(--success-color); }
 .file-input { display: none; }
 .lesson-controls { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
 select { flex-grow: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-content); color: var(--text-primary); font-family: var(--font-body); font-size: 16px; cursor: pointer; min-width: 150px; transition: background-color 0.3s, border-color 0.3s, color 0.3s; }
@@ -1047,7 +1096,6 @@ footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: 
 .review-start-screen p { color: var(--text-secondary); margin-bottom: 25px; }
 .review-start-screen .action-btn { width: auto; padding: 12px 30px; font-size: 1.1rem; }
 
-/* **CSS MỚI** */
 .review-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 16px; }
 .review-table th, .review-table td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: left; }
 .review-table th { background-color: var(--bg-main); font-weight: 700; }

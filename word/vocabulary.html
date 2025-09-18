@@ -24,10 +24,18 @@
             <p>Đồng bộ tiến trình học của bạn trên mọi thiết bị</p>
         </header>
         
+        <!-- === UPDATED SECTION: File Upload Controls === -->
         <div class="main-controls">
             <input type="file" id="excelFile" accept=".xlsx" class="file-input">
-            <label for="excelFile" class="file-label">📂 Chọn file Excel để tải lên</label>
+            
+            <!-- Nút này sẽ thực hiện chức năng GHI ĐÈ (như cũ) -->
+            <button id="uploadOverwriteBtn" class="file-label">📂 Tải lên & Ghi đè</button>
+            
+            <!-- Nút này sẽ thực hiện chức năng BỔ SUNG (mới) -->
+            <button id="uploadAppendBtn" class="file-label append">➕ Bổ sung từ Excel</button>
         </div>
+        <!-- === END UPDATED SECTION === -->
+
 
         <div class="lesson-controls">
             <select id="lessonSelect" onchange="onLessonChange()" disabled>
@@ -39,7 +47,6 @@
                 <option value="input">Nhập nghĩa</option>
             </select>
             
-            <!-- Ô chọn chiều, ẩn đi theo mặc định và sẽ được JS điều khiển -->
             <select id="direction" onchange="onDirectionChange()" style="display: none;">
                 <option value="jpToVn">Nhật ➔ Việt</option>
                 <option value="vnToJp">Việt ➔ Nhật</option>
