@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J-Verb Master - Chinh Phục Tự/Tha Động Từ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #fff0f3; /* Hồng phấn rất nhạt làm nền */
+            color: #334155;
+        }
+        .jp-font {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff0f5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fbcfe8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f472b6;
+        }
+
+        /* Animations */
+        .slide-up {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(236, 72, 153, 0.15), 0 10px 10px -5px rgba(236, 72, 153, 0.1);
+            border-color: #f9a8d4;
+        }
+
+        /* Navigation Tab Active State */
+        .nav-item {
+            color: #64748b;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 99px;
+            transition: all 0.2s;
+        }
+        .nav-item:hover {
+            color: #db2777;
+            background-color: #fdf2f8;
+        }
+        .nav-item.active {
+            color: #db2777; /* Pink-600 */
+            background-color: #fce7f3;
+        }
+
+        /* Card Styling Specifics */
+        .verb-card {
+            background: white;
+            border-radius: 32px; /* Bo tròn nhiều hơn giống mẫu */
+            overflow: hidden;
+            border: 1px solid #fce7f3; /* Viền hồng rất nhạt */
+            box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.05);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .card-title-underline {
+            height: 4px;
+            width: 40px;
+            background-color: #ec4899; /* Pink-500 */
+            border-radius: 2px;
+            margin: 8px auto 0;
+        }
+
+        .illustration-area {
+            background-color: #f0fdf4; /* Xanh bạc hà nhạt */
+            height: 150px;
+            margin: 0 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .illustration-icon {
+            font-size: 4.5rem;
+            color: #34d399; /* Emerald-400 */
+            filter: drop-shadow(0 4px 6px rgba(16, 185, 129, 0.2));
+            transition: transform 0.3s;
+        }
+        .verb-card:hover .illustration-icon {
+            transform: scale(1.1);
+        }
+        
+        .split-container {
+            display: flex;
+            flex: 1;
+            margin-top: 16px;
+            padding: 16px 0;
+        }
+        .split-col {
+            flex: 1;
+            padding: 0 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Đường kẻ dọc nét đứt ở giữa */
+        .split-divider {
+            border-right: 2px dashed #e2e8f0;
+        }
+        
+        /* Ruby text styling */
+        ruby {
+            ruby-position: over;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+        rt {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-family: 'Nunito', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-pink-100">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-br from-pink-500 to-rose-500 text-white w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-pink-200 transform rotate-3">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-gray-800">J-Verb <span class="text-pink-500">Master</span></h1>
+            </div>
+            
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex space-x-2">
+                <div onclick="switchTab('theory')" id="tab-theory" class="nav-item active"><i class="fa-solid fa-book mr-2"></i>Lý Thuyết</div>
+                <div onclick="switchTab('learn')" id="tab-learn" class="nav-item"><i class="fa-solid fa-layer-group mr-2"></i>Danh Sách</div>
+                <div onclick="switchTab('quiz')" id="tab-quiz" class="nav-item"><i class="fa-solid fa-gamepad mr-2"></i>Thử Thách</div>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-pink-500 text-2xl focus:outline-none p-2 rounded-lg hover:bg-pink-50" onclick="toggleMobileMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Nav -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-4 shadow-xl absolute w-full z-40">
+            <div onclick="switchTab('theory')" class="py-3 font-bold text-gray-600 flex items-center gap-3 rounded-lg hover:bg-pink-50 px-2"><i class="fa-solid fa-book text-pink-400"></i> Lý Thuyết</div>
+            <div onclick="switchTab('learn')" class="py-3 font-bold text-gray-600 flex items-center gap-3 rounded-lg hover:bg-pink-50 px-2"><i class="fa-solid fa-layer-group text-pink-400"></i> Danh Sách Từ</div>
+            <div onclick="switchTab('quiz')" class="py-3 font-bold text-gray-600 flex items-center gap-3 rounded-lg hover:bg-pink-50 px-2"><i class="fa-solid fa-gamepad text-pink-400"></i> Thử Thách</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-8">
+
+        <!-- THEORY TAB -->
+        <div id="content-theory" class="slide-up">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-rose-400 to-pink-500 rounded-[2rem] p-8 md:p-12 text-white shadow-xl shadow-pink-200 mb-10 relative overflow-hidden">
+                <div class="absolute -bottom-10 -right-10 opacity-20 transform rotate-12">
+                    <i class="fa-solid fa-shapes text-9xl"></i>
+                </div>
+                <div class="relative z-10">
+                    <span class="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-sm font-bold mb-4 inline-block border border-white/30">Tiếng Nhật N4-N3</span>
+                    <h2 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">Chinh Phục<br>Tự & Tha Động Từ</h2>
+                    <p class="text-pink-50 text-lg max-w-xl mb-8">Hệ thống hóa kiến thức về Jidoushi và Tadoushi thông qua hình ảnh trực quan và ví dụ thực tế.</p>
+                    <div class="flex gap-4 items-center">
+                        <a href="../supplementary.html" class="bg-white text-pink-600 px-8 py-3 rounded-full font-bold hover:bg-gray-50 transition shadow-lg transform hover:scale-105 flex items-center gap-2 inline-flex">
+                            Quay lại <i class="fa-solid fa-arrow-left"></i>
+                        </a>
+                        <button onclick="switchTab('learn')" class="bg-white text-pink-600 px-8 py-3 rounded-full font-bold hover:bg-gray-50 transition shadow-lg transform hover:scale-105 flex items-center gap-2">
+                            Bắt đầu học ngay <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rules Cards -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Tha Dong Tu Rule -->
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-pink-100 hover:shadow-md transition">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 bg-pink-50 rounded-2xl flex items-center justify-center text-pink-500 text-2xl shadow-sm">
+                            <i class="fa-solid fa-hand-point-right"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-extrabold text-gray-800">Tha Động Từ</h3>
+                            <span class="text-xs font-bold text-pink-500 bg-pink-100 px-2 py-1 rounded uppercase tracking-wider">Tadoushi (他動詞)</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-4 text-gray-600">
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-check-circle text-pink-500 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-gray-800">Đuôi ~します:</strong><br>
+                                100% động từ kết thúc bằng <span class="bg-pink-100 text-pink-700 px-1 rounded font-mono text-sm">~します</span> là Tha động từ.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-check-circle text-pink-500 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-gray-800">Trợ từ を:</strong><br>
+                                Tác động lên đối tượng. (Ví dụ: Cơm <span class="text-pink-500 font-bold">を</span> ăn).
+                            </div>
+                        </li>
+                        <li class="flex gap-3 bg-orange-50 p-3 rounded-xl border border-orange-100">
+                            <i class="fa-solid fa-triangle-exclamation text-orange-500 mt-1 text-lg"></i>
+                            <div class="text-sm">
+                                <strong class="text-orange-800">Lưu ý:</strong> Nếu danh từ chỉ <u>địa điểm</u> (công viên, cầu...) đi với を, đó là Tự động từ di chuyển (Đi qua, rời khỏi).
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tu Dong Tu Rule -->
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-blue-100 hover:shadow-md transition">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 text-2xl shadow-sm">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-extrabold text-gray-800">Tự Động Từ</h3>
+                            <span class="text-xs font-bold text-blue-500 bg-blue-100 px-2 py-1 rounded uppercase tracking-wider">Jidoushi (自動詞)</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-4 text-gray-600">
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-check-circle text-blue-500 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-gray-800">Nhóm 1:</strong><br>
+                                Thường thuộc động từ nhóm 1.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-check-circle text-blue-500 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-gray-800">Trợ từ が:</strong><br>
+                                Diễn tả trạng thái, tự nhiên xảy ra. (Ví dụ: Cửa <span class="text-blue-500 font-bold">が</span> mở).
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-check-circle text-blue-500 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-gray-800">Trợ từ khác:</strong><br>
+                                Đi với <span class="font-bold">に, へ, で</span> thường là Tự động từ.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEARN TAB (The Main Interface Request) -->
+        <div id="content-learn" class="hidden h-full slide-up">
+            <!-- Search & Filter -->
+            <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4 bg-white p-4 rounded-2xl shadow-sm border border-pink-50">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Danh sách từ vựng</h2>
+                    <p class="text-sm text-gray-500">Tổng hợp đầy đủ các cặp từ trong tài liệu</p>
+                </div>
+                <div class="relative w-full md:w-96 group">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-pink-500 transition"></i>
+                    <input type="text" id="search-input" placeholder="Tìm kiếm (ví dụ: Mở, aku, akeru...)" class="w-full pl-11 pr-4 py-3 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-pink-200 focus:ring-4 focus:ring-pink-50 outline-none transition">
+                </div>
+            </div>
+
+            <!-- Grid Cards -->
+            <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 pb-12">
+                <!-- Cards will be injected here by JS -->
+            </div>
+            
+            <div id="no-results" class="hidden text-center py-20">
+                <div class="inline-block p-6 bg-gray-50 rounded-full mb-4">
+                    <i class="fa-solid fa-folder-open text-4xl text-gray-300"></i>
+                </div>
+                <p class="text-gray-500 font-medium">Không tìm thấy từ nào phù hợp.</p>
+            </div>
+        </div>
+
+        <!-- QUIZ TAB -->
+        <div id="content-quiz" class="hidden slide-up">
+            <div class="max-w-2xl mx-auto mt-6">
+                <!-- Intro Screen -->
+                <div id="quiz-intro" class="bg-white rounded-[2.5rem] p-10 text-center shadow-xl border border-pink-100 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-400 to-purple-500"></div>
+                    <div class="w-28 h-28 bg-pink-50 rounded-full flex items-center justify-center mx-auto mb-6 text-pink-500 text-5xl shadow-inner">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-gray-800 mb-4">Thử Thách Phản Xạ</h2>
+                    <p class="text-gray-600 mb-10 text-lg leading-relaxed">
+                        Hệ thống sẽ chọn ngẫu nhiên 10 câu hỏi từ kho dữ liệu.<br>
+                        Bạn cần chọn đúng <span class="font-bold text-blue-500">Trợ từ (が/を)</span> hoặc <span class="font-bold text-pink-500">Động từ</span> phù hợp.
+                    </p>
+                    <button onclick="startQuiz()" class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-pink-600 font-lg rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-600 hover:bg-pink-700 shadow-lg hover:shadow-pink-300/50">
+                        <span>Bắt Đầu Ngay</span>
+                        <i class="fa-solid fa-play ml-2 group-hover:translate-x-1 transition"></i>
+                    </button>
+                </div>
+
+                <!-- Game Screen -->
+                <div id="quiz-game" class="hidden">
+                    <div class="bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100">
+                        <!-- Progress Bar -->
+                        <div class="bg-gray-100 h-2 w-full">
+                            <div id="quiz-progress" class="bg-gradient-to-r from-pink-500 to-purple-500 h-2 w-0 transition-all duration-500 ease-out"></div>
+                        </div>
+                        
+                        <div class="p-8 md:p-10">
+                            <div class="flex justify-between items-center mb-8">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-3 py-1 rounded-lg">Câu <span id="q-current">1</span>/10</span>
+                                <div class="text-pink-600 font-bold bg-pink-50 px-4 py-1 rounded-full text-sm border border-pink-100 flex items-center gap-2">
+                                    <i class="fa-solid fa-star text-yellow-400"></i> <span id="score-display">0</span>
+                                </div>
+                            </div>
+
+                            <div class="text-center mb-10 relative">
+                                <div class="text-6xl mb-6 inline-block p-4 bg-pink-50 rounded-full text-pink-500" id="q-icon">🚪</div>
+                                <h3 class="text-2xl md:text-3xl font-bold text-gray-800 jp-font leading-relaxed mb-3" id="q-text">
+                                    <!-- Question Text -->
+                                </h3>
+                                <p class="text-gray-500 bg-gray-50 inline-block px-4 py-1 rounded-full text-sm" id="q-hint"><!-- Hint --></p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="q-options">
+                                <!-- Options injected here -->
+                            </div>
+
+                            <div id="quiz-feedback" class="hidden mt-6 text-center p-4 rounded-2xl font-bold slide-up border-2"></div>
+                            
+                            <button id="btn-next" onclick="nextQuestion()" class="hidden w-full mt-6 bg-gray-800 text-white py-4 rounded-xl font-bold hover:bg-gray-900 transition shadow-lg flex items-center justify-center gap-2">
+                                Câu tiếp theo <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Screen -->
+                <div id="quiz-result" class="hidden text-center py-10 slide-up">
+                    <div class="text-8xl mb-4 animate-bounce" id="result-emoji">🏆</div>
+                    <h2 class="text-4xl font-extrabold text-gray-800 mb-2">Hoàn Thành!</h2>
+                    <p class="text-xl text-gray-600 mb-8">Số điểm của bạn: <span id="final-score" class="text-pink-600 font-extrabold text-3xl">0</span></p>
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 max-w-md mx-auto">
+                        <p class="text-gray-500 italic">"Luyện tập hàng ngày là chìa khóa để thành thạo Tự/Tha động từ!"</p>
+                    </div>
+
+                    <div class="flex justify-center gap-4">
+                        <button onclick="startQuiz()" class="bg-pink-600 text-white px-8 py-3 rounded-full font-bold hover:bg-pink-700 transition shadow-lg hover:shadow-pink-300/50 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-right"></i> Chơi Lại
+                        </button>
+                        <button onclick="switchTab('learn')" class="bg-white text-gray-700 border border-gray-200 px-8 py-3 rounded-full font-bold hover:bg-gray-50 transition flex items-center gap-2">
+                            <i class="fa-solid fa-book"></i> Ôn Tập
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-100 py-8 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-gray-400 text-sm font-medium">© 2025 J-Verb Master. Based on Nihongo Gakuin materials.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- DATA: FULL LIST ---
+        const vocabulary = [
+            // Level 1
+            { id: 1, icon: 'fa-door-open', mean: 'Mở (cửa)', 
+              auto: { k: '開く', r: 'あく', ex: 'ドアが<span class="text-blue-500 font-bold">開く</span>' }, 
+              trans: { k: '開ける', r: 'あける', ex: 'ドアを<span class="text-pink-500 font-bold">開ける</span>' } },
+            { id: 2, icon: 'fa-door-closed', mean: 'Đóng (cửa)', 
+              auto: { k: '閉まる', r: 'しまる', ex: 'ドアが<span class="text-blue-500 font-bold">閉まる</span>' }, 
+              trans: { k: '閉める', r: 'しめる', ex: 'ドアを<span class="text-pink-500 font-bold">閉める</span>' } },
+            { id: 3, icon: 'fa-lightbulb', mean: 'Bật (điện)', 
+              auto: { k: 'つく', r: 'つく', ex: '電気が<span class="text-blue-500 font-bold">つく</span>' }, 
+              trans: { k: 'つける', r: 'つける', ex: '電気を<span class="text-pink-500 font-bold">つける</span>' } },
+            { id: 4, icon: 'fa-regular fa-lightbulb', mean: 'Tắt (điện)', 
+              auto: { k: '消える', r: 'きえる', ex: '電気が<span class="text-blue-500 font-bold">消える</span>' }, 
+              trans: { k: '消す', r: 'けす', ex: '電気を<span class="text-pink-500 font-bold">消す</span>' } },
+            { id: 5, icon: 'fa-person-walking-arrow-right', mean: 'Ra / Lấy ra', 
+              auto: { k: '出る', r: 'でる', ex: '犬が<span class="text-blue-500 font-bold">出る</span>' }, 
+              trans: { k: '出す', r: 'だす', ex: '犬を<span class="text-pink-500 font-bold">出す</span>' } },
+            { id: 6, icon: 'fa-circle-down', mean: 'Rơi / Làm rơi', 
+              auto: { k: '落ちる', r: 'おちる', ex: 'ペンが<span class="text-blue-500 font-bold">落ちる</span>' }, 
+              trans: { k: '落とす', r: 'おとす', ex: 'ペンを<span class="text-pink-500 font-bold">落とす</span>' } },
+            { id: 7, icon: 'fa-laptop-medical', mean: 'Hỏng / Làm hỏng', 
+              auto: { k: '壊れる', r: 'こわれる', ex: 'PCが<span class="text-blue-500 font-bold">壊れる</span>' }, 
+              trans: { k: '壊す', r: 'こわす', ex: 'PCを<span class="text-pink-500 font-bold">壊す</span>' } },
+            { id: 8, icon: 'fa-bread-slice', mean: 'Nướng / Chín', 
+              auto: { k: '焼ける', r: 'やける', ex: 'パンが<span class="text-blue-500 font-bold">焼ける</span>' }, 
+              trans: { k: '焼く', r: 'やく', ex: 'パンを<span class="text-pink-500 font-bold">焼く</span>' } },
+            { id: 9, icon: 'fa-bone', mean: 'Gãy / Làm gãy', 
+              auto: { k: '折れる', r: 'おれる', ex: '骨が<span class="text-blue-500 font-bold">折れる</span>' }, 
+              trans: { k: '折る', r: 'おる', ex: '骨を<span class="text-pink-500 font-bold">折る</span>' } },
+            { id: 10, icon: 'fa-egg', mean: 'Vỡ / Làm vỡ', 
+              auto: { k: '割れる', r: 'われる', ex: '卵が<span class="text-blue-500 font-bold">割れる</span>' }, 
+              trans: { k: '割る', r: 'わる', ex: '卵を<span class="text-pink-500 font-bold">割る</span>' } },
+            { id: 11, icon: 'fa-fire', mean: 'Cháy / Đốt', 
+              auto: { k: '燃える', r: 'もえる', ex: 'ゴミが<span class="text-blue-500 font-bold">燃える</span>' }, 
+              trans: { k: '燃やす', r: 'もやす', ex: 'ゴミを<span class="text-pink-500 font-bold">燃やす</span>' } },
+            { id: 12, icon: 'fa-users', mean: 'Tập hợp', 
+              auto: { k: '集まる', r: 'あつまる', ex: '人が<span class="text-blue-500 font-bold">集まる</span>' }, 
+              trans: { k: '集める', r: 'あつめる', ex: '人を<span class="text-pink-500 font-bold">集める</span>' } },
+            { id: 13, icon: 'fa-mug-hot', mean: 'Đổ (nước)', 
+              auto: { k: 'こぼれる', r: 'こぼれる', ex: '水が<span class="text-blue-500 font-bold">こぼれる</span>' }, 
+              trans: { k: 'こぼす', r: 'こぼす', ex: '水を<span class="text-pink-500 font-bold">こぼす</span>' } },
+            { id: 14, icon: 'fa-shirt', mean: 'Bẩn / Làm bẩn', 
+              auto: { k: '汚れる', r: 'よごれる', ex: '服が<span class="text-blue-500 font-bold">汚れる</span>' }, 
+              trans: { k: '汚す', r: 'よごす', ex: '服を<span class="text-pink-500 font-bold">汚す</span>' } },
+            { id: 15, icon: 'fa-wind', mean: 'Khô / Làm khô', 
+              auto: { k: '乾く', r: 'かわく', ex: '髪が<span class="text-blue-500 font-bold">乾く</span>' }, 
+              trans: { k: '乾かす', r: 'かわかす', ex: '髪を<span class="text-pink-500 font-bold">乾かす</span>' } },
+            { id: 16, icon: 'fa-car-side', mean: 'Dừng (xe)', 
+              auto: { k: '止まる', r: 'とまる', ex: '車が<span class="text-blue-500 font-bold">止まる</span>' }, 
+              trans: { k: '止める', r: 'とめる', ex: '車を<span class="text-pink-500 font-bold">止める</span>' } },
+            { id: 17, icon: 'fa-play', mean: 'Bắt đầu', 
+              auto: { k: '始まる', r: 'はじまる', ex: '授業が<span class="text-blue-500 font-bold">始まる</span>' }, 
+              trans: { k: '始める', r: 'はじめる', ex: '授業を<span class="text-pink-500 font-bold">始める</span>' } },
+            { id: 18, icon: 'fa-briefcase-medical', mean: 'Khỏi bệnh', 
+              auto: { k: '治る', r: 'なおる', ex: '病気が<span class="text-blue-500 font-bold">治る</span>' }, 
+              trans: { k: '治す', r: 'なおす', ex: '病気を<span class="text-pink-500 font-bold">治す</span>' } },
+            { id: 19, icon: 'fa-screwdriver-wrench', mean: 'Sửa chữa', 
+              auto: { k: '直る', r: 'なおる', ex: 'PCが<span class="text-blue-500 font-bold">直る</span>' }, 
+              trans: { k: '直す', r: 'なおす', ex: 'PCを<span class="text-pink-500 font-bold">直す</span>' } },
+            { id: 20, icon: 'fa-calendar-days', mean: 'Thay đổi (lịch)', 
+              auto: { k: '変わる', r: 'かわる', ex: '予定が<span class="text-blue-500 font-bold">変わる</span>' }, 
+              trans: { k: '変える', r: 'かえる', ex: '予定を<span class="text-pink-500 font-bold">変える</span>' } },
+            { id: 21, icon: 'fa-mountain-sun', mean: 'Nhìn thấy', 
+              auto: { k: '見える', r: 'みえる', ex: '山が<span class="text-blue-500 font-bold">見える</span>' }, 
+              trans: { k: '見る', r: 'みる', ex: '山を<span class="text-pink-500 font-bold">見る</span>' } },
+            { id: 22, icon: 'fa-wallet', mean: 'Tìm thấy / Mất', 
+              auto: { k: '見つかる', r: 'みつかる', ex: '鍵が<span class="text-blue-500 font-bold">見つかる</span>' }, 
+              trans: { k: '見つける', r: 'みつける', ex: '鍵を<span class="text-pink-500 font-bold">見つける</span>' } },
+            { id: 23, icon: 'fa-clipboard-check', mean: 'Quyết định', 
+              auto: { k: '決まる', r: 'きまる', ex: '予定が<span class="text-blue-500 font-bold">決まる</span>' }, 
+              trans: { k: '決める', r: 'きめる', ex: '予定を<span class="text-pink-500 font-bold">決める</span>' } },
+            { id: 24, icon: 'fa-temperature-arrow-up', mean: 'Tăng lên', 
+              auto: { k: '上がる', r: 'あがる', ex: '温度が<span class="text-blue-500 font-bold">上がる</span>' }, 
+              trans: { k: '上げる', r: 'あげる', ex: '温度を<span class="text-pink-500 font-bold">上げる</span>' } },
+            { id: 25, icon: 'fa-temperature-arrow-down', mean: 'Giảm xuống', 
+              auto: { k: '下がる', r: 'さがる', ex: '温度が<span class="text-blue-500 font-bold">下がる</span>' }, 
+              trans: { k: '下げる', r: 'さげる', ex: '温度を<span class="text-pink-500 font-bold">下げる</span>' } },
+            { id: 26, icon: 'fa-child-reaching', mean: 'Lớn lên / Nuôi', 
+              auto: { k: '育つ', r: 'そだつ', ex: '子が<span class="text-blue-500 font-bold">育つ</span>' }, 
+              trans: { k: '育てる', r: 'そだてる', ex: '子を<span class="text-pink-500 font-bold">育てる</span>' } },
+            { id: 27, icon: 'fa-piggy-bank', mean: 'Tiết kiệm / Tích tụ', 
+              auto: { k: '貯まる', r: 'たまる', ex: '金が<span class="text-blue-500 font-bold">貯まる</span>' }, 
+              trans: { k: '貯める', r: 'ためる', ex: '金を<span class="text-pink-500 font-bold">貯める</span>' } },
+            { id: 28, icon: 'fa-water', mean: 'Chảy / Xả', 
+              auto: { k: '流れる', r: 'ながれる', ex: '水が<span class="text-blue-500 font-bold">流れる</span>' }, 
+              trans: { k: '流す', r: 'ながす', ex: '水を<span class="text-pink-500 font-bold">流す</span>' } },
+            { id: 29, icon: 'fa-tree', mean: 'Đổ (cây)', 
+              auto: { k: '倒れる', r: 'たおれる', ex: '木が<span class="text-blue-500 font-bold">倒れる</span>' }, 
+              trans: { k: '倒す', r: 'たおす', ex: '木を<span class="text-pink-500 font-bold">倒す</span>' } },
+            { id: 30, icon: 'fa-bullseye', mean: 'Trúng / Nhắm', 
+              auto: { k: '当たる', r: 'あたる', ex: 'ボールが<span class="text-blue-500 font-bold">当たる</span>' }, 
+              trans: { k: '当てる', r: 'あてる', ex: 'ボールを<span class="text-pink-500 font-bold">当てる</span>' } },
+            { id: 31, icon: 'fa-road', mean: 'Cong / Uốn cong', 
+              auto: { k: '曲がる', r: 'まがる', ex: '道が<span class="text-blue-500 font-bold">曲がる</span>' }, 
+              trans: { k: '曲げる', r: 'まげる', ex: '針金を<span class="text-pink-500 font-bold">曲げる</span>' } },
+            { id: 32, icon: 'fa-layer-group', mean: 'Xếp hàng / Sắp xếp', 
+              auto: { k: '並ぶ', r: 'ならぶ', ex: '人が<span class="text-blue-500 font-bold">並ぶ</span>' }, 
+              trans: { k: '並べる', r: 'ならべる', ex: '皿を<span class="text-pink-500 font-bold">並べる</span>' } },
+            { id: 33, icon: 'fa-link-slash', mean: 'Tuột / Tháo', 
+              auto: { k: '外れる', r: 'はずれる', ex: 'ボタンが<span class="text-blue-500 font-bold">外れる</span>' }, 
+              trans: { k: '外す', r: 'はずす', ex: '眼鏡を<span class="text-pink-500 font-bold">外す</span>' } },
+            { id: 34, icon: 'fa-sack-dollar', mean: 'Sinh lời / Kiếm lời', 
+              auto: { k: '儲かる', r: 'もうかる', ex: '金が<span class="text-blue-500 font-bold">儲かる</span>' }, 
+              trans: { k: '儲ける', r: 'もうける', ex: '金を<span class="text-pink-500 font-bold">儲ける</span>' } },
+            { id: 35, icon: 'fa-wifi', mean: 'Được truyền / Truyền', 
+              auto: { k: '伝わる', r: 'つたわる', ex: '噂が<span class="text-blue-500 font-bold">伝わる</span>' }, 
+              trans: { k: '伝える', r: 'つたえる', ex: '気持ちを<span class="text-pink-500 font-bold">伝える</span>' } },
+            { id: 36, icon: 'fa-mask', mean: 'Trốn / Giấu', 
+              auto: { k: '隠れる', r: 'かくれる', ex: '猫が<span class="text-blue-500 font-bold">隠れる</span>' }, 
+              trans: { k: '隠す', r: 'かくす', ex: '姿を<span class="text-pink-500 font-bold">隠す</span>' } },
+            { id: 37, icon: 'fa-droplet', mean: 'Ướt / Làm ướt', 
+              auto: { k: '濡れる', r: 'ぬれる', ex: '手が<span class="text-blue-500 font-bold">濡れる</span>' }, 
+              trans: { k: '濡らす', r: 'ぬらす', ex: '手を<span class="text-pink-500 font-bold">濡らす</span>' } },
+            { id: 38, icon: 'fa-cubes', mean: 'Tập hợp đủ / Làm cho đủ', 
+              auto: { k: '揃う', r: 'そろう', ex: '全員が<span class="text-blue-500 font-bold">揃う</span>' }, 
+              trans: { k: '揃える', r: 'そろえる', ex: '靴を<span class="text-pink-500 font-bold">揃える</span>' } },
+            { id: 39, icon: 'fa-forward', mean: 'Tiến triển / Xúc tiến', 
+              auto: { k: '進む', r: 'すすむ', ex: '仕事が<span class="text-blue-500 font-bold">進む</span>' }, 
+              trans: { k: '進める', r: 'すすめる', ex: '話を<span class="text-pink-500 font-bold">進める</span>' } },
+            { id: 40, icon: 'fa-check-double', mean: 'Xong / Hoàn thành', 
+              auto: { k: '済む', r: 'すむ', ex: '仕事が<span class="text-blue-500 font-bold">済む</span>' }, 
+              trans: { k: '済ませる', r: 'すませる', ex: '仕事を<span class="text-pink-500 font-bold">済ませる</span>' } },
+            { id: 41, icon: 'fa-hourglass-end', mean: 'Trôi qua / Trải qua', 
+              auto: { k: '過ぎる', r: 'すぎる', ex: '時間が<span class="text-blue-500 font-bold">過ぎる</span>' }, 
+              trans: { k: '過ごす', r: 'すごす', ex: '休みを<span class="text-pink-500 font-bold">過ごす</span>' } },
+            { id: 42, icon: 'fa-box-archive', mean: 'Tích tụ (stress) / Dồn', 
+              auto: { k: '溜まる', r: 'たまる', ex: 'ゴミが<span class="text-blue-500 font-bold">溜まる</span>' }, 
+              trans: { k: '溜める', r: 'ためる', ex: '金を<span class="text-pink-500 font-bold">溜める</span>' } },
+            { id: 43, icon: 'fa-snowflake', mean: 'Lạnh đi / Làm lạnh', 
+              auto: { k: '冷える', r: 'ひえる', ex: '体が<span class="text-blue-500 font-bold">冷える</span>' }, 
+              trans: { k: '冷やす', r: 'ひやす', ex: '頭を<span class="text-pink-500 font-bold">冷やす</span>' } },
+            { id: 44, icon: 'fa-bowl-food', mean: 'Nguội / Làm nguội', 
+              auto: { k: '冷める', r: 'さめる', ex: 'スープが<span class="text-blue-500 font-bold">冷める</span>' }, 
+              trans: { k: '冷ます', r: 'さます', ex: '湯を<span class="text-pink-500 font-bold">冷ます</span>' } },
+            { id: 45, icon: 'fa-bell', mean: 'Thức dậy / Đánh thức', 
+              auto: { k: '起きる', r: 'おきる', ex: '子供が<span class="text-blue-500 font-bold">起きる</span>' }, 
+              trans: { k: '起こす', r: 'おこす', ex: '子供を<span class="text-pink-500 font-bold">起こす</span>' } },
+            { id: 46, icon: 'fa-up-right-and-down-left-from-center', mean: 'Kéo dài / Làm dài ra', 
+              auto: { k: '延びる', r: 'のびる', ex: '髪が<span class="text-blue-500 font-bold">延びる</span>' }, 
+              trans: { k: '延ばす', r: 'のばす', ex: '時間を<span class="text-pink-500 font-bold">延ばす</span>' } },
+            { id: 47, icon: 'fa-handcuffs', mean: 'Bị bắt / Bắt giữ', 
+              auto: { k: '捕まる', r: 'つかまる', ex: '犯人が<span class="text-blue-500 font-bold">捕まる</span>' }, 
+              trans: { k: '捕まえる', r: 'つかまえる', ex: '泥棒を<span class="text-pink-500 font-bold">捕まえる</span>' } },
+            { id: 48, icon: 'fa-bed', mean: 'Ngủ / Cho ngủ', 
+              auto: { k: '寝る', r: 'ねる', ex: '猫が<span class="text-blue-500 font-bold">寝る</span>' }, 
+              trans: { k: '寝かせる', r: 'ねかせる', ex: '子を<span class="text-pink-500 font-bold">寝かせる</span>' } },
+            { id: 49, icon: 'fa-lemon', mean: 'Bong ra / Bóc', 
+              auto: { k: '剥ける', r: 'むける', ex: '皮が<span class="text-blue-500 font-bold">剥ける</span>' }, 
+              trans: { k: '剥く', r: 'むく', ex: '皮を<span class="text-pink-500 font-bold">剥く</span>' } },
+            { id: 50, icon: 'fa-baby', mean: 'Được sinh ra / Sinh', 
+              auto: { k: '生まれる', r: 'うまれる', ex: '子が<span class="text-blue-500 font-bold">生まれる</span>' }, 
+              trans: { k: '産む', r: 'うむ', ex: '子を<span class="text-pink-500 font-bold">産む</span>' } },
+            { id: 51, icon: 'fa-scissors', mean: 'Đứt / Cắt đứt', 
+              auto: { k: '切れる', r: 'きれる', ex: '紐が<span class="text-blue-500 font-bold">切れる</span>' }, 
+              trans: { k: '切る', r: 'きる', ex: '紐を<span class="text-pink-500 font-bold">切る</span>' } },
+            { id: 52, icon: 'fa-tag', mean: 'Tuột / Lấy', 
+              auto: { k: '取れる', r: 'とれる', ex: 'ボタンが<span class="text-blue-500 font-bold">取れる</span>' }, 
+              trans: { k: '取る', r: 'とる', ex: '塩を<span class="text-pink-500 font-bold">取る</span>' } },
+            { id: 53, icon: 'fa-file-invoice', mean: 'Rách / Xé', 
+              auto: { k: '破れる', r: 'やぶれる', ex: '紙が<span class="text-blue-500 font-bold">破れる</span>' }, 
+              trans: { k: '破る', r: 'やぶる', ex: '紙を<span class="text-pink-500 font-bold">破る</span>' } },
+            { id: 54, icon: 'fa-shop', mean: 'Bán chạy / Bán', 
+              auto: { k: '売れる', r: 'うれる', ex: '本が<span class="text-blue-500 font-bold">売れる</span>' }, 
+              trans: { k: '売る', r: 'うる', ex: '本を<span class="text-pink-500 font-bold">売る</span>' } },
+            { id: 55, icon: 'fa-socks', mean: 'Tuột (giày) / Cởi', 
+              auto: { k: '脱げる', r: 'ぬげる', ex: '靴が<span class="text-blue-500 font-bold">脱げる</span>' }, 
+              trans: { k: '脱ぐ', r: 'ぬぐ', ex: '靴を<span class="text-pink-500 font-bold">脱ぐ</span>' } }
+        ];
+
+        // --- APP LOGIC ---
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function switchTab(tabName) {
+            // UI updates
+            ['theory', 'learn', 'quiz'].forEach(t => {
+                const content = document.getElementById(`content-${t}`);
+                const tab = document.getElementById(`tab-${t}`);
+                
+                if (t === tabName) {
+                    content.classList.remove('hidden');
+                    if (tab) tab.classList.add('active');
+                } else {
+                    content.classList.add('hidden');
+                    if (tab) tab.classList.remove('active');
+                }
+            });
+            document.getElementById('mobile-menu').classList.add('hidden');
+            
+            if (tabName === 'learn') renderCards();
+        }
+
+        function renderCards(filter = '') {
+            const container = document.getElementById('cards-container');
+            const noResults = document.getElementById('no-results');
+            container.innerHTML = '';
+            
+            const searchTerm = filter.toLowerCase().trim();
+            const filtered = vocabulary.filter(item => {
+                return item.mean.toLowerCase().includes(searchTerm) || 
+                       item.auto.r.includes(searchTerm) || 
+                       item.trans.r.includes(searchTerm) ||
+                       item.auto.k.includes(searchTerm);
+            });
+
+            if (filtered.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                filtered.forEach((item, index) => {
+                    // New Card Layout - Matching J-Verb Master Design
+                    const card = document.createElement('div');
+                    card.className = 'verb-card card-hover slide-up';
+                    card.style.animationDelay = `${index * 0.03}s`;
+                    
+                    card.innerHTML = `
+                        <!-- Header: Meaning (Styled Title) -->
+                        <div class="bg-white pt-5 pb-2 text-center relative z-10">
+                            <h3 class="text-xl font-extrabold text-gray-800">${item.mean}</h3>
+                            <div class="card-title-underline"></div>
+                        </div>
+                        
+                        <!-- Illustration Area (Simulating Image) -->
+                        <div class="illustration-area relative overflow-hidden">
+                            <i class="fa-solid ${item.icon} illustration-icon"></i>
+                        </div>
+
+                        <!-- Split Body: Auto vs Trans -->
+                        <div class="split-container">
+                            <!-- Tự Động Từ Column -->
+                            <div class="split-col split-divider">
+                                <div class="mb-1">
+                                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">TỰ (が)</span>
+                                </div>
+                                <div class="flex-grow flex items-center justify-center my-2">
+                                    <ruby class="text-2xl font-extrabold text-gray-800 jp-font">
+                                        ${item.auto.k}<rt>${item.auto.r}</rt>
+                                    </ruby>
+                                </div>
+                                <p class="text-xs text-gray-500 italic bg-gray-50 px-2 py-1 rounded-md w-full border border-gray-100">
+                                    ${item.auto.ex}
+                                </p>
+                            </div>
+
+                            <!-- Tha Động Từ Column -->
+                            <div class="split-col">
+                                <div class="mb-1">
+                                    <span class="text-[10px] font-bold text-pink-500 uppercase tracking-widest">THA (を)</span>
+                                </div>
+                                <div class="flex-grow flex items-center justify-center my-2">
+                                    <ruby class="text-2xl font-extrabold text-gray-800 jp-font">
+                                        ${item.trans.k}<rt>${item.trans.r}</rt>
+                                    </ruby>
+                                </div>
+                                <p class="text-xs text-gray-500 italic bg-gray-50 px-2 py-1 rounded-md w-full border border-gray-100">
+                                    ${item.trans.ex}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        }
+
+        // --- SEARCH LISTENER ---
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            renderCards(e.target.value);
+        });
+
+
+        // --- QUIZ LOGIC ---
+        let currentQ = 0;
+        let score = 0;
+        let quizSet = [];
+
+        function startQuiz() {
+            document.getElementById('quiz-intro').classList.add('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-game').classList.remove('hidden');
+            score = 0;
+            currentQ = 0;
+            // Random 10 questions
+            quizSet = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, 10);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const item = quizSet[currentQ];
+            const isAuto = Math.random() > 0.5; // Question type: Guess Particle or Guess Verb
+            const qType = Math.random() > 0.5 ? 'particle' : 'verb';
+            
+            document.getElementById('q-current').innerText = currentQ + 1;
+            document.getElementById('score-display').innerText = `${score}`;
+            document.getElementById('quiz-progress').style.width = `${((currentQ)/10)*100}%`;
+            
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('btn-next').classList.add('hidden');
+            const optsDiv = document.getElementById('q-options');
+            optsDiv.innerHTML = '';
+            optsDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+            
+            document.getElementById('q-icon').innerHTML = item.icon.includes('fa-') ? `<i class="fa-solid ${item.icon}"></i>` : item.icon;
+            
+            let correct, wrong;
+            
+            if (qType === 'particle') {
+                const sentence = isAuto ? item.auto.ex : item.trans.ex;
+                // Clean HTML from sentence for display, but keep gap
+                // Sentence format in data: "ドアが<span...>開く</span>"
+                // We need to extract text parts
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = sentence;
+                const plainText = tempDiv.innerText; 
+                // plainText approx: "ドアが開く"
+                
+                const particle = isAuto ? 'が' : 'を';
+                const verb = isAuto ? item.auto.k : item.trans.k;
+                // Split by particle to get Noun
+                const noun = plainText.split(/が|を/)[0];
+                
+                document.getElementById('q-text').innerHTML = `${noun} <span class="text-pink-500 border-b-4 border-pink-300 px-2">___</span> ${verb}`;
+                document.getElementById('q-hint').innerText = item.mean;
+                
+                correct = particle;
+                const dist = ['が', 'を', 'に', 'で'].sort(() => 0.5 - Math.random());
+                
+                dist.forEach(opt => {
+                    const btn = createOptionBtn(opt);
+                    btn.onclick = () => check(btn, opt, correct);
+                    optsDiv.appendChild(btn);
+                });
+
+            } else {
+                // Verb Choice
+                const particle = isAuto ? 'が' : 'を';
+                const sentence = isAuto ? item.auto.ex : item.trans.ex;
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = sentence;
+                const plainText = tempDiv.innerText;
+                const noun = plainText.split(/が|を/)[0];
+                
+                document.getElementById('q-text').innerHTML = `${noun} <span class="text-pink-500 font-bold">${particle}</span> <span class="bg-gray-100 border-b-4 border-gray-300 px-4 rounded text-gray-400">?</span>`;
+                document.getElementById('q-hint').innerText = item.mean;
+                
+                correct = isAuto ? item.auto.k : item.trans.k;
+                wrong = isAuto ? item.trans.k : item.auto.k;
+                
+                const opts = [
+                    {t: correct, r: isAuto?item.auto.r:item.trans.r}, 
+                    {t: wrong, r: isAuto?item.trans.r:item.auto.r}
+                ].sort(() => 0.5 - Math.random());
+                
+                opts.forEach(o => {
+                    const btn = document.createElement('button');
+                    btn.className = 'bg-white border-2 border-gray-100 p-6 rounded-2xl text-xl font-bold text-gray-700 hover:border-pink-400 hover:bg-pink-50 transition jp-font flex flex-col items-center shadow-sm group';
+                    btn.innerHTML = `<span class="group-hover:text-pink-600 transition">${o.t}</span><span class="text-sm text-gray-400 font-normal mt-1">${o.r}</span>`;
+                    btn.onclick = () => check(btn, o.t, correct);
+                    optsDiv.appendChild(btn);
+                });
+            }
+        }
+
+        function createOptionBtn(text) {
+            const btn = document.createElement('button');
+            btn.className = 'bg-white border-2 border-gray-100 p-6 rounded-2xl text-2xl font-bold text-gray-700 hover:border-pink-400 hover:bg-pink-50 transition jp-font shadow-sm';
+            btn.innerText = text;
+            return btn;
+        }
+
+        function check(btn, sel, cor) {
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.classList.remove('hidden');
+            
+            // Disable all
+            const buttons = document.getElementById('q-options').querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            if (sel === cor) {
+                score += 10;
+                document.getElementById('score-display').innerText = score;
+                btn.classList.remove('bg-white', 'border-gray-100');
+                btn.classList.add('bg-green-100', 'border-green-500', 'text-green-700');
+                feedback.innerHTML = `<span class="text-green-600 text-lg"><i class="fa-solid fa-check-circle"></i> Chính xác! Tuyệt vời.</span>`;
+                feedback.className = 'mt-6 p-4 bg-green-50 rounded-2xl border-2 border-green-100 slide-up';
+                confetti({ particleCount: 40, spread: 60, origin: { y: 0.6 } });
+            } else {
+                btn.classList.remove('bg-white', 'border-gray-100');
+                btn.classList.add('bg-red-100', 'border-red-500', 'text-red-700');
+                feedback.innerHTML = `<span class="text-red-500 text-lg"><i class="fa-solid fa-circle-xmark"></i> Sai rồi! Đáp án đúng là: <strong class="ml-1 text-xl">${cor}</strong></span>`;
+                feedback.className = 'mt-6 p-4 bg-red-50 rounded-2xl border-2 border-red-100 slide-up';
+                
+                // Highlight correct
+                buttons.forEach(b => {
+                    if(b.innerText.includes(cor)) {
+                        b.classList.add('bg-green-50', 'border-green-400', 'text-green-700');
+                    }
+                });
+            }
+            document.getElementById('btn-next').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ >= 10) {
+                document.getElementById('quiz-game').classList.add('hidden');
+                document.getElementById('quiz-result').classList.remove('hidden');
+                document.getElementById('final-score').innerText = score;
+                
+                // Result Confetti
+                if(score >= 80) {
+                     var duration = 3 * 1000;
+                    var animationEnd = Date.now() + duration;
+                    var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+                    function random(min, max) { return Math.random() * (max - min) + min; }
+
+                    var interval = setInterval(function() {
+                    var timeLeft = animationEnd - Date.now();
+
+                    if (timeLeft <= 0) { return clearInterval(interval); }
+
+                    var particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
+                    }, 250);
+                }
+            } else {
+                loadQuestion();
+            }
+        }
+
+        // Init
+        renderCards();
+
+    </script>
+</body>
+</html>
