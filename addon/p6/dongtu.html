@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Động Từ Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        .jp-text {
+            font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- COLOR PALETTE ---
+        const COLORS = {
+            dark: '#22162B',    // Sidebar / Dark Text
+            primary: '#451F55', // Headers / Primary Buttons
+            accent: '#724E91',  // Secondary elements
+            pink: '#E54F6D',    // Active state / Highlights
+            yellow: '#F8C630',  // Warnings / Special accents
+            bg: '#Fdfcfec'      // Light background
+        };
+
+        // --- ICONS ---
+        const IconWrapper = ({ children, size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
+        );
+        const Search = (p) => <IconWrapper {...p}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></IconWrapper>;
+        const BookOpen = (p) => <IconWrapper {...p}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></IconWrapper>;
+        const Calculator = (p) => <IconWrapper {...p}><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></IconWrapper>;
+        const ChevronRight = (p) => <IconWrapper {...p}><path d="m9 18 6-6-6-6"/></IconWrapper>;
+        const AlertTriangle = (p) => <IconWrapper {...p}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></IconWrapper>;
+        const Menu = (p) => <IconWrapper {...p}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></IconWrapper>;
+        const X = (p) => <IconWrapper {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconWrapper>;
+        const Star = (p) => <IconWrapper {...p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></IconWrapper>;
+
+        // --- DATA: LESSONS CONTENT ---
+        const EXCEPTIONS_G2 = [
+            { kanji: '帰ります', romaji: 'かえります', meaning: 'Về', group: 1, note: 'Trước ます là "え" nhưng thuộc G1' },
+            { kanji: '知ります', romaji: 'しります', meaning: 'Biết', group: 1, note: 'Trước ます là "い" nhưng thuộc G1' },
+            { kanji: '入ります', romaji: 'はいります', meaning: 'Vào', group: 1, note: 'Trước ます là "い" nhưng thuộc G1' },
+            { kanji: '走ります', romaji: 'はしります', meaning: 'Chạy', group: 1, note: 'Trước ます là "い" nhưng thuộc G1' },
+            { kanji: '切ります', romaji: 'きります', meaning: 'Cắt', group: 1, note: 'Trước ます là "い" nhưng thuộc G1' },
+            { kanji: '要ります', romaji: 'いります', meaning: 'Cần', group: 1, note: 'Trước ます là "い" nhưng thuộc G1' },
+            { kanji: '限ります', romaji: 'かぎります', meaning: 'Giới hạn', group: 1, note: 'Trước ます là "い" nhưng thuộc G1' },
+            { kanji: '蹴ります', romaji: 'けります', meaning: 'Đá', group: 1, note: 'Trước ます là "え" nhưng thuộc G1' },
+            { kanji: '滑ります', romaji: 'すべります', meaning: 'Trượt', group: 1, note: 'Trước ます là "え" nhưng thuộc G1' },
+            { kanji: 'しゃべります', romaji: 'しゃべります', meaning: 'Nói chuyện', group: 1, note: 'Trước ます là "え" nhưng thuộc G1' },
+        ];
+
+        const LESSONS = {
+            'intro': {
+                title: 'Tổng quan & Phân nhóm',
+                lesson: 'Nhập môn', // Added lesson info
+                description: 'Cách nhận biết nhóm động từ dựa trên thể Masu (V-masu).',
+                content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of intro ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <h3 className="text-lg font-bold mb-3" style={{color: COLORS.primary}}>1. Ba nhóm động từ</h3>
+                            <div className="grid md:grid-cols-3 gap-4">
+                                <div className="p-4 rounded-lg border border-gray-100 bg-gray-50">
+                                    <div className="font-bold text-lg mb-1" style={{color: COLORS.primary}}>Nhóm 1</div>
+                                    <p className="text-sm text-gray-600 mb-2">Âm trước <b>ます</b> thuộc cột <b>い (i)</b>.</p>
+                                    <div className="text-xs text-gray-500 jp-text bg-white p-2 rounded border border-gray-100">
+                                        いきます (ik<b>i</b>-masu)<br/>
+                                        のみます (nom<b>i</b>-masu)
+                                    </div>
+                                </div>
+                                <div className="p-4 rounded-lg border border-gray-100 bg-gray-50">
+                                    <div className="font-bold text-lg mb-1" style={{color: COLORS.accent}}>Nhóm 2</div>
+                                    <p className="text-sm text-gray-600 mb-2">Âm trước <b>ます</b> thuộc cột <b>え (e)</b>.<br/><span className="text-xs text-gray-400">(Một số ít cột i là ngoại lệ)</span></p>
+                                    <div className="text-xs text-gray-500 jp-text bg-white p-2 rounded border border-gray-100">
+                                        たべます (tab<b>e</b>-masu)<br/>
+                                        みます (m<b>i</b>-masu - Đặc biệt)
+                                    </div>
+                                </div>
+                                <div className="p-4 rounded-lg border border-gray-100 bg-gray-50">
+                                    <div className="font-bold text-lg mb-1" style={{color: COLORS.pink}}>Nhóm 3</div>
+                                    <p className="text-sm text-gray-600 mb-2">Chỉ gồm 2 động từ và danh động từ.</p>
+                                    <div className="text-xs text-gray-500 jp-text bg-white p-2 rounded border border-gray-100">
+                                        します (làm)<br/>
+                                        きます (đến)<br/>
+                                        べんきょうします (học)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-[#FFF8E6] p-6 rounded-xl border" style={{borderColor: COLORS.yellow}}>
+                            <div className="flex items-center gap-2 mb-4">
+                                <AlertTriangle style={{color: '#D97706'}} />
+                                <h3 className="text-lg font-bold" style={{color: '#92400E'}}>Lưu ý: Ngoại lệ Nhóm 1</h3>
+                            </div>
+                            <p className="text-sm text-gray-700 mb-4">
+                                Những động từ này có âm trước <b>ます</b> là cột <b>い</b> (nhìn giống Nhóm 2 đặc biệt) nhưng thực tế lại chia theo quy tắc <b>Nhóm 1</b>.
+                            </p>
+                            <div className="overflow-x-auto bg-white rounded-lg border border-orange-100">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-orange-50 font-bold" style={{color: '#92400E'}}>
+                                        <tr>
+                                            <th className="p-3">Từ vựng (Masu)</th>
+                                            <th className="p-3">Hiragana</th>
+                                            <th className="p-3">Nghĩa</th>
+                                            <th className="p-3">Ghi chú</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {EXCEPTIONS_G2.map((ex, idx) => (
+                                            <tr key={idx} className="hover:bg-orange-50/50 transition-colors">
+                                                <td className="p-3 font-bold text-gray-800 jp-text text-lg">{ex.kanji}</td>
+                                                <td className="p-3 font-medium jp-text" style={{color: COLORS.primary}}>{ex.romaji}</td>
+                                                <td className="p-3 text-gray-700">{ex.meaning}</td>
+                                                <td className="p-3 text-xs italic" style={{color: COLORS.pink}}>{ex.note}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'masu': {
+                title: 'Thể Masu (ます形)',
+                lesson: 'Bài 4',
+                description: 'Thể lịch sự, dạng cơ bản để chia sang các thể khác.',
+                content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of masu ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <h3 className="font-bold text-gray-800 mb-4 border-l-4 border-indigo-500 pl-3">Ý nghĩa</h3>
+                            <p className="text-gray-600">Dùng để diễn tả hành động ở hiện tại/tương lai hoặc thói quen một cách lịch sự.</p>
+                        </div>
+
+                        <div className="rounded-xl border border-blue-100 overflow-hidden">
+                            <div className="bg-blue-50 p-4 font-bold text-blue-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4/N5 với Thể Masu (Bỏ Masu)
+                            </div>
+                            <div className="bg-white divide-y divide-blue-50">
+                                <div className="p-4 hover:bg-blue-50/30 transition-colors">
+                                    <div className="font-bold text-blue-700 mb-1 jp-text">V<s>ます</s> + たいです <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 13</span></div>
+                                    <div className="text-sm text-gray-600">Muốn làm V.</div>
+                                </div>
+                                <div className="p-4 hover:bg-blue-50/30 transition-colors">
+                                    <div className="font-bold text-blue-700 mb-1 jp-text">V<s>ます</s> + に いきます <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 13</span></div>
+                                    <div className="text-sm text-gray-600">Đi để làm V.</div>
+                                </div>
+                                <div className="p-4 hover:bg-blue-50/30 transition-colors">
+                                    <div className="font-bold text-blue-700 mb-1 jp-text">V<s>ます</s> + ましょう</div>
+                                    <div className="text-sm text-gray-600">Chúng ta cùng làm V nhé.</div>
+                                </div>
+                                <div className="p-4 hover:bg-blue-50/30 transition-colors">
+                                    <div className="font-bold text-blue-700 mb-1 jp-text">V<s>ます</s> + ながら <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 28</span></div>
+                                    <div className="text-sm text-gray-600">Vừa làm V1 vừa làm V2.</div>
+                                </div>
+                                <div className="p-4 hover:bg-blue-50/30 transition-colors">
+                                    <div className="font-bold text-blue-700 mb-1 jp-text">V<s>ます</s> + すぎます <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 44</span></div>
+                                    <div className="text-sm text-gray-600">Làm V quá nhiều (Quá độ).</div>
+                                </div>
+                                 <div className="p-4 hover:bg-blue-50/30 transition-colors">
+                                    <div className="font-bold text-blue-700 mb-1 jp-text">V<s>ます</s> + やすい / にくい <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 44</span></div>
+                                    <div className="text-sm text-gray-600">Dễ làm V / Khó làm V.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'te': {
+                title: 'Thể Te (て形)',
+                lesson: 'Bài 14',
+                description: 'Nối câu, sai khiến, xin phép, hoặc diễn tả trạng thái.',
+                content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of te ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <h3 className="font-bold mb-4 pl-3 border-l-4" style={{color: COLORS.primary, borderColor: COLORS.pink}}>Nhóm 1: Quan sát âm trước "ます"</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div className="text-xs font-bold mb-1" style={{color: COLORS.accent}}>い、ち、り (trước ます)</div>
+                                    <div className="text-xl font-bold jp-text" style={{color: COLORS.primary}}>→ って</div>
+                                    <div className="text-xs text-gray-500 mt-2 jp-text">か<b>い</b>ます → か<b>って</b></div>
+                                </div>
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div className="text-xs font-bold mb-1" style={{color: COLORS.accent}}>み、に、び (trước ます)</div>
+                                    <div className="text-xl font-bold jp-text" style={{color: COLORS.primary}}>→ んで</div>
+                                    <div className="text-xs text-gray-500 mt-2 jp-text">の<b>み</b>ます → の<b>んで</b></div>
+                                </div>
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div className="text-xs font-bold mb-1" style={{color: COLORS.accent}}>き (trước ます)</div>
+                                    <div className="text-xl font-bold jp-text" style={{color: COLORS.primary}}>→ いて</div>
+                                    <div className="text-xs text-gray-500 mt-2 jp-text">か<b>き</b>ます → か<b>いて</b></div>
+                                </div>
+                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div className="text-xs font-bold mb-1" style={{color: COLORS.accent}}>ぎ (trước ます)</div>
+                                    <div className="text-xl font-bold jp-text" style={{color: COLORS.primary}}>→ いで</div>
+                                    <div className="text-xs text-gray-500 mt-2 jp-text">およ<b>ぎ</b>ます → およ<b>いで</b></div>
+                                </div>
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div className="text-xs font-bold mb-1" style={{color: COLORS.accent}}>し (trước ます)</div>
+                                    <div className="text-xl font-bold jp-text" style={{color: COLORS.primary}}>→ して</div>
+                                    <div className="text-xs text-gray-500 mt-2 jp-text">はな<b>し</b>ます → はな<b>して</b></div>
+                                </div>
+                                 <div className="bg-[#FFF5F7] p-4 rounded-lg border border-pink-100">
+                                    <div className="text-xs font-bold mb-1" style={{color: COLORS.pink}}>ĐẶC BIỆT</div>
+                                    <div className="text-xl font-bold jp-text" style={{color: COLORS.pink}}>いきます → いって</div>
+                                </div>
+                            </div>
+                        </div>
+                         <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <h3 className="font-bold mb-4 pl-3 border-l-4" style={{color: COLORS.accent, borderColor: COLORS.yellow}}>Nhóm 2 & 3</h3>
+                            <ul className="list-disc list-inside text-sm text-gray-600 space-y-3">
+                                <li><b>Nhóm 2:</b> Bỏ <b>ます</b> + <b style={{color: COLORS.pink}}>て</b>.</li>
+                                <li><b>Nhóm 3:</b> <span className="jp-text ml-2">します → <b>して</b>, きます → <b>きて</b></span>.</li>
+                            </ul>
+                        </div>
+
+                        <div className="rounded-xl border border-indigo-100 overflow-hidden">
+                            <div className="bg-indigo-50 p-4 font-bold text-indigo-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4/N5 với Thể Te
+                            </div>
+                            <div className="bg-white divide-y divide-indigo-50">
+                                <div className="p-4 hover:bg-indigo-50/30 transition-colors">
+                                    <div className="font-bold text-indigo-700 mb-1 jp-text">Vて + ください <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 14</span></div>
+                                    <div className="text-sm text-gray-600">Hãy làm V (Sai khiến lịch sự).</div>
+                                </div>
+                                <div className="p-4 hover:bg-indigo-50/30 transition-colors">
+                                    <div className="font-bold text-indigo-700 mb-1 jp-text">Vて + います <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 14, 15</span></div>
+                                    <div className="text-sm text-gray-600">Đang làm V (Tiếp diễn) / Trạng thái kết quả.</div>
+                                </div>
+                                <div className="p-4 hover:bg-indigo-50/30 transition-colors">
+                                    <div className="font-bold text-indigo-700 mb-1 jp-text">Vて + もいいですか <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 15</span></div>
+                                    <div className="text-sm text-gray-600">Làm V có được không? (Xin phép).</div>
+                                </div>
+                                <div className="p-4 hover:bg-indigo-50/30 transition-colors">
+                                    <div className="font-bold text-indigo-700 mb-1 jp-text">Vて + は いけません <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 15</span></div>
+                                    <div className="text-sm text-gray-600">Cấm làm V.</div>
+                                </div>
+                                <div className="p-4 hover:bg-indigo-50/30 transition-colors">
+                                    <div className="font-bold text-indigo-700 mb-1 jp-text">Vて + から <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 16</span></div>
+                                    <div className="text-sm text-gray-600">Sau khi làm V.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'nai': {
+                title: 'Thể Nai (ない形)',
+                lesson: 'Bài 17',
+                description: 'Thể phủ định ngắn.',
+                content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of nai ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <table className="w-full text-sm text-left border-collapse">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold w-24 align-top" style={{color: COLORS.primary}}>Nhóm 1</td>
+                                            <td className="py-4 text-gray-600">
+                                                Đổi âm trước <b>ます</b> (cột い) sang cột <b>あ</b> + <b>ない</b>.
+                                                <div className="mt-2 text-xs p-2 bg-gray-50 rounded text-gray-500 jp-text">
+                                                    き<b>き</b>ます → き<b>か</b>ない<br/>
+                                                    よ<b>み</b>ます → よ<b>ま</b>ない
+                                                </div>
+                                                <div className="mt-2 text-xs font-bold" style={{color: COLORS.pink}}>
+                                                    *Lưu ý: Nếu trước ます là "い" → đổi thành "わ".
+                                                </div>
+                                                <div className="text-xs p-2 bg-pink-50 rounded text-pink-700 mt-1 jp-text">
+                                                    か<b>い</b>ます → か<b>わ</b>ない
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.accent}}>Nhóm 2</td>
+                                            <td className="py-4 text-gray-600">
+                                                Bỏ <b>ます</b> + <b style={{color: COLORS.pink}}>ない</b>.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.yellow}}>Nhóm 3</td>
+                                            <td className="py-4 text-gray-600 jp-text">
+                                                します → <b>しない</b><br/>
+                                                きます → <b>こない</b> (Đặc biệt)
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.pink}}>Đặc biệt</td>
+                                            <td className="py-4 text-gray-600 jp-text">
+                                                あります → <b>ない</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+
+                        <div className="rounded-xl border border-red-100 overflow-hidden">
+                            <div className="bg-red-50 p-4 font-bold text-red-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4/N5 với Thể Nai
+                            </div>
+                            <div className="bg-white divide-y divide-red-50">
+                                <div className="p-4 hover:bg-red-50/30 transition-colors">
+                                    <div className="font-bold text-red-700 mb-1 jp-text">Vないで + ください <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 17</span></div>
+                                    <div className="text-sm text-gray-600">Xin đừng làm V.</div>
+                                </div>
+                                <div className="p-4 hover:bg-red-50/30 transition-colors">
+                                    <div className="font-bold text-red-700 mb-1 jp-text">Vなければ + なりません <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 17</span></div>
+                                    <div className="text-sm text-gray-600">Phải làm V (Bắt buộc).</div>
+                                </div>
+                                <div className="p-4 hover:bg-red-50/30 transition-colors">
+                                    <div className="font-bold text-red-700 mb-1 jp-text">Vなくても + いいです <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 17</span></div>
+                                    <div className="text-sm text-gray-600">Không cần làm V cũng được.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'dictionary': {
+                title: 'Thể Từ điển (辞書形)',
+                lesson: 'Bài 18',
+                description: 'Thể nguyên dạng (V-ru).',
+                content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of dictionary ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <table className="w-full text-sm text-left border-collapse">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold w-24 align-top" style={{color: COLORS.primary}}>Nhóm 1</td>
+                                            <td className="py-4 text-gray-600">
+                                                Đổi âm trước <b>ます</b> (cột い) sang cột <b>う</b>.
+                                                <div className="mt-2 jp-text text-gray-500">
+                                                    か<b>き</b>ます → か<b>く</b>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.accent}}>Nhóm 2</td>
+                                            <td className="py-4 text-gray-600">
+                                                Bỏ <b>ます</b> + <b style={{color: COLORS.pink}}>る</b>.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.yellow}}>Nhóm 3</td>
+                                            <td className="py-4 text-gray-600 jp-text">
+                                                します → <b>する</b><br/>
+                                                きます → <b>くる</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+
+                        <div className="rounded-xl border border-green-100 overflow-hidden">
+                            <div className="bg-green-50 p-4 font-bold text-green-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4/N5 với Thể Từ Điển
+                            </div>
+                            <div className="bg-white divide-y divide-green-50">
+                                <div className="p-4 hover:bg-green-50/30 transition-colors">
+                                    <div className="font-bold text-green-700 mb-1 jp-text">Vる + ことが できます <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 18</span></div>
+                                    <div className="text-sm text-gray-600">Có thể làm V (Khả năng).</div>
+                                </div>
+                                <div className="p-4 hover:bg-green-50/30 transition-colors">
+                                    <div className="font-bold text-green-700 mb-1 jp-text">Vる + まえに <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 18</span></div>
+                                    <div className="text-sm text-gray-600">Trước khi làm V.</div>
+                                </div>
+                                <div className="p-4 hover:bg-green-50/30 transition-colors">
+                                    <div className="font-bold text-green-700 mb-1 jp-text">しゅみは Vる + ことです <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 18</span></div>
+                                    <div className="text-sm text-gray-600">Sở thích là việc làm V.</div>
+                                </div>
+                                 <div className="p-4 hover:bg-green-50/30 transition-colors">
+                                    <div className="font-bold text-green-700 mb-1 jp-text">Vる + つもりです <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 31</span></div>
+                                    <div className="text-sm text-gray-600">Dự định sẽ làm V.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'ta': {
+                title: 'Thể Ta (た形)',
+                lesson: 'Bài 19',
+                description: 'Thể ngắn quá khứ.',
+                content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of ta ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <p className="text-gray-600 mb-6">Cách chia giống hệt <b>Thể Te</b>, chỉ cần thay đổi đuôi:</p>
+                            <div className="grid grid-cols-2 gap-4 text-center">
+                                <div className="p-6 rounded-xl bg-gray-50">
+                                    <div className="text-gray-500 text-sm font-bold mb-2">Thể Te</div>
+                                    <div className="text-3xl font-bold jp-text" style={{color: COLORS.accent}}>て / で</div>
+                                </div>
+                                <div className="p-6 rounded-xl" style={{backgroundColor: '#FFF8E6'}}>
+                                    <div className="text-sm font-bold mb-2" style={{color: '#D97706'}}>Thể Ta</div>
+                                    <div className="text-3xl font-bold jp-text" style={{color: COLORS.pink}}>た / だ</div>
+                                </div>
+                            </div>
+                            <div className="mt-6 text-center text-sm text-gray-500 italic">
+                                Ví dụ: たべ<b>て</b> → たべ<b>た</b>, のん<b>で</b> → のん<b>だ</b>
+                            </div>
+                        </div>
+
+                        <div className="rounded-xl border border-yellow-100 overflow-hidden">
+                            <div className="bg-yellow-50 p-4 font-bold text-yellow-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4/N5 với Thể Ta
+                            </div>
+                            <div className="bg-white divide-y divide-yellow-50">
+                                <div className="p-4 hover:bg-yellow-50/30 transition-colors">
+                                    <div className="font-bold text-yellow-700 mb-1 jp-text">Vた + ことが あります <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 19</span></div>
+                                    <div className="text-sm text-gray-600">Đã từng làm V (Kinh nghiệm).</div>
+                                </div>
+                                <div className="p-4 hover:bg-yellow-50/30 transition-colors">
+                                    <div className="font-bold text-yellow-700 mb-1 jp-text">Vた + り、Vた + り します <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 19</span></div>
+                                    <div className="text-sm text-gray-600">Lúc thì làm V1, lúc thì làm V2 (Liệt kê hành động tiêu biểu).</div>
+                                </div>
+                                <div className="p-4 hover:bg-yellow-50/30 transition-colors">
+                                    <div className="font-bold text-yellow-700 mb-1 jp-text">Vた + ほうが いいです <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 32</span></div>
+                                    <div className="text-sm text-gray-600">Nên làm V (Khuyên bảo).</div>
+                                </div>
+                                <div className="p-4 hover:bg-yellow-50/30 transition-colors">
+                                    <div className="font-bold text-yellow-700 mb-1 jp-text">Vた + あとで <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 34</span></div>
+                                    <div className="text-sm text-gray-600">Sau khi làm V (Nhấn mạnh trình tự thời gian).</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'plain': {
+                title: 'Thể Thông Thường (普通形)',
+                lesson: 'Bài 20',
+                description: 'Dùng khi nói chuyện với bạn bè, người dưới, hoặc dùng trong các cấu trúc ngữ pháp bổ nghĩa.',
+                content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of plain ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <h3 className="text-lg font-bold mb-4" style={{color: COLORS.primary}}>Bảng chuyển đổi Lịch sự ↔ Thông thường</h3>
+                            <p className="text-sm text-gray-600 mb-4">Thể thông thường (Futsuu-kei) là tập hợp của 4 thể ngắn: Từ điển, Nai, Ta, và Nakatta.</p>
+                            
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left border-collapse">
+                                    <thead className="bg-gray-50 text-gray-700">
+                                        <tr>
+                                            <th className="p-3 border-b">Thì / Dạng</th>
+                                            <th className="p-3 border-b" style={{color: COLORS.accent}}>Lịch sự (Teinei)</th>
+                                            <th className="p-3 border-b" style={{color: COLORS.pink}}>Thông thường (Futsuu)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        <tr>
+                                            <td className="p-3 font-bold">Hiện tại / Tương lai (+)</td>
+                                            <td className="p-3 jp-text text-gray-600">かきます</td>
+                                            <td className="p-3 font-bold jp-text" style={{color: COLORS.pink}}>かく <span className="text-xs font-normal text-gray-400">(Từ điển)</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td className="p-3 font-bold">Hiện tại / Tương lai (-)</td>
+                                            <td className="p-3 jp-text text-gray-600">かきません</td>
+                                            <td className="p-3 font-bold jp-text" style={{color: COLORS.pink}}>かかない <span className="text-xs font-normal text-gray-400">(Nai)</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td className="p-3 font-bold">Quá khứ (+)</td>
+                                            <td className="p-3 jp-text text-gray-600">かきました</td>
+                                            <td className="p-3 font-bold jp-text" style={{color: COLORS.pink}}>かいた <span className="text-xs font-normal text-gray-400">(Ta)</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td className="p-3 font-bold">Quá khứ (-)</td>
+                                            <td className="p-3 jp-text text-gray-600">かきませんでした</td>
+                                            <td className="p-3 font-bold jp-text" style={{color: COLORS.pink}}>かかなかった <span className="text-xs font-normal text-gray-400">(Nakatta)</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="p-6 rounded-xl border border-gray-100" style={{backgroundColor: '#FDF2F8'}}>
+                            <h3 className="font-bold mb-3 flex items-center gap-2" style={{color: COLORS.pink}}>
+                                <Star size={18}/>
+                                Quy tắc chia "Nakatta" (Quá khứ phủ định)
+                            </h3>
+                            <p className="text-sm text-gray-700 mb-2">
+                                Chuyển sang thể Nai (〜ない), sau đó bỏ <b>い</b> thêm <b>かった</b>.
+                            </p>
+                            <div className="bg-white p-3 rounded border border-pink-100 text-sm jp-text">
+                                たべない → たべな<b>かった</b> <span className="text-gray-400">(Đã không ăn)</span><br/>
+                                いかない → いかな<b>かった</b> <span className="text-gray-400">(Đã không đi)</span><br/>
+                                しない → しな<b>かった</b> <span className="text-gray-400">(Đã không làm)</span>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'kano': {
+                title: 'Thể Khả năng (可能形)',
+                lesson: 'Bài 27',
+                description: 'Có thể làm gì đó.',
+                content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of kano ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <table className="w-full text-sm text-left border-collapse">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold w-24 align-top" style={{color: COLORS.primary}}>Nhóm 1</td>
+                                            <td className="py-4 text-gray-600">
+                                                Đổi âm trước <b>ます</b> (cột い) sang cột <b>え</b> + <b>る</b> (hoặc masu).
+                                                <div className="mt-2 jp-text text-gray-500">
+                                                    い<b>き</b>ます → い<b>け</b>る<br/>
+                                                    よ<b>み</b>ます → よ<b>め</b>る
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.accent}}>Nhóm 2</td>
+                                            <td className="py-4 text-gray-600">
+                                                Bỏ <b>ます</b> + <b style={{color: COLORS.pink}}>られる</b>.
+                                                <div className="mt-2 jp-text text-gray-500">たべます → たべられる</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.yellow}}>Nhóm 3</td>
+                                            <td className="py-4 text-gray-600 jp-text">
+                                                します → <b>できる</b><br/>
+                                                きます → <b>こられる</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+
+                        <div className="rounded-xl border border-purple-100 overflow-hidden">
+                            <div className="bg-purple-50 p-4 font-bold text-purple-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4/N5 với Thể Khả Năng
+                            </div>
+                            <div className="bg-white divide-y divide-purple-50">
+                                <div className="p-4 hover:bg-purple-50/30 transition-colors">
+                                    <div className="font-bold text-purple-700 mb-1 jp-text">V可能形 + ように なります <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 36</span></div>
+                                    <div className="text-sm text-gray-600">Trở nên có thể làm V (Thay đổi trạng thái).</div>
+                                    <div className="text-xs text-gray-400 mt-1 italic">Ví dụ: およげるように なります (Sẽ biết bơi).</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'iko': {
+                title: 'Thể Ý định (意向形)',
+                lesson: 'Bài 31',
+                description: 'Rủ rê, đề xuất (Thể ngắn của Mashou).',
+                content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of iko ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                             <table className="w-full text-sm text-left border-collapse">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold w-24 align-top" style={{color: COLORS.primary}}>Nhóm 1</td>
+                                            <td className="py-4 text-gray-600">
+                                                Đổi âm trước <b>ます</b> (cột い) sang cột <b>お</b> + <b>う</b>.
+                                                <div className="mt-2 jp-text text-gray-500">
+                                                    い<b>き</b>ます → い<b>こ</b>う<br/>
+                                                    ま<b>ち</b>ます → ま<b>と</b>う
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.accent}}>Nhóm 2</td>
+                                            <td className="py-4 text-gray-600">
+                                                Bỏ <b>ます</b> + <b style={{color: COLORS.pink}}>よう</b>.
+                                                <div className="mt-2 jp-text text-gray-500">たべます → たべよう</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.yellow}}>Nhóm 3</td>
+                                            <td className="py-4 text-gray-600 jp-text">
+                                                します → <b>しよう</b><br/>
+                                                きます → <b>こよう</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+
+                        <div className="rounded-xl border border-gray-200 overflow-hidden">
+                            <div className="bg-gray-100 p-4 font-bold text-gray-800 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4 với Thể Ý Định
+                            </div>
+                            <div className="bg-white divide-y divide-gray-100">
+                                <div className="p-4 hover:bg-gray-50 transition-colors">
+                                    <div className="font-bold text-gray-800 mb-1 jp-text">V意向形 + と おもっています <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 31</span></div>
+                                    <div className="text-sm text-gray-600">Dự định làm V (Đã nghĩ từ trước và giờ vẫn nghĩ).</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'meirei_kinshi': {
+                title: 'Mệnh lệnh & Cấm chỉ (命令・禁止形)',
+                lesson: 'Bài 33',
+                description: 'Ra lệnh hoặc Cấm đoán (thô lỗ).',
+                 content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of meirei_kinshi ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                             <h3 className="font-bold mb-3" style={{color: COLORS.primary}}>1. Thể Mệnh Lệnh</h3>
+                             <table className="w-full text-sm text-left border-collapse mb-6">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-2 pr-4 font-bold w-24 align-top" style={{color: COLORS.primary}}>Nhóm 1</td>
+                                            <td className="py-2 text-gray-600">Cột <b>い</b> → Cột <b>え</b>.<div className="jp-text text-gray-400">いき<b>ま</b>す → いけ</div></td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-2 pr-4 font-bold align-top" style={{color: COLORS.accent}}>Nhóm 2</td>
+                                            <td className="py-2 text-gray-600">Bỏ <b>ます</b> + <b>ろ</b>.<div className="jp-text text-gray-400">みます → みろ</div></td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-2 pr-4 font-bold align-top" style={{color: COLORS.yellow}}>Nhóm 3</td>
+                                            <td className="py-2 text-gray-600 jp-text">しろ / こい</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                             <h3 className="font-bold mb-3" style={{color: COLORS.pink}}>2. Thể Cấm Chỉ (Kinshi)</h3>
+                             <p className="text-sm text-gray-600 mb-3">Quy tắc chung cho cả 3 nhóm: <b>Thể Từ Điển + な</b></p>
+                             <div className="bg-red-50 p-3 rounded border border-red-100 text-sm jp-text text-red-800 font-bold">
+                                 いく → いくな (Cấm đi)<br/>
+                                 たべる → たべるな (Cấm ăn)<br/>
+                                 する → するな (Cấm làm)
+                             </div>
+                        </div>
+
+                        <div className="rounded-xl border border-orange-100 overflow-hidden">
+                            <div className="bg-orange-50 p-4 font-bold text-orange-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Sử dụng
+                            </div>
+                            <div className="bg-white divide-y divide-orange-50">
+                                <div className="p-4 hover:bg-orange-50/30 transition-colors">
+                                    <div className="font-bold text-orange-700 mb-1 jp-text">~と かいてあります <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 33</span></div>
+                                    <div className="text-sm text-gray-600">Có viết là "Hãy/Cấm làm V".</div>
+                                </div>
+                                <div className="p-4 hover:bg-orange-50/30 transition-colors">
+                                    <div className="font-bold text-orange-700 mb-1 jp-text">~と いっていました <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 33</span></div>
+                                    <div className="text-sm text-gray-600">Truyền đạt lại mệnh lệnh.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'ba': {
+                title: 'Thể Điều kiện (ば形)',
+                lesson: 'Bài 35',
+                description: 'Nếu... thì...',
+                 content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of ba ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                             <table className="w-full text-sm text-left border-collapse">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold w-24 align-top" style={{color: COLORS.primary}}>Nhóm 1</td>
+                                            <td className="py-4 text-gray-600">
+                                                Đổi âm trước <b>ます</b> (cột い) sang cột <b>え</b> + <b>ば</b>.
+                                                <div className="mt-2 jp-text text-gray-500">
+                                                    か<b>き</b>ます → か<b>け</b>ば
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.accent}}>Nhóm 2</td>
+                                            <td className="py-4 text-gray-600">
+                                                Bỏ <b>ます</b> + <b style={{color: COLORS.pink}}>れば</b>.
+                                                <div className="mt-2 jp-text text-gray-500">たべます → たべれば</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.yellow}}>Nhóm 3</td>
+                                            <td className="py-4 text-gray-600 jp-text">
+                                                します → <b>すれば</b><br/>
+                                                きます → <b>くれば</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+
+                        <div className="rounded-xl border border-teal-100 overflow-hidden">
+                            <div className="bg-teal-50 p-4 font-bold text-teal-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4 với Thể Điều Kiện
+                            </div>
+                            <div className="bg-white divide-y divide-teal-50">
+                                <div className="p-4 hover:bg-teal-50/30 transition-colors">
+                                    <div className="font-bold text-teal-700 mb-1 jp-text">Vば、～ <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 35</span></div>
+                                    <div className="text-sm text-gray-600">Nếu làm V thì (Điều kiện giả định).</div>
+                                </div>
+                                <div className="p-4 hover:bg-teal-50/30 transition-colors">
+                                    <div className="font-bold text-teal-700 mb-1 jp-text">Vば いいですか <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 35</span></div>
+                                    <div className="text-sm text-gray-600">Tôi nên làm thế nào thì được? (Xin lời khuyên).</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'ukemi': {
+                title: 'Thể Bị động (受身形)',
+                lesson: 'Bài 37',
+                description: 'Bị hoặc Được làm gì đó.',
+                 content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of ukemi ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                             <table className="w-full text-sm text-left border-collapse">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold w-24 align-top" style={{color: COLORS.primary}}>Nhóm 1</td>
+                                            <td className="py-4 text-gray-600">
+                                                Đổi âm trước <b>ます</b> (cột い) sang cột <b>あ</b> + <b>れる</b>.
+                                                <div className="mt-2 jp-text text-gray-500">
+                                                    しか<b>り</b>ます → しか<b>ら</b>れる
+                                                </div>
+                                                <div className="mt-1 text-xs text-pink-600 font-bold">*Lưu ý: い → わ (いいます → いわれる)</div>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.accent}}>Nhóm 2</td>
+                                            <td className="py-4 text-gray-600">
+                                                Bỏ <b>ます</b> + <b style={{color: COLORS.pink}}>られる</b>.
+                                                <div className="mt-2 jp-text text-gray-500">ほめます → ほめられる</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.yellow}}>Nhóm 3</td>
+                                            <td className="py-4 text-gray-600 jp-text">
+                                                します → <b>される</b><br/>
+                                                きます → <b>こられる</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+
+                        <div className="rounded-xl border border-indigo-100 overflow-hidden">
+                            <div className="bg-indigo-50 p-4 font-bold text-indigo-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4 với Thể Bị Động
+                            </div>
+                            <div className="bg-white divide-y divide-indigo-50">
+                                <div className="p-4 hover:bg-indigo-50/30 transition-colors">
+                                    <div className="font-bold text-indigo-700 mb-1 jp-text">N1は N2に V受身 <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 37</span></div>
+                                    <div className="text-sm text-gray-600">N1 bị/được N2 làm V.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'shieki': {
+                title: 'Thể Sai khiến (使役形)',
+                lesson: 'Bài 48',
+                description: 'Bắt hoặc Cho phép ai đó làm gì.',
+                 content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of shieki ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                             <table className="w-full text-sm text-left border-collapse">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold w-24 align-top" style={{color: COLORS.primary}}>Nhóm 1</td>
+                                            <td className="py-4 text-gray-600">
+                                                Đổi âm trước <b>ます</b> (cột い) sang cột <b>あ</b> + <b>せる</b>.
+                                                <div className="mt-2 jp-text text-gray-500">
+                                                    い<b>き</b>ます → い<b>か</b>せる
+                                                </div>
+                                                 <div className="mt-1 text-xs text-pink-600 font-bold">*Lưu ý: い → わ (かいわ → かわせる)</div>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.accent}}>Nhóm 2</td>
+                                            <td className="py-4 text-gray-600">
+                                                Bỏ <b>ます</b> + <b style={{color: COLORS.pink}}>させる</b>.
+                                                <div className="mt-2 jp-text text-gray-500">たべます → たべさせる</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.yellow}}>Nhóm 3</td>
+                                            <td className="py-4 text-gray-600 jp-text">
+                                                します → <b>させる</b><br/>
+                                                きます → <b>こさせる</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+
+                        <div className="rounded-xl border border-cyan-100 overflow-hidden">
+                            <div className="bg-cyan-50 p-4 font-bold text-cyan-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Ngữ pháp N4 với Thể Sai Khiến
+                            </div>
+                            <div className="bg-white divide-y divide-cyan-50">
+                                <div className="p-4 hover:bg-cyan-50/30 transition-colors">
+                                    <div className="font-bold text-cyan-700 mb-1 jp-text">N1は N2に V使役 <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 48</span></div>
+                                    <div className="text-sm text-gray-600">N1 bắt/cho phép N2 làm V.</div>
+                                </div>
+                                <div className="p-4 hover:bg-cyan-50/30 transition-colors">
+                                    <div className="font-bold text-cyan-700 mb-1 jp-text">V使役て + いただけませんか <span className="text-xs text-gray-400 ml-2 font-normal border border-gray-200 rounded px-1">Bài 48</span></div>
+                                    <div className="text-sm text-gray-600">Làm ơn cho phép tôi làm V được không? (Xin phép lịch sự).</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            'shieki_ukemi': {
+                title: 'Sai khiến Bị động (使役受身)',
+                lesson: 'Bài 48+',
+                description: 'Bị bắt làm gì đó (Không muốn nhưng phải làm).',
+                 content: (
+                    <div className="space-y-6">
+                        {/* ... existing content of shieki_ukemi ... */}
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                             <p className="text-sm text-gray-600 mb-4 italic">Cách chia: Chuyển sang thể Sai khiến, rồi chia tiếp sang Bị động.</p>
+                             <table className="w-full text-sm text-left border-collapse">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold w-24 align-top" style={{color: COLORS.primary}}>Nhóm 1</td>
+                                            <td className="py-4 text-gray-600">
+                                                <b>Ngắn:</b> Đổi âm trước <b>ます</b> (cột い) → cột <b>あ</b> + <b>される</b>.<br/>
+                                                <span className="text-xs text-gray-400">Dài: cột あ + せられる</span>
+                                                <div className="mt-2 jp-text text-gray-800 bg-red-50 p-2 rounded border border-red-100">
+                                                    かきます → かか<b>される</b><br/>
+                                                    のみます → のま<b>される</b>
+                                                </div>
+                                                 <div className="mt-2 text-xs text-pink-600 font-bold">*Lưu ý: Nếu đuôi là す (hanasu) → Phải dùng dạng dài: はなさせられる.</div>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.accent}}>Nhóm 2</td>
+                                            <td className="py-4 text-gray-600">
+                                                Bỏ <b>ます</b> + <b style={{color: COLORS.pink}}>させられる</b>.
+                                                <div className="mt-2 jp-text text-gray-500">たべます → たべさせられる</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="py-4 pr-4 font-bold align-top" style={{color: COLORS.yellow}}>Nhóm 3</td>
+                                            <td className="py-4 text-gray-600 jp-text">
+                                                します → <b>させられる</b><br/>
+                                                きます → <b>こさせられる</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+
+                        <div className="rounded-xl border border-purple-100 overflow-hidden">
+                            <div className="bg-purple-50 p-4 font-bold text-purple-900 flex items-center gap-2">
+                                <BookOpen size={18}/> Sử dụng
+                            </div>
+                            <div className="bg-white p-4">
+                                <div className="text-sm text-gray-600 mb-2">Diễn tả hành động mình bị người khác ép buộc làm.</div>
+                                <div className="font-bold text-purple-700 mb-1 jp-text">ははに やさいを たべさせられました。</div>
+                                <div className="text-xs text-gray-500 italic">Tôi bị mẹ bắt ăn rau.</div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        };
+
+        function romajiToHiragana(romaji) {
+            if (!romaji) return '';
+            const map = {
+                'a': 'あ', 'i': 'い', 'u': 'う', 'e': 'え', 'o': 'お',
+                'ka': 'か', 'ki': 'き', 'ku': 'く', 'ke': 'け', 'ko': 'こ',
+                'sa': 'さ', 'shi': 'し', 'su': 'す', 'se': 'せ', 'so': 'そ',
+                'ta': 'た', 'chi': 'ち', 'tsu': 'つ', 'te': 'て', 'to': 'と',
+                'na': 'な', 'ni': 'に', 'nu': 'ぬ', 'ne': 'ね', 'no': 'の',
+                'ha': 'は', 'hi': 'ひ', 'fu': 'ふ', 'he': 'へ', 'ho': 'ほ',
+                'ma': 'ま', 'mi': 'み', 'mu': 'む', 'me': 'め', 'mo': 'も',
+                'ya': 'や', 'yu': 'ゆ', 'yo': 'よ',
+                'ra': 'ら', 'ri': 'り', 'ru': 'る', 're': 'れ', 'ro': 'ろ',
+                'wa': 'わ', 'wo': 'を', 'n': 'ん',
+                'ga': 'が', 'gi': 'ぎ', 'gu': 'ぐ', 'ge': 'げ', 'go': 'ご',
+                'za': 'ざ', 'ji': 'じ', 'zu': 'ず', 'ze': 'ぜ', 'zo': 'ぞ',
+                'da': 'だ', 'dji': 'ぢ', 'dzu': 'づ', 'de': 'で', 'do': 'ど',
+                'ba': 'ば', 'bi': 'び', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ',
+                'pa': 'ぱ', 'pi': 'ぴ', 'pu': 'ぷ', 'pe': 'ぺ', 'po': 'ぽ',
+                'kya': 'きゃ', 'kyu': 'きゅ', 'kyo': 'きょ',
+                'sha': 'しゃ', 'shu': 'しゅ', 'sho': 'しょ',
+                'cha': 'ちゃ', 'chu': 'ちゅ', 'cho': 'ちょ',
+                'nya': 'にゃ', 'nyu': 'にゅ', 'nyo': 'にょ',
+                'hya': 'ひゃ', 'hyu': 'ひゅ', 'hyo': 'ひょ',
+                'mya': 'みゃ', 'myu': 'みゅ', 'myo': 'みょ',
+                'rya': 'りゃ', 'ryu': 'りゅ', 'ryo': 'りょ',
+                'gya': 'ぎゃ', 'gyu': 'ぎゅ', 'gyo': 'ぎょ',
+                'ja': 'じゃ', 'ju': 'じゅ', 'jo': 'じょ',
+                'bya': 'びゃ', 'byu': 'びゅ', 'byo': 'びょ',
+                'pya': 'ぴゃ', 'pyu': 'ぴゅ', 'pyo': 'ぴょ',
+                'tte': 'って', 'tchi': 'っち', 'sshi': 'っし'
+            };
+
+            let result = '';
+            let i = 0;
+            while (i < romaji.length) {
+                let matched = false;
+                // Check for 4-char match
+                if (i + 4 <= romaji.length) {
+                    const sub = romaji.substring(i, i + 4);
+                    if (map[sub]) {
+                        result += map[sub];
+                        i += 4;
+                        matched = true;
+                    }
+                }
+                // Check for 3-char match
+                if (!matched && i + 3 <= romaji.length) {
+                    const sub = romaji.substring(i, i + 3);
+                    if (map[sub]) {
+                        result += map[sub];
+                        i += 3;
+                        matched = true;
+                    }
+                }
+                // Check for 2-char match
+                if (!matched && i + 2 <= romaji.length) {
+                    const sub = romaji.substring(i, i + 2);
+                    if (map[sub]) {
+                        result += map[sub];
+                        i += 2;
+                        matched = true;
+                    }
+                }
+                // Check for 1-char match
+                if (!matched && i + 1 <= romaji.length) {
+                    const sub = romaji.substring(i, i + 1);
+                    if (map[sub]) {
+                        result += map[sub];
+                        i += 1;
+                        matched = true;
+                    }
+                }
+                 if (!matched) {
+                    if (i + 1 < romaji.length && romaji[i] === romaji[i+1] && "kstp".includes(romaji[i])) {
+                         result += 'っ';
+                         i++;
+                         continue;
+                    }
+                    result += romaji[i];
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function conjugate(verb, group) {
+            if (!verb) return {};
+
+            const godanEndings = {
+                'u': { stem: verb.slice(0, -1), i: 'i', a: 'wa', e: 'e', o: 'o', te: 'tte', ta: 'tta' },
+                'ku': { stem: verb.slice(0, -2), i: 'ki', a: 'ka', e: 'ke', o: 'ko', te: 'ite', ta: 'ita' },
+                'gu': { stem: verb.slice(0, -2), i: 'gi', a: 'ga', e: 'ge', o: 'go', te: 'ide', ta: 'ida' },
+                'su': { stem: verb.slice(0, -2), i: 'shi', a: 'sa', e: 'se', o: 'so', te: 'shite', ta: 'shita' },
+                'tsu': { stem: verb.slice(0, -3), i: 'chi', a: 'ta', e: 'te', o: 'to', te: 'tte', ta: 'tta' },
+                'nu': { stem: verb.slice(0, -2), i: 'ni', a: 'na', e: 'ne', o: 'no', te: 'nde', ta: 'nda' },
+                'bu': { stem: verb.slice(0, -2), i: 'bi', a: 'ba', e: 'be', o: 'bo', te: 'nde', ta: 'nda' },
+                'mu': { stem: verb.slice(0, -2), i: 'mi', a: 'ma', e: 'me', o: 'mo', te: 'nde', ta: 'nda' },
+                'ru': { stem: verb.slice(0, -2), i: 'ri', a: 'ra', e: 're', o: 'ro', te: 'tte', ta: 'tta' }
+            };
+
+            let forms = { dictionary: verb };
+
+            if (group === 1) {
+                let endingKey;
+                if (verb.endsWith('tsu')) {
+                    endingKey = 'tsu';
+                } else {
+                    endingKey = verb.slice(-2);
+                    if (!godanEndings[endingKey]) {
+                        endingKey = verb.slice(-1);
+                    }
+                }
+                
+                const ending = godanEndings[endingKey];
+                if (ending) {
+                    const { stem, i, a, e, o, te, ta } = ending;
+                    forms.masu = stem + i + 'masu';
+                    if (verb === 'iku') {
+                        forms.te = 'itte';
+                        forms.ta = 'itta';
+                    } else {
+                        forms.te = te;
+                        forms.ta = ta;
+                    }
+                    forms.nai = stem + a + 'nai';
+                    forms.kano = stem + e + 'ru';
+                    forms.iko = stem + o + 'u';
+                    forms.ba = stem + e + 'ba';
+                    forms.meirei = stem + e;
+                    forms.ukemi = stem + a + 'reru';
+                    forms.shieki = stem + a + 'seru';
+                    if (endingKey === 'su') {
+                       forms.shieki_ukemi = stem + a + 'serareru';
+                    } else {
+                       forms.shieki_ukemi = stem + a + 'sareru';
+                    }
+                }
+            } else if (group === 2) {
+                const stem = verb.slice(0, -2);
+                forms.masu = stem + 'masu';
+                forms.te = stem + 'te';
+                forms.ta = stem + 'ta';
+                forms.nai = stem + 'nai';
+                forms.kano = stem + 'rareru';
+                forms.iko = stem + 'you';
+                forms.ba = stem + 'reba';
+                forms.meirei = stem + 'ro';
+                forms.ukemi = stem + 'rareru';
+                forms.shieki = stem + 'saseru';
+                forms.shieki_ukemi = stem + 'saserareru';
+            } else { // group 3
+                if (verb === 'suru' || verb.endsWith("suru")) {
+                    const stem = verb === 'suru' ? '' : verb.slice(0, -4);
+                    forms.masu = stem + 'shimasu';
+                    forms.te = stem + 'shite';
+                    forms.ta = stem + 'shita';
+                    forms.nai = stem + 'shinai';
+                    forms.kano = stem + 'dekiru';
+                    forms.iko = stem + 'shiyou';
+                    forms.ba = stem + 'sureba';
+                    forms.meirei = stem + 'shiro';
+                    forms.ukemi = stem + 'sareru';
+                    forms.shieki = stem + 'saseru';
+                    forms.shieki_ukemi = stem + 'saserareru';
+                } else if (verb === 'kuru') {
+                    forms.masu = 'kimasu';
+                    forms.te = 'kite';
+                    forms.ta = 'kita';
+                    forms.nai = 'konai';
+                    forms.kano = 'korareru';
+                    forms.iko = 'koyou';
+                    forms.ba = 'kureba';
+                    forms.meirei = 'koi';
+                    forms.ukemi = 'korareru';
+                    forms.shieki = 'kosaseru';
+                    forms.shieki_ukemi = 'kosaserareru';
+                }
+            }
+            forms.kinshi = forms.dictionary + 'na';
+
+            // Convert all to hiragana
+            for (const key in forms) {
+                forms[key] = romajiToHiragana(forms[key]);
+            }
+            return forms;
+        }
+
+        function guessGroup(verb) {
+            if (verb === 'suru' || verb.endsWith('suru') || verb === 'kuru') return 3;
+            if (EXCEPTIONS_G2.some(e => e.romaji.slice(0,-4) === verb.slice(0,-1))) return 1;
+            if (verb.endsWith('eru') || verb.endsWith('iru')) {
+                const stem = verb.slice(0, -3);
+                if (stem.length > 0) {
+                  const lastVowel = stem.slice(-1);
+                  if (['e', 'i'].includes(lastVowel)) {
+                      return 2
+                  }
+                }
+            };
+            return 1;
+        }
+
+
+        function hiraganaToRomaji(hira) {
+            if (!hira) return '';
+            const table = {
+                'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
+                'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
+                'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
+                'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
+                'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
+                'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
+                'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
+                'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
+                'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
+                'わ': 'wa', 'ゐ': 'wi', 'ゑ': 'we', 'を': 'wo', 'ん': 'n',
+                'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
+                'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
+                'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
+                'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
+                'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
+                'きゃ': 'kya', 'きゅ': 'kyu', 'きょ': 'kyo', 'ぎゃ': 'gya', 'ぎゅ': 'gyu', 'ぎょ': 'gyo',
+                'しゃ': 'sha', 'しゅ': 'shu', 'しょ': 'sho', 'じゃ': 'ja', 'じゅ': 'ju', 'じょ': 'jo',
+                'ちゃ': 'cha', 'ちゅ': 'chu', 'ちょ': 'cho', 'ぢゃ': 'ja', 'ぢゅ': 'ju', 'ぢょ': 'jo',
+                'にゃ': 'nya', 'にゅ': 'nyu', 'にょ': 'nyo', 'ひゃ': 'hya', 'ひゅ': 'hyu', 'ひょ': 'hyo',
+                'びゃ': 'bya', 'びゅ': 'byu', 'びょ': 'byo', 'ぴゃ': 'pya', 'ぴゅ': 'pyu', 'ぴょ': 'pyo',
+                'みゃ': 'mya', 'みゅ': 'myu', 'みょ': 'myo', 'りゃ': 'rya', 'りゅ': 'ryu', 'りょ': 'ryo',
+                'ー': '-', '、': ', ', '。': '.'
+            };
+            let romaji = '';
+            let i = 0;
+            while (i < hira.length) {
+                if (hira[i] === 'っ') {
+                    const nextChar = hira[i + 1];
+                    const nextRomaji = table[nextChar];
+                    if (nextRomaji) {
+                        romaji += nextRomaji[0];
+                    }
+                    i++;
+                    continue;
+                }
+                let syllable = hira.substring(i, i + 2);
+                if (table[syllable]) {
+                    romaji += table[syllable];
+                    i += 2;
+                } else if (table[hira[i]]) {
+                    romaji += table[hira[i]];
+                    i += 1;
+                } else {
+                    romaji += hira[i];
+                    i += 1;
+                }
+            }
+            return romaji;
+        }
+
+        function masuToJisho(masuVerb) {
+            if (!masuVerb.endsWith('masu')) {
+                return { verb: masuVerb, group: guessGroup(masuVerb) };
+            }
+            
+            if (masuVerb === 'kimasu') return { verb: 'kuru', group: 3 };
+            if (masuVerb.endsWith('shimasu')) {
+                return { verb: masuVerb.replace(/shimasu$/, 'suru'), group: 3 };
+            }
+
+            const stem = masuVerb.slice(0, -4);
+
+            const ichidanExceptions = ['mimasu', 'imasu', 'okimasu', 'karimasu', 'abimasu', 'dekimasu'];
+            if (ichidanExceptions.includes(masuVerb)) {
+                return { verb: stem + 'ru', group: 2 };
+            }
+            
+            const lastKana = stem.slice(-1);
+            const eRow = ['e','ke','se','te','ne','he','me','re','ge','ze','de','be','pe'];
+            if (eRow.includes(stem.slice(-2)) || eRow.includes(lastKana)) {
+                 return { verb: stem + 'ru', group: 2 };
+            }
+
+            const iToU = { i: 'u', ki: 'ku', gi: 'gu', shi: 'su', chi: 'tsu', ni: 'nu', hi: 'fu', bi: 'bu', mi: 'mu', ri: 'ru' };
+            const preMasu = stem.slice(-3) in iToU ? stem.slice(-3) : (stem.slice(-2) in iToU ? stem.slice(-2) : stem.slice(-1));
+            
+            if (iToU[preMasu]) {
+                return { verb: stem.slice(0, -preMasu.length) + iToU[preMasu], group: 1 };
+            }
+            
+            return { verb: stem + 'ru', group: 2 }; // Default to group 2 if unsure
+        }
+        
+        // --- MAIN COMPONENT ---
+        function NihongoMaster() {
+            const [activeTab, setActiveTab] = useState('conjugator');
+            const [sidebarOpen, setSidebarOpen] = useState(false);
+            const [inputVerb, setInputVerb] = useState('');
+            const [conjResult, setConjResult] = useState(null);
+            const [conjGroup, setConjGroup] = useState(1);
+
+            const handleConjugate = () => {
+                let romajiInput = /^[a-zA-Z\-]+$/.test(inputVerb) ? inputVerb.toLowerCase() : hiraganaToRomaji(inputVerb);
+                const { verb, group } = masuToJisho(romajiInput);
+                setConjGroup(group);
+                const res = conjugate(verb, group);
+                setConjResult(res);
+            };
+
+            const handleInputChange = (e) => {
+                setInputVerb(e.target.value);
+            };
+
+            const renderConjugator = () => (
+                <div className="max-w-3xl mx-auto">
+                    <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold mb-3" style={{color: COLORS.primary}}>Công cụ Chia Động Từ</h2>
+                        <p className="text-gray-500">Nhập động từ (thể từ điển hoặc thể lịch sự, Romaji hoặc Hiragana).</p>
+                    </div>
+                    
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+                         <div className="flex flex-col md:flex-row gap-4 mb-4">
+                            <div className="flex-1 relative">
+                                <input 
+                                    value={inputVerb}
+                                    onChange={handleInputChange}
+                                    placeholder="VD: iku, はなします, tabemasu..."
+                                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all font-mono text-lg"
+                                />
+                                <Search className="absolute left-3 top-3.5 text-gray-400" size={20}/>
+                            </div>
+                         </div>
+                         <button 
+                            onClick={handleConjugate}
+                            disabled={!inputVerb}
+                            className="w-full text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            style={{backgroundColor: COLORS.pink}}
+                         >
+                            <Calculator size={18} /> Chia động từ
+                         </button>
+                         
+                         {inputVerb && EXCEPTIONS_G2.some(e => e.romaji === inputVerb.toLowerCase()) && (
+                             <div className="mt-3 text-sm p-3 rounded-lg flex items-center gap-2" style={{backgroundColor: '#FFF8E6', color: '#D97706'}}>
+                                 <AlertTriangle size={16}/> Lưu ý: Đây là động từ Nhóm 1 (ngoại lệ)!
+                             </div>
+                         )}
+                    </div>
+
+                    {conjResult && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
+                            {[
+                                {id:'masu', l:'Masu (Lịch sự)'},
+                                {id:'dictionary', l:'Từ điển (Jisho)'},
+                                {id:'te', l:'Te (Nối)'},
+                                {id:'nai', l:'Nai (Phủ định)'},
+                                {id:'ta', l:'Ta (Quá khứ)'},
+                                {id:'kano', l:'Khả năng'},
+                                {id:'iko', l:'Ý chí'},
+                                {id:'ba', l:'Điều kiện'},
+                                {id:'meirei', l:'Mệnh lệnh'},
+                                {id:'kinshi', l:'Cấm chỉ'},
+                                {id:'ukemi', l:'Bị động'},
+                                {id:'shieki', l:'Sai khiến'},
+                                {id:'shieki_ukemi', l:'Sai khiến Bị động'},
+                            ].map((f, i) => (
+                                 <div key={f.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+                                     <div className="absolute top-0 left-0 w-1 h-full" style={{backgroundColor: Object.values(COLORS)[i % 4 + 1]}}></div>
+                                    <div className="text-xs font-bold px-2 py-1 rounded inline-block mb-2 bg-gray-50 text-gray-500">{f.l}</div>
+                                    <div className="text-xl font-bold jp-text" style={{color: COLORS.dark}}>{conjResult[f.id] || '---'}</div>
+                                 </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+
+            const renderLesson = () => {
+                const lesson = LESSONS[activeTab];
+                if(!lesson) return null;
+                return (
+                    <div className="max-w-3xl mx-auto animate-fade-in">
+                        <div className="rounded-2xl p-8 text-white mb-8 shadow-lg relative overflow-hidden" style={{backgroundColor: COLORS.primary}}>
+                            <h2 className="text-3xl font-bold mb-2">{lesson.title}</h2>
+                            <p className="opacity-80 relative z-10">{lesson.description}</p>
+                            {/* Added lesson badge */}
+                            <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full">
+                                Minna: {lesson.lesson}
+                            </div>
+                        </div>
+                        {lesson.content}
+                    </div>
+                );
+            };
+
+            return (
+                <div className="min-h-screen font-sans text-gray-900 flex" style={{backgroundColor: COLORS.bg}}>
+                    {sidebarOpen && <div className="fixed inset-0 bg-black/20 z-20 md:hidden" onClick={() => setSidebarOpen(false)}/>}
+                    
+                    <aside 
+                        className={`fixed md:sticky top-0 h-screen w-64 border-r border-gray-800 z-30 transform transition-transform duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
+                        style={{backgroundColor: COLORS.dark, color: 'white'}}
+                    >
+                        <div className="p-6 border-b border-gray-700 flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{backgroundColor: COLORS.pink}}>JP</div>
+                            <span className="font-bold text-lg">NihongoMaster</span>
+                            <button onClick={() => setSidebarOpen(false)} className="md:hidden ml-auto text-gray-400"><X size={20}/></button>
+                        </div>
+                        
+                        <nav className="p-4 space-y-1 overflow-y-auto flex-1">
+                            <div className="text-xs font-bold text-gray-500 uppercase px-3 mb-2 mt-4">Công cụ</div>
+                            <button 
+                                onClick={() => { setActiveTab('conjugator'); setSidebarOpen(false); }}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors"
+                                style={activeTab === 'conjugator' ? {backgroundColor: COLORS.primary, color: COLORS.pink} : {color: '#d1d5db'}}
+                            >
+                                <Calculator size={18} />
+                                Máy chia động từ
+                            </button>
+
+                            <div className="text-xs font-bold text-gray-500 uppercase px-3 mb-2 mt-6">Bài học (Gốc Masu)</div>
+                            
+                            <button 
+                                onClick={() => { setActiveTab('intro'); setSidebarOpen(false); }}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors"
+                                style={activeTab === 'intro' ? {backgroundColor: COLORS.primary, color: COLORS.pink} : {color: '#d1d5db'}}
+                            >
+                                <BookOpen size={18} />
+                                Tổng quan & Ngoại lệ
+                            </button>
+
+                            <button 
+                                onClick={() => { setActiveTab('plain'); setSidebarOpen(false); }}
+                                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium transition-colors"
+                                style={activeTab === 'plain' ? {backgroundColor: COLORS.primary, color: COLORS.pink} : {color: '#d1d5db'}}
+                            >
+                                <div className="flex items-center gap-3"><Star size={18} /> Thể Thông Thường</div>
+                                <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-gray-300">Bài 20</span>
+                            </button>
+
+                            {Object.keys(LESSONS).filter(k => k !== 'intro' && k !== 'plain').map(key => (
+                                 <button 
+                                    key={key}
+                                    onClick={() => { setActiveTab(key); setSidebarOpen(false); }}
+                                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium transition-colors group hover:bg-white/5"
+                                    style={activeTab === key ? {backgroundColor: COLORS.primary, color: COLORS.pink} : {color: '#d1d5db'}}
+                                >
+                                    <span>{LESSONS[key].title.split('(')[0]}</span>
+                                    <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-gray-300 group-hover:bg-white/20 transition-colors">{LESSONS[key].lesson}</span>
+                                </button>
+                            ))}
+                        </nav>
+                    </aside>
+
+                    <main className="flex-1 min-w-0">
+                        <div className="md:hidden bg-white border-b border-gray-100 p-4 flex items-center justify-between sticky top-0 z-10">
+                            <div className="font-bold" style={{color: COLORS.dark}}>NihongoMaster</div>
+                            <button onClick={() => setSidebarOpen(true)} className="p-2 bg-gray-50 rounded-lg"><Menu size={20}/></button>
+                        </div>
+
+                        <div className="p-4 md:p-8 lg:p-12">
+                            {activeTab === 'conjugator' ? renderConjugator() : renderLesson()}
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<NihongoMaster />, document.getElementById('root'));
+    </script>
+</body>
+</html>
