@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool Tách CSV Sạch (No Header, No STT)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f2f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-top: 0; }
+        textarea { width: 100%; height: 250px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; font-family: monospace; box-sizing: border-box; font-size: 14px; }
+        textarea:focus { outline: none; border-color: #007bff; }
+        .btn-group { margin-top: 15px; display: flex; gap: 10px; }
+        button { border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        .btn-process { background-color: #007bff; color: white; }
+        .btn-process:hover { background-color: #0056b3; }
+        .btn-clear { background-color: #e9ecef; color: #333; }
+        .btn-clear:hover { background-color: #dde2e6; }
+        #status { margin-top: 20px; font-weight: bold; color: #495057; }
+        .file-list { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .file-item { background: #fff; border: 1px solid #dee2e6; padding: 15px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .file-item span { font-weight: 600; font-size: 0.9em; color: #333; }
+        .file-item a { text-decoration: none; color: white; background-color: #28a745; padding: 6px 15px; border-radius: 4px; font-size: 0.9em; }
+        .file-item a:hover { background-color: #218838; }
+        .note { background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; font-size: 0.9em; margin-bottom: 15px; border-left: 4px solid #ffeeba; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🛠️ Tool Tách CSV Sạch (Anki Ready)</h2>
+    <div class="note">
+        ✨ <b>Tính năng mới:</b> Tự động xóa dấu <b>*</b> ở cột 1, 2. Xóa dòng tiêu đề. Xóa cột số thứ tự cuối cùng.
+    </div>
+    
+    <textarea id="inputText" placeholder="Dán nội dung bảng từ NotebookLM vào đây...
+Ví dụ:
+| **きく** | **効く** | Có tác dụng | ... | 171
+| はやる | 流行る | Thịnh hành | ... | 172"></textarea>
+    
+    <div class="btn-group">
+        <button class="btn-process" onclick="processData()">🚀 Xử lý & Tải File</button>
+        <button class="btn-clear" onclick="clearText()">🗑️ Xóa</button>
+    </div>
+
+    <div id="status"></div>
+    <div id="downloadArea" class="file-list"></div>
+</div>
+
+<script>
+    function processData() {
+        const text = document.getElementById('inputText').value;
+        const lines = text.split('\n');
+        const validRows = [];
+        
+        // 1. PARSE: Lọc ra các dòng là bảng Markdown
+        lines.forEach(line => {
+            const trimLine = line.trim();
+            if (trimLine.includes('|') && !trimLine.includes('---')) {
+                // Tách cột
+                let cols = trimLine.split('|').map(c => c.trim());
+                
+                // Bỏ cột rỗng đầu cuối do Markdown
+                if (cols.length > 0 && cols[0] === '') cols.shift();
+                if (cols.length > 0 && cols[cols.length - 1] === '') cols.pop();
+
+                // Bỏ dòng Header (chứa chữ "Cột" hoặc "Hiragana")
+                const isHeader = cols[0].toLowerCase().includes('cột') || cols[0].toLowerCase().includes('hiragana');
+                
+                // Chỉ lấy dòng dữ liệu, bỏ header
+                if (!isHeader && cols.length >= 2) {
+                    validRows.push(cols);
+                }
+            }
+        });
+
+        const statusDiv = document.getElementById('status');
+        const downloadArea = document.getElementById('downloadArea');
+        downloadArea.innerHTML = ''; // Reset
+
+        if (validRows.length === 0) {
+            statusDiv.innerHTML = '<span style="color:red">❌ Không tìm thấy dữ liệu bảng. Vui lòng kiểm tra lại.</span>';
+            return;
+        }
+
+        statusDiv.innerText = `✅ Đã xử lý ${validRows.length} từ vựng. Sẵn sàng tải xuống:`;
+
+        // 2. BATCHING & CLEANING
+        const batchSize = 10;
+        
+        // YÊU CẦU 1: Không có Header text, chỉ có BOM để Excel hiểu tiếng Việt
+        const bom = "\uFEFF"; 
+
+        for (let i = 0; i < validRows.length; i += batchSize) {
+            const batch = validRows.slice(i, i + batchSize);
+            let csvContent = bom;
+
+            // Xác định tên file dựa trên STT của dòng đầu và dòng cuối trong batch (trước khi xóa cột STT)
+            // Cột STT thường là cột cuối cùng
+            let startSTT = i + 1;
+            let endSTT = i + batch.length;
+            
+            try {
+                // Thử lấy STT thực tế từ cột cuối cùng của dòng đầu tiên trong batch
+                const lastColIdx = batch[0].length - 1;
+                const potentialStart = parseInt(batch[0][lastColIdx].replace(/\D/g,''));
+                const potentialEnd = parseInt(batch[batch.length-1][lastColIdx].replace(/\D/g,''));
+                if (!isNaN(potentialStart)) startSTT = potentialStart;
+                if (!isNaN(potentialEnd)) endSTT = potentialEnd;
+            } catch(e) {}
+
+            // Xử lý từng dòng trong batch
+            batch.forEach(row => {
+                // YÊU CẦU 2: Xóa dấu * ở Cột 1 và Cột 2
+                if (row[0]) row[0] = row[0].replace(/\*/g, ''); // Cột Hiragana
+                if (row[1]) row[1] = row[1].replace(/\*/g, ''); // Cột Kanji
+
+                // YÊU CẦU 3: Bỏ cột cuối cùng (STT)
+                // Tạo mảng mới bỏ phần tử cuối
+                const dataRow = row.slice(0, -1);
+
+                // Escape CSV (thêm ngoặc kép nếu có dấu phẩy)
+                const escapedRow = dataRow.map(cell => `"${cell.replace(/"/g, '""')}"`);
+                
+                csvContent += escapedRow.join(",") + "\n";
+            });
+
+            // Tạo nút download
+            const fileName = `TuVung_${startSTT}_${endSTT}.csv`;
+            createDownloadButton(csvContent, fileName, downloadArea);
+        }
+    }
+
+    function createDownloadButton(content, fileName, container) {
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        div.innerHTML = `<span>${fileName}</span> <a href="${url}" download="${fileName}">⬇️ Tải về</a>`;
+        
+        container.appendChild(div);
+    }
+
+    function clearText() {
+        document.getElementById('inputText').value = '';
+        document.getElementById('status').innerText = '';
+        document.getElementById('downloadArea').innerHTML = '';
+        document.getElementById('inputText').focus();
+    }
+</script>
+
+</body>
+</html>
