@@ -1,152 +1,284 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tool Tách CSV Sạch (No Header, No STT)</title>
+    <title>Visual CSV Cleaner & Splitter</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f2f5; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #333; margin-top: 0; }
-        textarea { width: 100%; height: 250px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; font-family: monospace; box-sizing: border-box; font-size: 14px; }
-        textarea:focus { outline: none; border-color: #007bff; }
-        .btn-group { margin-top: 15px; display: flex; gap: 10px; }
-        button { border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        .btn-process { background-color: #007bff; color: white; }
-        .btn-process:hover { background-color: #0056b3; }
-        .btn-clear { background-color: #e9ecef; color: #333; }
-        .btn-clear:hover { background-color: #dde2e6; }
-        #status { margin-top: 20px; font-weight: bold; color: #495057; }
-        .file-list { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-        .file-item { background: #fff; border: 1px solid #dee2e6; padding: 15px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .file-item span { font-weight: 600; font-size: 0.9em; color: #333; }
-        .file-item a { text-decoration: none; color: white; background-color: #28a745; padding: 6px 15px; border-radius: 4px; font-size: 0.9em; }
-        .file-item a:hover { background-color: #218838; }
-        .note { background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; font-size: 0.9em; margin-bottom: 15px; border-left: 4px solid #ffeeba; }
+        :root { --primary: #2563eb; --danger: #dc2626; --bg: #f8fafc; --surface: #ffffff; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); padding: 20px; color: #334155; }
+        
+        /* Layout */
+        .container { max-width: 1200px; margin: 0 auto; background: var(--surface); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        h2 { margin-top: 0; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        
+        /* Input Area */
+        .input-section { margin-bottom: 20px; }
+        textarea { width: 100%; height: 150px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: monospace; box-sizing: border-box; resize: vertical; }
+        
+        /* Button Styles */
+        button { border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-analyze { background-color: var(--primary); color: white; }
+        .btn-analyze:hover { background-color: #1d4ed8; }
+        .btn-export { background-color: #059669; color: white; margin-left: 10px; display: none; } /* Hidden initially */
+        .btn-reset { background-color: #e2e8f0; color: #475569; margin-left: 10px; }
+
+        /* Preview Table Styles */
+        .preview-section { margin-top: 20px; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; max-height: 600px; display: none; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        
+        th, td { padding: 10px; border: 1px solid #e2e8f0; text-align: left; white-space: nowrap; max-width: 300px; overflow: hidden; text-overflow: ellipsis; }
+        th { background-color: #f1f5f9; position: sticky; top: 0; z-index: 10; font-weight: bold; }
+        
+        /* Control Checkboxes in Table */
+        .col-control { text-align: center; background-color: #e2e8f0; color: var(--danger); cursor: pointer; user-select: none; }
+        .row-control { text-align: center; background-color: #f1f5f9; width: 40px; }
+        
+        input[type="checkbox"] { transform: scale(1.3); cursor: pointer; accent-color: var(--danger); }
+
+        /* Deleted State Styling */
+        .deleted-col { background-color: #fef2f2 !important; color: #991b1b; text-decoration: line-through; opacity: 0.6; }
+        .deleted-row { background-color: #fef2f2 !important; color: #991b1b; text-decoration: line-through; opacity: 0.6; }
+        
+        /* Status & Download */
+        #status { margin: 15px 0; font-weight: 600; }
+        .file-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .file-item { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 4px; display: flex; align-items: center; gap: 8px; }
+        .file-item a { text-decoration: none; color: white; background-color: #2563eb; padding: 4px 10px; border-radius: 4px; font-size: 12px; }
+
+        .guide { background: #dbeafe; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.9em; color: #1e40af; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🛠️ Tool Tách CSV Sạch (Anki Ready)</h2>
-    <div class="note">
-        ✨ <b>Tính năng mới:</b> Tự động xóa dấu <b>*</b> ở cột 1, 2. Xóa dòng tiêu đề. Xóa cột số thứ tự cuối cùng.
+    <h2>🛠️ Visual CSV Cleaner & Splitter</h2>
+    
+    <div class="guide">
+        💡 <b>Usage:</b> Paste your Markdown table -> Click <b>Analyze</b> -> Check the boxes on headers/rows to <b>DELETE</b> them -> Click <b>Process & Export</b>.
     </div>
-    
-    <textarea id="inputText" placeholder="Dán nội dung bảng từ NotebookLM vào đây...
-Ví dụ:
-| **きく** | **効く** | Có tác dụng | ... | 171
-| はやる | 流行る | Thịnh hành | ... | 172"></textarea>
-    
-    <div class="btn-group">
-        <button class="btn-process" onclick="processData()">🚀 Xử lý & Tải File</button>
-        <button class="btn-clear" onclick="clearText()">🗑️ Xóa</button>
+
+    <div class="input-section">
+        <textarea id="inputText" placeholder="Paste Markdown table here (Example: | Col 1 | Col 2 |...)"></textarea>
+        <div style="margin-top: 10px;">
+            <button class="btn-analyze" onclick="analyzeData()">🔍 1. Analyze & Preview</button>
+            <button class="btn-reset" onclick="resetTool()">Reset</button>
+            <button class="btn-export" id="btnExport" onclick="processAndExport()">🚀 2. Process & Export</button>
+        </div>
     </div>
 
     <div id="status"></div>
+
+    <div class="preview-section" id="previewContainer">
+        <table id="dataTable">
+            </table>
+    </div>
+
     <div id="downloadArea" class="file-list"></div>
 </div>
 
 <script>
-    function processData() {
+    let globalData = []; // Store raw data
+
+    function analyzeData() {
         const text = document.getElementById('inputText').value;
         const lines = text.split('\n');
-        const validRows = [];
-        
-        // 1. PARSE: Lọc ra các dòng là bảng Markdown
+        globalData = [];
+
+        // 1. Parse raw data
         lines.forEach(line => {
             const trimLine = line.trim();
             if (trimLine.includes('|') && !trimLine.includes('---')) {
-                // Tách cột
                 let cols = trimLine.split('|').map(c => c.trim());
-                
-                // Bỏ cột rỗng đầu cuối do Markdown
                 if (cols.length > 0 && cols[0] === '') cols.shift();
                 if (cols.length > 0 && cols[cols.length - 1] === '') cols.pop();
-
-                // Bỏ dòng Header (chứa chữ "Cột" hoặc "Hiragana")
-                const isHeader = cols[0].toLowerCase().includes('cột') || cols[0].toLowerCase().includes('hiragana');
-                
-                // Chỉ lấy dòng dữ liệu, bỏ header
-                if (!isHeader && cols.length >= 2) {
-                    validRows.push(cols);
-                }
+                if (cols.length > 0) globalData.push(cols);
             }
         });
 
-        const statusDiv = document.getElementById('status');
-        const downloadArea = document.getElementById('downloadArea');
-        downloadArea.innerHTML = ''; // Reset
-
-        if (validRows.length === 0) {
-            statusDiv.innerHTML = '<span style="color:red">❌ Không tìm thấy dữ liệu bảng. Vui lòng kiểm tra lại.</span>';
+        if (globalData.length === 0) {
+            alert("No valid table data found!");
             return;
         }
 
-        statusDiv.innerText = `✅ Đã xử lý ${validRows.length} từ vựng. Sẵn sàng tải xuống:`;
-
-        // 2. BATCHING & CLEANING
-        const batchSize = 10;
+        renderTable();
         
-        // YÊU CẦU 1: Không có Header text, chỉ có BOM để Excel hiểu tiếng Việt
+        // Show export button and preview
+        document.getElementById('btnExport').style.display = 'inline-block';
+        document.getElementById('previewContainer').style.display = 'block';
+        document.getElementById('status').innerText = `📊 Found ${globalData.length} rows. Select rows/columns to DELETE below.`;
+    }
+
+    function renderTable() {
+        const table = document.getElementById('dataTable');
+        table.innerHTML = ''; // Clear old
+
+        if (globalData.length === 0) return;
+
+        const maxCols = Math.max(...globalData.map(row => row.length));
+
+        // --- CREATE HEADER (COLUMN CONTROLS) ---
+        const thead = document.createElement('thead');
+        
+        // Control Row
+        const trControl = document.createElement('tr');
+        // Top-left corner cell
+        const thCorner = document.createElement('th'); 
+        thCorner.innerText = "Row \\ Col";
+        thCorner.style.backgroundColor = "#e2e8f0";
+        trControl.appendChild(thCorner);
+
+        for (let c = 0; c < maxCols; c++) {
+            const th = document.createElement('th');
+            th.className = 'col-control';
+            // Checkbox to delete column
+            th.innerHTML = `
+                <label style="cursor:pointer; display:block;">
+                    <input type="checkbox" class="chk-col-delete" data-col="${c}" onchange="toggleCol(${c})">
+                    <br><small>Del Col ${c+1}</small>
+                </label>
+            `;
+            trControl.appendChild(th);
+        }
+        thead.appendChild(trControl);
+        table.appendChild(thead);
+
+        // --- CREATE BODY (DATA) ---
+        const tbody = document.createElement('tbody');
+        
+        globalData.forEach((row, rowIndex) => {
+            const tr = document.createElement('tr');
+            tr.id = `row-${rowIndex}`;
+
+            // Checkbox to delete row
+            const tdControl = document.createElement('td');
+            tdControl.className = 'row-control';
+            tdControl.innerHTML = `<input type="checkbox" class="chk-row-delete" data-row="${rowIndex}" onchange="toggleRow(${rowIndex})">`;
+            tr.appendChild(tdControl);
+
+            // Data cells
+            for (let c = 0; c < maxCols; c++) {
+                const td = document.createElement('td');
+                td.innerText = row[c] || ""; // Handle missing cols
+                td.className = `cell-col-${c}`; // Mark for CSS styling
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+    }
+
+    // --- UI INTERACTION (HIGHLIGHT SELECTION) ---
+    function toggleRow(rowIndex) {
+        const tr = document.getElementById(`row-${rowIndex}`);
+        const chk = tr.querySelector('.chk-row-delete');
+        if (chk.checked) {
+            tr.classList.add('deleted-row');
+        } else {
+            tr.classList.remove('deleted-row');
+        }
+    }
+
+    function toggleCol(colIndex) {
+        const cells = document.querySelectorAll(`.cell-col-${colIndex}`);
+        const chk = document.querySelector(`.chk-col-delete[data-col="${colIndex}"]`);
+        
+        cells.forEach(cell => {
+            if (chk.checked) {
+                cell.classList.add('deleted-col');
+            } else {
+                cell.classList.remove('deleted-col');
+            }
+        });
+    }
+
+    // --- LOGIC: PROCESS & EXPORT ---
+    function processAndExport() {
+        const downloadArea = document.getElementById('downloadArea');
+        downloadArea.innerHTML = '';
+        
+        // 1. Identify Rows/Cols to Delete
+        const rowsToDelete = new Set();
+        document.querySelectorAll('.chk-row-delete:checked').forEach(el => rowsToDelete.add(parseInt(el.dataset.row)));
+
+        const colsToDelete = new Set();
+        document.querySelectorAll('.chk-col-delete:checked').forEach(el => colsToDelete.add(parseInt(el.dataset.col)));
+
+        // 2. Create Cleaned Data
+        const cleanedData = [];
+
+        globalData.forEach((row, rIndex) => {
+            // Skip deleted rows
+            if (rowsToDelete.has(rIndex)) return;
+
+            // Filter columns
+            const newRow = row.filter((_, cIndex) => !colsToDelete.has(cIndex));
+            
+            // Extra cleaning: Remove * from cells
+            const processedRow = newRow.map(cell => cell.replace(/\*/g, '').trim());
+
+            if (processedRow.length > 0) {
+                cleanedData.push(processedRow);
+            }
+        });
+
+        if (cleanedData.length === 0) {
+            alert("No data left to export after filtering!");
+            return;
+        }
+
+        // 3. Batching & Export
+        const batchSize = 10;
         const bom = "\uFEFF"; 
 
-        for (let i = 0; i < validRows.length; i += batchSize) {
-            const batch = validRows.slice(i, i + batchSize);
+        for (let i = 0; i < cleanedData.length; i += batchSize) {
+            const batch = cleanedData.slice(i, i + batchSize);
             let csvContent = bom;
-
-            // Xác định tên file dựa trên STT của dòng đầu và dòng cuối trong batch (trước khi xóa cột STT)
-            // Cột STT thường là cột cuối cùng
+            
+            // Smart Naming (Try to find numbers in the LAST visible column)
             let startSTT = i + 1;
             let endSTT = i + batch.length;
             
             try {
-                // Thử lấy STT thực tế từ cột cuối cùng của dòng đầu tiên trong batch
-                const lastColIdx = batch[0].length - 1;
-                const potentialStart = parseInt(batch[0][lastColIdx].replace(/\D/g,''));
-                const potentialEnd = parseInt(batch[batch.length-1][lastColIdx].replace(/\D/g,''));
-                if (!isNaN(potentialStart)) startSTT = potentialStart;
-                if (!isNaN(potentialEnd)) endSTT = potentialEnd;
+                if (batch[0].length > 0) {
+                    const lastIdx = batch[0].length - 1;
+                    const regex = /\d+/;
+                    const matchStart = batch[0][lastIdx].match(regex);
+                    const matchEnd = batch[batch.length-1][lastIdx].match(regex);
+                    if (matchStart) startSTT = matchStart[0];
+                    if (matchEnd) endSTT = matchEnd[0];
+                }
             } catch(e) {}
 
-            // Xử lý từng dòng trong batch
             batch.forEach(row => {
-                // YÊU CẦU 2: Xóa dấu * ở Cột 1 và Cột 2
-                if (row[0]) row[0] = row[0].replace(/\*/g, ''); // Cột Hiragana
-                if (row[1]) row[1] = row[1].replace(/\*/g, ''); // Cột Kanji
-
-                // YÊU CẦU 3: Bỏ cột cuối cùng (STT)
-                // Tạo mảng mới bỏ phần tử cuối
-                const dataRow = row.slice(0, -1);
-
-                // Escape CSV (thêm ngoặc kép nếu có dấu phẩy)
-                const escapedRow = dataRow.map(cell => `"${cell.replace(/"/g, '""')}"`);
-                
+                const escapedRow = row.map(cell => `"${cell.replace(/"/g, '""')}"`);
                 csvContent += escapedRow.join(",") + "\n";
             });
 
-            // Tạo nút download
-            const fileName = `TuVung_${startSTT}_${endSTT}.csv`;
+            const fileName = `Export_${startSTT}_${endSTT}.csv`;
             createDownloadButton(csvContent, fileName, downloadArea);
         }
+
+        document.getElementById('status').innerText = `✅ Successfully exported ${cleanedData.length} rows!`;
     }
 
     function createDownloadButton(content, fileName, container) {
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
-        
         const div = document.createElement('div');
         div.className = 'file-item';
-        div.innerHTML = `<span>${fileName}</span> <a href="${url}" download="${fileName}">⬇️ Tải về</a>`;
-        
+        div.innerHTML = `<span>📄 ${fileName}</span> <a href="${url}" download="${fileName}">Download</a>`;
         container.appendChild(div);
     }
 
-    function clearText() {
+    function resetTool() {
         document.getElementById('inputText').value = '';
+        document.getElementById('dataTable').innerHTML = '';
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('btnExport').style.display = 'none';
         document.getElementById('status').innerText = '';
         document.getElementById('downloadArea').innerHTML = '';
-        document.getElementById('inputText').focus();
+        globalData = [];
     }
 </script>
 
