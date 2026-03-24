@@ -3,150 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JLPT Grammar Anki Generator (Pro Max)</title>
+    <title>JLPT Grammar Anki Generator Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: #0f172a; /* slate-950 */
+        }
+        
+        /* Custom Scrollbar cao cấp */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { 
+            background: #334155; 
+            border-radius: 10px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Scrollbar cho phần nằm ngang (Cách kết nối) */
+        .horizontal-scroll::-webkit-scrollbar { height: 8px; }
+        .horizontal-scroll::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
+        .horizontal-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; border: 2px solid #1e293b; }
+
         [v-cloak] { display: none; }
+
+        /* Form Controls transition */
+        .form-input {
+            transition: all 0.2s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Đảm bảo Textarea code wrap dòng tốt */
+        .code-textarea {
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-200 min-h-screen p-4 md:p-8">
+<body class="text-slate-200 min-h-screen pb-12 antialiased">
 
-<div id="app" v-cloak class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-    
-    <div class="space-y-6">
-        
-        <div class="bg-slate-800 p-6 rounded-2xl shadow-xl border border-blue-500/50 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-            <h2 class="text-lg font-bold text-blue-400 mb-3 flex items-center gap-2">
-                🔄 Sửa Thẻ Có Sẵn (Import JSON)
-            </h2>
-            <p class="text-xs text-slate-400 mb-3">Copy đoạn JSON bị lỗi từ Anki dán vào đây để load lại lên Form.</p>
-            <textarea v-model="importString" rows="3" placeholder='Dán JSON vào đây...' class="w-full bg-slate-950 border border-slate-600 rounded-lg p-3 text-xs font-mono text-slate-300 focus:border-blue-400 focus:outline-none mb-3"></textarea>
-            <button @click="loadDataToForm" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition-all active:scale-95 flex items-center gap-2">
-                Tải lên Form
-            </button>
-        </div>
-
-        <div class="bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700 h-fit">
-            <h1 class="text-2xl font-bold text-cyan-400 mb-6 flex items-center gap-2">
-                ✍️ Nội Dung Ngữ Pháp
-            </h1>
-
-            <div class="space-y-4 mb-6">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-400 mb-1">Tên cấu trúc (Mặt trước) *</label>
-                    <input v-model="form.frontTitle" type="text" placeholder="VD: ～べきだ / べきではない" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-cyan-400 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-400 mb-1">Ý nghĩa tiếng Việt *</label>
-                    <input v-model="form.meaning" type="text" placeholder="VD: Nên / Không nên làm gì đó" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-cyan-400 focus:outline-none">
-                </div>
+<!-- Header Navbar -->
+<header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-sm">
+    <div class="w-full px-4 md:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
             </div>
-
-            <div class="mb-6 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
-                <label class="flex items-center gap-2 cursor-pointer mb-3">
-                    <input type="checkbox" v-model="hasClause" class="w-4 h-4 accent-cyan-400">
-                    <span class="text-sm font-bold text-amber-300">Cấu trúc có 2 vế (A và B)?</span>
-                </label>
-                <div v-if="hasClause" class="grid grid-cols-2 gap-4">
-                    <div>
-                        <input v-model="form.clauseBefore.label" placeholder="Tên Vế A" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm mb-2 text-white">
-                        <textarea v-model="form.clauseBefore.content" placeholder="Giải thích Vế A..." rows="2" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white"></textarea>
-                    </div>
-                    <div>
-                        <input v-model="form.clauseAfter.label" placeholder="Tên Vế B" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm mb-2 text-white">
-                        <textarea v-model="form.clauseAfter.content" placeholder="Giải thích Vế B..." rows="2" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <label class="text-sm font-semibold text-slate-400">Cách kết nối (Formation) *</label>
-                    <button @click="addFormation" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1 rounded">+ Thêm nhóm</button>
-                </div>
-                <div v-for="(item, index) in form.formations" :key="index" class="flex gap-2 mb-2 items-start">
-                    <input v-model="item.prefixes" placeholder="Vế đầu (cách nhau bởi phẩy)" class="w-1/2 bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white">
-                    <span class="mt-2 text-slate-500 font-bold">+</span>
-                    <input v-model="item.suffixes" placeholder="Đuôi (cách nhau bởi phẩy)" class="w-1/2 bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white">
-                    <button @click="removeFormation(index)" class="mt-1 text-red-400 hover:text-red-300 font-bold px-2">X</button>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <label class="text-sm font-semibold text-slate-400">Ngoại lệ (Exceptions)</label>
-                    <button @click="addException" class="text-xs bg-rose-600 hover:bg-rose-500 text-white px-2 py-1 rounded">+ Thêm ngoại lệ</button>
-                </div>
-                <div v-for="(exc, index) in form.exceptions" :key="index" class="flex gap-2 mb-2 items-center">
-                    <input v-model="exc.from" placeholder="Từ gốc" class="w-1/2 bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white">
-                    <span class="text-slate-500">→</span>
-                    <input v-model="exc.to" placeholder="Thành" class="w-1/2 bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white">
-                    <button @click="removeException(index)" class="text-red-400 hover:text-red-300 font-bold px-2">X</button>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-semibold text-slate-400 mb-1">Cách dùng / Chú ý</label>
-                <textarea v-model="form.usage" rows="3" placeholder="Mỗi dòng là một ý (Enter để xuống dòng)..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm text-white focus:border-cyan-400 focus:outline-none"></textarea>
-            </div>
-
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <label class="text-sm font-semibold text-slate-400">Ví dụ (Examples) *</label>
-                    <button @click="addExample" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded">+ Thêm ví dụ</button>
-                </div>
-                <div v-for="(ex, index) in form.examples" :key="index" class="mb-3 p-3 bg-slate-900 rounded-lg border border-slate-700 relative">
-                    <button @click="removeExample(index)" class="absolute top-2 right-2 text-red-400 hover:text-red-300 font-bold text-xs z-10">Xóa</button>
-                    
-                    <div class="flex gap-2 mb-2 items-center">
-                        <span class="text-[10px] text-slate-500">Bôi đen chữ rồi bấm:</span>
-                        <button @click="applyHighlight(index, 'highlight-cyan')" class="text-[10px] bg-cyan-900/40 text-cyan-300 border border-cyan-700/50 px-2 py-1 rounded hover:bg-cyan-700 transition-colors shadow-sm">
-                            🖍️ Tô Xanh (Trọng tâm)
-                        </button>
-                        <button v-if="hasClause" @click="applyHighlight(index, 'text-amber')" class="text-[10px] bg-amber-900/40 text-amber-300 border border-amber-700/50 px-2 py-1 rounded hover:bg-amber-700 transition-colors shadow-sm">
-                            🔶 Vế A (Vàng)
-                        </button>
-                        <button v-if="hasClause" @click="applyHighlight(index, 'text-fuchsia')" class="text-[10px] bg-fuchsia-900/40 text-fuchsia-300 border border-fuchsia-700/50 px-2 py-1 rounded hover:bg-fuchsia-700 transition-colors shadow-sm">
-                            🟣 Vế B (Tím)
-                        </button>
-                    </div>
-
-                    <textarea :id="'jp-input-' + index" v-model="ex.jp" placeholder="Tiếng Nhật (VD: 早く帰らせていただきたいんですが)" rows="2" class="w-full bg-transparent border-b border-slate-700 pb-1 mb-2 text-sm text-white focus:outline-none focus:border-cyan-400"></textarea>
-                    <input v-model="ex.vn" placeholder="Dịch nghĩa tiếng Việt" class="w-full bg-transparent text-sm text-slate-400 focus:outline-none focus:text-white">
-                </div>
-            </div>
+            <h1 class="text-lg font-bold text-slate-100 tracking-tight">Anki Grammar <span class="text-indigo-400 font-medium">Pro</span></h1>
         </div>
     </div>
+</header>
 
-    <div class="h-fit sticky top-8">
-        <div class="bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700">
-            <h2 class="text-xl font-bold text-emerald-400 mb-4 flex items-center justify-between">
-                <span>🚀 Kết Quả Đầu Ra</span>
-                <button @click="generateData" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-emerald-500/30 transition-all active:scale-95">
-                    TẠO JSON CHUẨN
-                </button>
-            </h2>
-
-            <div v-if="outputString" class="animate-in fade-in duration-300">
-                <p class="text-xs text-slate-400 mb-2">Copy và dán thẳng vào ô JSON_Data trong Anki.</p>
-                <div class="relative">
-                    <textarea readonly v-model="outputString" rows="8" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl p-4 text-xs font-mono text-emerald-300 focus:outline-none mb-4 break-all"></textarea>
-                    <button @click="copyToClipboard" class="absolute top-2 right-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-all">
-                        {{ copyText }}
+<div id="app" v-cloak class="w-full px-4 md:px-8 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- LEFT COLUMN: MAIN FORM -->
+    <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+        
+        <!-- MODULE: NHẬP JSON CŨ -->
+        <div class="bg-slate-800/50 p-5 rounded-2xl border border-indigo-500/30 flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <div class="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+            </div>
+            <div class="flex-1 w-full">
+                <h2 class="text-sm font-semibold text-slate-200 mb-2">Sửa Thẻ Có Sẵn (Import JSON)</h2>
+                <div class="flex gap-2 w-full">
+                    <input v-model="importString" type="text" placeholder="Dán mã JSON thẻ cũ vào đây..." class="form-input flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-300 placeholder-slate-500">
+                    <button @click="loadDataToForm" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all active:scale-95 whitespace-nowrap shadow-md shadow-indigo-500/20">
+                        Tải Lên
                     </button>
                 </div>
-                <h3 class="text-sm font-semibold text-slate-400 mb-2 mt-4">Cấu trúc JSON (Dễ nhìn):</h3>
-                <pre class="bg-slate-900 p-4 rounded-xl text-[11px] font-mono text-slate-300 overflow-x-auto border border-slate-700 max-h-64">{{ previewJson }}</pre>
             </div>
-            <div v-else class="text-center py-12 border-2 border-dashed border-slate-600 rounded-xl">
-                <p class="text-slate-500 text-sm">Điền Form và bấm "TẠO JSON CHUẨN" để xem kết quả.</p>
+        </div>
+
+        <!-- MAIN EDITOR CARD -->
+        <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700/60 overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-700/60 bg-slate-800/80 flex items-center gap-3">
+                <svg class="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                <h2 class="text-lg font-bold text-slate-100">Nội Dung Ngữ Pháp</h2>
+            </div>
+            
+            <div class="p-6 space-y-8">
+                
+                <!-- 1. THÔNG TIN CƠ BẢN -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2 space-y-2">
+                        <div class="flex justify-between items-end mb-1">
+                            <label class="block text-sm font-semibold text-slate-300">Tên cấu trúc (Mặt trước) <span class="text-rose-400">*</span></label>
+                            
+                            <!-- Toolbar Tags -->
+                            <div class="flex gap-1.5 items-center flex-wrap">
+                                <button @click="applyHighlightToTitle('highlight-cyan')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-cyan-500/20 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                                    <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Cyan
+                                </button>
+                                <button v-for="(clause, cIdx) in form.clauses" :key="'t-'+cIdx" @click="applyHighlightToTitle(highlightColors[cIdx % 4].tagClass)" :class="highlightColors[cIdx % 4].btnClassNew">
+                                    <span class="w-2 h-2 rounded-full" :class="highlightColors[cIdx % 4].dotClass"></span> {{ clause.label || highlightColors[cIdx % 4].name }}
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="title-input" v-model="form.frontTitle" rows="2" placeholder="VD: ～に違いない" class="form-input w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-base text-white resize-none"></textarea>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Ý nghĩa tiếng Việt <span class="text-rose-400">*</span></label>
+                        <input v-model="form.meaning" type="text" placeholder="VD: Chắc chắn là..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-base text-white">
+                    </div>
+                </div>
+
+                <!-- 2. PHÂN TÍCH VẾ CÂU -->
+                <div class="bg-slate-900/50 rounded-xl border border-slate-700/50 p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-amber-400">Phân tích các vế câu</h3>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Tùy chọn. Dùng để giải thích chi tiết ý nghĩa từng vế.</p>
+                        </div>
+                        <button @click="addClause" class="inline-flex items-center gap-1.5 text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 px-3 py-1.5 rounded-lg transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Thêm vế
+                        </button>
+                    </div>
+                    
+                    <div v-if="form.clauses.length === 0" class="text-center py-4 border-2 border-dashed border-slate-700 rounded-lg text-slate-500 text-sm">
+                        Chưa có vế câu nào được phân tích.
+                    </div>
+
+                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div v-for="(clause, index) in form.clauses" :key="index" class="group relative bg-slate-800 rounded-xl border border-slate-700 p-1 focus-within:border-amber-500/50 transition-colors">
+                            <button @click="removeClause(index)" class="absolute top-2 right-2 p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors opacity-0 group-hover:opacity-100">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                            <input v-model="clause.label" class="w-full bg-transparent border-b border-slate-700 px-3 py-2 text-sm font-bold text-amber-100 placeholder-slate-600 focus:outline-none focus:border-amber-500/50" placeholder="Tên Vế (VD: Vế 1)">
+                            <textarea v-model="clause.content" placeholder="Nội dung giải thích..." rows="2" class="w-full bg-transparent px-3 py-2 text-sm text-slate-300 placeholder-slate-600 focus:outline-none resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. CÁCH KẾT NỐI (FORMATIONS) - REDESIGN TRỌNG TÂM -->
+                <div>
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-3 gap-2">
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                                Cách kết nối (Dạng Khối Cột) <span class="text-rose-400">*</span>
+                            </h3>
+                            <p class="text-[12px] text-slate-400 mt-1">Mỗi dòng là 1 từ. Bôi đen từ & dùng nút màu để nhấn mạnh.</p>
+                        </div>
+                        <button @click="addFormation" class="inline-flex items-center justify-center gap-1.5 text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-lg transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Thêm Công Thức
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div v-for="(fItem, fIdx) in form.formations" :key="'f-'+fIdx" class="bg-slate-900/40 rounded-2xl border border-slate-700/60 p-4 relative group">
+                            
+                            <!-- Nút xóa công thức -->
+                            <button v-if="form.formations.length > 1" @click="removeFormation(fIdx)" class="absolute -top-3 -right-3 w-7 h-7 bg-slate-800 hover:bg-rose-500 text-slate-400 hover:text-white border border-slate-600 rounded-full flex items-center justify-center transition-all shadow-lg z-10">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                            
+                            <!-- Vùng ngang chứa các cột -->
+                            <div class="horizontal-scroll flex gap-3 overflow-x-auto pb-4 items-start pt-2 px-1">
+                                
+                                <div v-for="(col, cIdx) in fItem.columns" :key="'c-'+cIdx" class="flex items-start gap-3 shrink-0">
+                                    
+                                    <!-- CỘT (COLUMN) -->
+                                    <div class="bg-slate-800 border border-slate-600 rounded-xl w-44 flex flex-col relative group/col shadow-sm transition-colors focus-within:border-indigo-500/50">
+                                        
+                                        <!-- Delete Col Btn -->
+                                        <button v-if="fItem.columns.length > 1" @click="removeColumn(fIdx, cIdx)" class="absolute -top-2 -right-2 w-5 h-5 bg-slate-700 hover:bg-rose-500 text-slate-300 hover:text-white rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover/col:opacity-100 transition-opacity z-10 shadow">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                        
+                                        <!-- Toolbar Format (Nhỏ gọn) -->
+                                        <div class="flex border-b border-slate-700/50 p-1.5 gap-1 bg-slate-800/50 rounded-t-xl justify-center">
+                                            <!-- ICON STRIKETHROUGH CHUẨN (CHỮ S GẠCH NGANG) -->
+                                            <button @click.prevent="formatCol(fIdx, cIdx, '~~')" class="p-1 rounded text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors" title="Gạch bỏ (~~)">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M16 4H9a3 3 0 0 0-2.83 4"/>
+                                                    <path d="M14 12a4 4 0 0 1 0 8H6"/>
+                                                    <line x1="4" y1="12" x2="20" y2="12"/>
+                                                </svg>
+                                            </button>
+                                            <div class="w-px h-4 bg-slate-700 my-auto"></div>
+                                            <button @click.prevent="formatCol(fIdx, cIdx, '**')" class="p-1 rounded text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors" title="Tô Xanh Lục (**)">
+                                                <span class="w-3 h-3 block rounded-full bg-emerald-500"></span>
+                                            </button>
+                                            <button @click.prevent="formatCol(fIdx, cIdx, '__')" class="p-1 rounded text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 transition-colors" title="Tô Vàng (__)">
+                                                <span class="w-3 h-3 block rounded-full bg-amber-500"></span>
+                                            </button>
+                                        </div>
+
+                                        <!-- Textarea Input -->
+                                        <textarea :id="'col-input-' + fIdx + '-' + cIdx" v-model="col.content" rows="3" placeholder="Từ 1&#10;Từ 2..." class="w-full bg-transparent p-3 text-sm text-center font-medium text-slate-100 placeholder-slate-600 focus:outline-none resize-none leading-relaxed"></textarea>
+                                        
+                                        <!-- Note Input -->
+                                        <div class="border-t border-slate-700/50 p-1.5 bg-slate-900/30 rounded-b-xl">
+                                            <input v-model="col.note" placeholder="Chú thích..." class="w-full bg-transparent text-[11px] text-center text-slate-400 placeholder-slate-600 focus:outline-none focus:text-slate-300">
+                                        </div>
+                                    </div>
+
+                                    <!-- Dấu Nối (Connector) -->
+                                    <div v-if="cIdx < fItem.columns.length - 1" class="flex flex-col items-center justify-center h-[120px]">
+                                        <input v-model="col.connector" class="w-8 h-8 flex items-center justify-center text-center bg-slate-900 border border-slate-600 rounded-full text-indigo-400 font-bold text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all shadow-sm" placeholder="+">
+                                    </div>
+                                </div>
+
+                                <!-- Nút Thêm Cột -->
+                                <button @click="addColumn(fIdx)" class="shrink-0 w-12 h-[120px] flex items-center justify-center bg-slate-800/30 hover:bg-indigo-500/10 border-2 border-dashed border-slate-700 hover:border-indigo-500/50 rounded-xl text-slate-500 hover:text-indigo-400 transition-colors group">
+                                    <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Note Chung Công Thức -->
+                            <div class="mt-3 relative">
+                                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                    <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <input v-model="fItem.note" placeholder="Mô tả cho công thức này (Tùy chọn)..." class="form-input w-full bg-slate-800 border border-slate-700 rounded-lg py-2 pl-9 pr-4 text-sm text-slate-300 placeholder-slate-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-700/50">
+
+                <!-- 4. NGOẠI LỆ (EXCEPTIONS) & CÁCH DÙNG -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Ngoại lệ -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="text-sm font-semibold text-slate-300">Từ Ngoại Lệ</label>
+                            <button @click="addException" class="text-[11px] font-semibold bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded transition-colors">+ Thêm</button>
+                        </div>
+                        <div v-if="form.exceptions.length === 0" class="text-[12px] text-slate-500 italic mb-2">Không có ngoại lệ.</div>
+                        <div class="space-y-2">
+                            <div v-for="(exc, index) in form.exceptions" :key="index" class="flex items-center gap-2">
+                                <input v-model="exc.from" placeholder="Từ gốc" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                                <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                <input v-model="exc.to" placeholder="Thành..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-emerald-300 font-medium">
+                                <button @click="removeException(index)" class="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors shrink-0">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chú ý / Cách dùng -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-3">Cách dùng / Chú ý</label>
+                        <textarea v-model="form.usage" rows="4" placeholder="VD: Không dùng cho ý chí, nguyện vọng..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white resize-none"></textarea>
+                    </div>
+                </div>
+
+                <hr class="border-slate-700/50">
+
+                <!-- 5. VÍ DỤ (EXAMPLES) -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-300">Câu Ví Dụ <span class="text-rose-400">*</span></h3>
+                            <p class="text-[12px] text-slate-400 mt-0.5">Bôi đen chữ tiếng Nhật và chọn màu để làm nổi bật cấu trúc.</p>
+                        </div>
+                        <button @click="addExample" class="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-3 py-2 rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Thêm Ví Dụ
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div v-for="(ex, index) in form.examples" :key="index" class="bg-slate-900 border border-slate-700 rounded-xl p-4 relative group focus-within:border-slate-500 transition-colors">
+                            
+                            <!-- Nút xóa ví dụ -->
+                            <button @click="removeExample(index)" class="absolute top-3 right-3 p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors opacity-0 group-hover:opacity-100 z-10">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+
+                            <!-- Toolbar Tags Ví Dụ -->
+                            <div class="flex gap-1.5 mb-3 flex-wrap pr-8">
+                                <button @click="applyHighlight(index, 'highlight-cyan')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-cyan-500/20 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                                    <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Cyan
+                                </button>
+                                <button v-for="(clause, cIdx) in form.clauses" :key="'c-'+cIdx" @click="applyHighlight(index, highlightColors[cIdx % 4].textClass)" :class="highlightColors[cIdx % 4].btnClassNew">
+                                    <span class="w-2 h-2 rounded-full" :class="highlightColors[cIdx % 4].dotClass"></span> {{ clause.label || highlightColors[cIdx % 4].name }}
+                                </button>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <span class="absolute top-2.5 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">JP</span>
+                                    <textarea :id="'jp-input-' + index" v-model="ex.jp" placeholder="Nhập tiếng Nhật..." rows="2" class="form-input w-full bg-slate-800 border border-slate-700 rounded-lg pt-2 pb-2 pl-9 pr-3 text-sm text-white resize-none"></textarea>
+                                </div>
+                                <div class="relative">
+                                    <span class="absolute top-2.5 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">VN</span>
+                                    <input v-model="ex.vn" placeholder="Dịch nghĩa tiếng Việt..." class="form-input w-full bg-slate-800 border border-slate-700 rounded-lg py-2 pl-9 pr-3 text-sm text-slate-300">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
+    <!-- RIGHT COLUMN: OUTPUT JSON -->
+    <div class="lg:col-span-5 xl:col-span-4">
+        <div class="sticky top-24 bg-slate-800 rounded-2xl shadow-xl border border-slate-700/60 overflow-hidden flex flex-col" style="max-height: calc(100vh - 120px);">
+            
+            <div class="px-6 py-5 border-b border-slate-700/60 bg-slate-800/80 flex items-center justify-between">
+                <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                    Kết Quả
+                </h2>
+                <button @click="generateData" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    TẠO DỮ LIỆU
+                </button>
+            </div>
+
+            <div class="p-6 flex-1 flex flex-col bg-slate-900/50">
+                <div v-if="!outputString" class="flex-1 flex flex-col items-center justify-center text-slate-500 opacity-60">
+                    <svg class="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p class="text-sm font-medium">Nhập liệu và bấm "Tạo dữ liệu"</p>
+                </div>
+
+                <div v-else class="relative flex-1 flex flex-col min-h-0">
+                    <!-- KHÔI PHỤC LẠI TEXT EMOJI GỐC CHO NÚT COPY -->
+                    <button @click="copyToClipboard" class="absolute top-3 right-3 z-10 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-600 hover:border-emerald-500/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 shadow-md shadow-black/20">
+                        {{ copyText }}
+                    </button>
+                    <!-- KHÔI PHỤC LẠI THUỘC TÍNH RENDER (Không format xuống dòng để Anki nhận 1 dòng) -->
+                    <textarea readonly v-model="outputString" class="w-full flex-1 bg-[#0d1117] border border-slate-700 rounded-xl p-5 pt-12 text-[13px] font-mono text-emerald-300 focus:outline-none resize-none custom-scrollbar shadow-inner code-textarea"></textarea>
+                </div>
+            </div>
+            
+            <div class="px-6 py-3 bg-slate-800 border-t border-slate-700/60 text-[11px] text-slate-500 text-center">
+                Dữ liệu xuất ra trên 1 dòng duy nhất chuẩn TSV để dễ dàng Copy dán vào Anki.
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -154,147 +361,165 @@
 
     createApp({
         setup() {
-            const hasClause = ref(false);
             const outputString = ref('');
-            const previewJson = ref('');
-            const copyText = ref('📋 Copy cho Anki');
+            const copyText = ref('📋 Copy'); // Khôi phục string gốc
             const importString = ref('');
 
-            const getDefaultForm = () => ({
-                frontTitle: '',
-                meaning: '',
-                clauseBefore: { label: 'Vế trước ( A )', content: '' },
-                clauseAfter: { label: 'Vế sau ( B )', content: '' },
-                formations: [ { prefixes: '', suffixes: '' } ],
-                exceptions: [],
-                usage: '',
-                examples: [ { jp: '', vn: '' } ]
+            // KHÔI PHỤC LẠI CLASS GỐC: textClass và tagClass phải dùng chuẩn class cũ của bạn để Anki có thể render chính xác CSS
+            const highlightColors = [
+                { name: 'Vế 1', textClass: 'text-amber-400', tagClass: 'bg-amber-500/20 text-amber-300', dotClass: 'bg-amber-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-amber-500/20 bg-amber-500/10 text-amber-300 border border-amber-500/20' },
+                { name: 'Vế 2', textClass: 'text-fuchsia-400', tagClass: 'bg-fuchsia-500/20 text-fuchsia-300', dotClass: 'bg-fuchsia-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-fuchsia-500/20 bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20' },
+                { name: 'Vế 3', textClass: 'text-emerald-400', tagClass: 'bg-emerald-500/20 text-emerald-300', dotClass: 'bg-emerald-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-emerald-500/20 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' },
+                { name: 'Vế 4', textClass: 'text-blue-400', tagClass: 'bg-blue-500/20 text-blue-300', dotClass: 'bg-blue-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-blue-500/20 bg-blue-500/10 text-blue-300 border border-blue-500/20' }
+            ];
+
+            const form = reactive({
+                frontTitle: '', meaning: '', clauses: [], 
+                formations: [ 
+                    { 
+                        columns: [ { content: '', note: '', connector: '+' } ], 
+                        note: '' 
+                    } 
+                ], 
+                exceptions: [], usage: '', examples: [ { jp: '', vn: '' } ]
             });
 
-            const form = reactive(getDefaultForm());
+            const addClause = () => form.clauses.push({ label: `Vế ${form.clauses.length + 1}`, content: '' });
+            const removeClause = (i) => form.clauses.splice(i, 1);
+            
+            const addFormation = () => form.formations.push({ columns: [ { content: '', note: '', connector: '+' } ], note: '' });
+            const removeFormation = (i) => form.formations.splice(i, 1);
+            
+            const addColumn = (fIdx) => form.formations[fIdx].columns.push({ content: '', note: '', connector: '+' });
+            const removeColumn = (fIdx, cIdx) => form.formations[fIdx].columns.splice(cIdx, 1);
 
-            const addFormation = () => form.formations.push({ prefixes: '', suffixes: '' });
-            const removeFormation = (index) => form.formations.splice(index, 1);
             const addException = () => form.exceptions.push({ from: '', to: '' });
-            const removeException = (index) => form.exceptions.splice(index, 1);
+            const removeException = (i) => form.exceptions.splice(i, 1);
             const addExample = () => form.examples.push({ jp: '', vn: '' });
-            const removeExample = (index) => form.examples.splice(index, 1);
+            const removeExample = (i) => form.examples.splice(i, 1);
 
-            // ==========================================
-            // TÍNH NĂNG MỚI: BÔI ĐEN VÀ HIGHLIGHT TỰ ĐỘNG
-            // ==========================================
             const applyHighlight = (index, colorClass) => {
-                const textareaId = 'jp-input-' + index;
-                const textarea = document.getElementById(textareaId);
-                
-                if (!textarea) return;
+                const ta = document.getElementById('jp-input-' + index);
+                if (!ta || ta.selectionStart === ta.selectionEnd) return;
+                const c = form.examples[index].jp;
+                form.examples[index].jp = `${c.substring(0, ta.selectionStart)}<span class='${colorClass}'>${c.substring(ta.selectionStart, ta.selectionEnd)}</span>${c.substring(ta.selectionEnd)}`;
+                nextTick(() => ta.focus());
+            };
 
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
+            const applyHighlightToTitle = (colorClass) => {
+                const ta = document.getElementById('title-input');
+                if (!ta || ta.selectionStart === ta.selectionEnd) return;
+                const c = form.frontTitle;
+                form.frontTitle = `${c.substring(0, ta.selectionStart)}<span class='${colorClass}'>${c.substring(ta.selectionStart, ta.selectionEnd)}</span>${c.substring(ta.selectionEnd)}`;
+                nextTick(() => ta.focus());
+            };
 
-                if (start === end) {
-                    alert("⚠️ Hãy bôi đen (chọn) chữ cần đổi màu trước khi bấm nút nhé!");
+            const formatCol = (fIdx, cIdx, syntax) => {
+                const ta = document.getElementById(`col-input-${fIdx}-${cIdx}`);
+                if (!ta || ta.selectionStart === ta.selectionEnd) {
+                    alert("⚠️ Hãy bôi đen chữ trong cột trước khi bấm nút!"); return;
+                }
+                const c = form.formations[fIdx].columns[cIdx].content;
+                form.formations[fIdx].columns[cIdx].content = `${c.substring(0, ta.selectionStart)}${syntax}${c.substring(ta.selectionStart, ta.selectionEnd)}${syntax}${c.substring(ta.selectionEnd)}`;
+                nextTick(() => ta.focus());
+            };
+
+            // KHÔI PHỤC LẠI HOÀN TOÀN LOGIC JSON LOAD GỐC
+            const loadDataToForm = () => {
+                let raw = importString.value.trim();
+                if (!raw) return;
+                try {
+                    form.frontTitle = '';
+                    if (raw.includes('\t')) {
+                        const parts = raw.split('\t');
+                        form.frontTitle = parts[0]; raw = parts.slice(1).join('\t');
+                    }
+                    const parsed = JSON.parse(raw);
+                    form.meaning = parsed.meaning || '';
+                    
+                    form.clauses = [];
+                    if (parsed.clauses) form.clauses = JSON.parse(JSON.stringify(parsed.clauses));
+                    else if (parsed.clauseAnalysis) {
+                        if (parsed.clauseAnalysis.before) form.clauses.push(parsed.clauseAnalysis.before);
+                        if (parsed.clauseAnalysis.after) form.clauses.push(parsed.clauseAnalysis.after);
+                    }
+
+                    if (parsed.formation && parsed.formation.length > 0) {
+                        form.formations = parsed.formation.map(f => {
+                            if (f.columns) {
+                                return {
+                                    columns: f.columns.map(c => ({ content: c.items.join('\n'), note: c.note || '', connector: c.connector || '+' })),
+                                    note: f.note || ''
+                                };
+                            } else if (f.groups) {
+                                return {
+                                    columns: f.groups.map(g => ({ content: g.join('\n'), note: '', connector: '+' })),
+                                    note: f.note || ''
+                                };
+                            } else {
+                                const cols = [];
+                                if (f.prefixes && f.prefixes.length > 0) cols.push({ content: f.prefixes.join('\n'), note: '', connector: '+' });
+                                if (f.suffixes && f.suffixes.length > 0) cols.push({ content: f.suffixes.join('\n'), note: '', connector: '+' });
+                                if (cols.length === 0) cols.push({ content: '', note: '', connector: '+' });
+                                return { columns: cols, note: f.note || '' };
+                            }
+                        });
+                    } else { form.formations = [{ columns: [{ content: '', note: '', connector: '+' }], note: '' }]; }
+
+                    form.exceptions = parsed.exceptions ? JSON.parse(JSON.stringify(parsed.exceptions)) : [];
+                    form.usage = parsed.usage ? parsed.usage.join('\n') : '';
+                    form.examples = parsed.examples ? JSON.parse(JSON.stringify(parsed.examples)) : [{ jp: '', vn: '' }];
+                } catch (e) { alert("LỖI JSON: \n" + e.message); }
+            };
+
+            // KHÔI PHỤC LẠI HOÀN TOÀN LOGIC JSON GENERATE GỐC TRÊN 1 DÒNG DUY NHẤT ĐỂ COPY
+            const generateData = () => {
+                if (!form.frontTitle || !form.meaning) {
+                    alert("Vui lòng nhập ít nhất: Tên cấu trúc và Ý nghĩa.");
                     return;
                 }
 
-                const currentText = form.examples[index].jp;
-                const selectedText = currentText.substring(start, end);
-                const beforeText = currentText.substring(0, start);
-                const afterText = currentText.substring(end);
-
-                // Bọc thẻ span với class tương ứng
-                const newText = `${beforeText}<span class='${colorClass}'>${selectedText}</span>${afterText}`;
-                
-                // Cập nhật lại dữ liệu Vue
-                form.examples[index].jp = newText;
-
-                // Tự động focus lại vào ô textbox để người dùng làm tiếp
-                nextTick(() => {
-                    textarea.focus();
-                });
-            };
-
-            const loadDataToForm = () => {
-                let rawData = importString.value.trim();
-                if (!rawData) { alert("Vui lòng dán nội dung JSON vào ô!"); return; }
-
-                try {
-                    if (rawData.includes('\t')) {
-                        const parts = rawData.split('\t');
-                        form.frontTitle = parts[0];
-                        rawData = parts[1];
-                    }
-                    const parsed = JSON.parse(rawData);
-                    form.meaning = parsed.meaning || '';
-                    if (parsed.clauseAnalysis) {
-                        hasClause.value = true;
-                        form.clauseBefore = parsed.clauseAnalysis.before || { label: 'Vế trước ( A )', content: '' };
-                        form.clauseAfter = parsed.clauseAnalysis.after || { label: 'Vế sau ( B )', content: '' };
-                    } else {
-                        hasClause.value = false;
-                        form.clauseBefore = { label: 'Vế trước ( A )', content: '' };
-                        form.clauseAfter = { label: 'Vế sau ( B )', content: '' };
-                    }
-                    if (parsed.formation && parsed.formation.length > 0) {
-                        form.formations = parsed.formation.map(f => ({
-                            prefixes: f.prefixes ? f.prefixes.join(', ') : '',
-                            suffixes: f.suffixes ? f.suffixes.join(', ') : ''
-                        }));
-                    } else { form.formations = [{ prefixes: '', suffixes: '' }]; }
-
-                    form.exceptions = parsed.exceptions || [];
-                    if (parsed.usage && Array.isArray(parsed.usage)) { form.usage = parsed.usage.join('\n'); } 
-                    else { form.usage = ''; }
-                    form.examples = parsed.examples || [];
-                    if (form.examples.length === 0) form.examples = [{ jp: '', vn: '' }];
-                } catch (error) { alert("LỖI JSON: \n" + error.message); }
-            };
-
-            const generateData = () => {
                 let data = { meaning: form.meaning };
-                if (hasClause.value && (form.clauseBefore.content || form.clauseAfter.content)) {
-                    data.clauseAnalysis = {
-                        before: { label: form.clauseBefore.label, content: form.clauseBefore.content },
-                        after: { label: form.clauseAfter.label, content: form.clauseAfter.content }
-                    };
-                }
+                if (form.clauses.length > 0) data.clauses = form.clauses.filter(c => c.label || c.content);
+
                 const validFormations = form.formations.map(f => {
-                    return {
-                        prefixes: f.prefixes.split(',').map(s => s.trim()).filter(Boolean),
-                        suffixes: f.suffixes.split(',').map(s => s.trim()).filter(Boolean)
-                    };
-                }).filter(f => f.prefixes.length > 0 || f.suffixes.length > 0);
+                    const columns = f.columns.map(c => {
+                        return {
+                            items: c.content.split('\n').map(s => s.trim()).filter(Boolean),
+                            note: c.note.trim(),
+                            connector: c.connector || '+'
+                        };
+                    }).filter(c => c.items.length > 0);
+                    
+                    return { columns: columns, note: f.note.trim() };
+                }).filter(f => f.columns.length > 0);
+                
                 if (validFormations.length > 0) data.formation = validFormations;
 
-                const validExceptions = form.exceptions.filter(e => e.from && e.to);
-                if (validExceptions.length > 0) data.exceptions = validExceptions;
+                const validExc = form.exceptions.filter(e => e.from && e.to);
+                if (validExc.length > 0) data.exceptions = validExc;
 
                 const validUsages = form.usage.split('\n').map(s => s.trim()).filter(Boolean);
                 if (validUsages.length > 0) data.usage = validUsages;
 
-                const validExamples = form.examples.filter(ex => ex.jp && ex.vn);
-                if (validExamples.length > 0) data.examples = validExamples;
+                const validEx = form.examples.filter(ex => ex.jp && ex.vn);
+                if (validEx.length > 0) data.examples = validEx;
 
+                // TRẢ LẠI GỐC: KHÔNG THÊM (null, 2) VÀO ĐÂY VÌ ANKI IMPORT YÊU CẦU DATA Ở TRÊN 1 DÒNG DUY NHẤT
                 const jsonStr = JSON.stringify(data);
-                if(form.frontTitle) { outputString.value = `${form.frontTitle}\t${jsonStr}`; } 
-                else { outputString.value = jsonStr; }
-                
-                previewJson.value = JSON.stringify(data, null, 2);
-                copyText.value = '📋 Copy cho Anki';
+                outputString.value = form.frontTitle ? `${form.frontTitle}\t${jsonStr}` : jsonStr;
+                copyText.value = '📋 Copy'; // Trả lại text
             };
 
             const copyToClipboard = () => {
+                if(!outputString.value) return;
                 navigator.clipboard.writeText(outputString.value).then(() => {
-                    copyText.value = '✅ Đã Copy!';
-                    setTimeout(() => copyText.value = '📋 Copy cho Anki', 2000);
+                    copyText.value = '✅ Đã Copy!'; // Trả lại text
+                    setTimeout(() => copyText.value = '📋 Copy', 2000);
                 });
             };
 
-            return {
-                hasClause, form, outputString, previewJson, copyText, importString,
-                addFormation, removeFormation, addException, removeException, addExample, removeExample,
-                loadDataToForm, generateData, copyToClipboard, applyHighlight
-            };
+            return { highlightColors, form, outputString, copyText, importString, addClause, removeClause, addFormation, removeFormation, addColumn, removeColumn, addException, removeException, addExample, removeExample, loadDataToForm, generateData, copyToClipboard, applyHighlight, applyHighlightToTitle, formatCol };
         }
     }).mount('#app');
 </script>
