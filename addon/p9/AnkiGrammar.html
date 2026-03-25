@@ -30,20 +30,37 @@
         [v-cloak] { display: none; }
 
         /* Form Controls transition */
-        .form-input {
-            transition: all 0.2s ease;
-        }
+        .form-input { transition: all 0.2s ease; }
         .form-input:focus {
             outline: none;
             border-color: #6366f1;
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
 
-        /* Đảm bảo Textarea code wrap dòng tốt */
-        .code-textarea {
-            word-break: break-all;
+        /* WYSIWYG Div Editor Styles */
+        [contenteditable="true"] {
+            cursor: text;
             white-space: pre-wrap;
+            word-break: break-word;
         }
+        [contenteditable="true"]:empty:before {
+            content: attr(placeholder);
+            color: #64748b; /* slate-500 */
+            pointer-events: none;
+            display: block; /* Fix cho Firefox */
+        }
+
+        /* Định nghĩa sẵn các class màu của Anki để hiển thị WYSIWYG (Trực quan) ngay trên tool */
+        .highlight-cyan { color: #22d3ee; font-weight: bold; }
+        .tag-amber { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.85em; display: inline-block; vertical-align: middle; }
+        .tag-fuchsia { background: rgba(217, 70, 239, 0.15); color: #f0abfc; border: 1px solid rgba(217, 70, 239, 0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.85em; display: inline-block; vertical-align: middle; }
+        .tag-emerald { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.85em; display: inline-block; vertical-align: middle; }
+        .tag-blue { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.85em; display: inline-block; vertical-align: middle; }
+
+        /* Các class màu mới cho hệ thống Cột Formations */
+        .col-del { color: #fb7185; text-decoration: line-through; text-decoration-color: #e11d48; text-decoration-thickness: 2px; }
+        .col-green { color: #34d399; font-weight: 900; }
+        .col-yellow { color: #fcd34d; }
     </style>
 </head>
 <body class="text-slate-200 min-h-screen pb-12 antialiased">
@@ -67,21 +84,30 @@
     <!-- LEFT COLUMN: MAIN FORM -->
     <div class="lg:col-span-7 xl:col-span-8 space-y-6">
         
-        <!-- MODULE: NHẬP JSON CŨ -->
-        <div class="bg-slate-800/50 p-5 rounded-2xl border border-indigo-500/30 flex flex-col md:flex-row gap-4 items-start md:items-center">
-            <div class="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
+        <!-- MODULE: NHẬP JSON CŨ ĐÃ ĐƯỢC TÁCH LÀM 2 Ô -->
+        <div class="bg-slate-800/50 p-5 rounded-2xl border border-indigo-500/30 flex flex-col md:flex-row gap-4 items-start">
+            <div class="p-3 bg-indigo-500/10 rounded-xl text-indigo-400 shrink-0">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
             </div>
-            <div class="flex-1 w-full">
-                <h2 class="text-sm font-semibold text-slate-200 mb-2">Sửa Thẻ Có Sẵn (Import JSON)</h2>
-                <div class="flex gap-2 w-full">
-                    <input v-model="importString" type="text" placeholder="Dán mã JSON thẻ cũ vào đây..." class="form-input flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-300 placeholder-slate-500">
-                    <button @click="loadDataToForm" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all active:scale-95 whitespace-nowrap shadow-md shadow-indigo-500/20">
+            <div class="flex-1 w-full space-y-3">
+                <h2 class="text-sm font-semibold text-slate-200">Sửa Thẻ Có Sẵn (Import)</h2>
+                <div class="flex flex-col md:flex-row gap-3 w-full items-end">
+                    <div class="flex-1 flex flex-col gap-1.5 w-full">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Mặt Trước (HTML)</span>
+                        <input v-model="importFront" type="text" placeholder="Dán thẻ Mặt Trước..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm font-mono text-slate-300 placeholder-slate-600">
+                    </div>
+                    <div class="flex-[2] flex flex-col gap-1.5 w-full">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Mặt Sau (JSON)</span>
+                        <input v-model="importBack" type="text" placeholder="Dán dữ liệu JSON Mặt Sau..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm font-mono text-slate-300 placeholder-slate-600">
+                    </div>
+                    <button @click="loadDataToForm" class="shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all active:scale-95 shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2 h-[42px] w-full md:w-auto mt-2 md:mt-0">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                         Tải Lên
                     </button>
                 </div>
+                <p class="text-[11px] text-slate-500 italic">* Mẹo: Có thể dán chung toàn bộ dữ liệu (cả 2 mặt) vào ô Mặt Sau, tool sẽ tự động tách.</p>
             </div>
         </div>
 
@@ -99,20 +125,32 @@
                 <!-- 1. THÔNG TIN CƠ BẢN -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2 space-y-2">
-                        <div class="flex justify-between items-end mb-1">
+                        <div class="flex justify-between items-end mb-2">
                             <label class="block text-sm font-semibold text-slate-300">Tên cấu trúc (Mặt trước) <span class="text-rose-400">*</span></label>
                             
-                            <!-- Toolbar Tags -->
+                            <!-- Toolbar Tags (WYSIWYG) -->
                             <div class="flex gap-1.5 items-center flex-wrap">
-                                <button @click="applyHighlightToTitle('highlight-cyan')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-cyan-500/20 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                                <button @click="clearFormatDiv('title-input')" class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-slate-700 bg-slate-800 text-slate-400 border border-slate-600" title="Xóa màu định dạng">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg> Bỏ màu
+                                </button>
+                                <div class="w-px h-4 bg-slate-700 my-auto mx-1"></div>
+                                <button @click="applyHighlightToDiv('title-input', 'highlight-cyan')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-cyan-500/20 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20" title="Bôi đen chữ rồi nhấn nút này">
                                     <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Cyan
                                 </button>
-                                <button v-for="(clause, cIdx) in form.clauses" :key="'t-'+cIdx" @click="applyHighlightToTitle(highlightColors[cIdx % 4].tagClass)" :class="highlightColors[cIdx % 4].btnClassNew">
+                                <button v-for="(clause, cIdx) in form.clauses" :key="'t-'+cIdx" @click="applyHighlightToDiv('title-input', highlightColors[cIdx % 4].tagClass)" :class="highlightColors[cIdx % 4].btnClassNew" title="Bôi đen chữ rồi nhấn nút này">
                                     <span class="w-2 h-2 rounded-full" :class="highlightColors[cIdx % 4].dotClass"></span> {{ clause.label || highlightColors[cIdx % 4].name }}
                                 </button>
                             </div>
                         </div>
-                        <textarea id="title-input" v-model="form.frontTitle" rows="2" placeholder="VD: ～に違いない" class="form-input w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-base text-white resize-none"></textarea>
+                        
+                        <!-- WYSIWYG Editor for Title -->
+                        <div 
+                            id="title-input" 
+                            contenteditable="true" 
+                            placeholder="VD: ～に違いない (Bôi đen chữ và bấm nút màu ở trên)" 
+                            class="form-input w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-base text-white outline-none min-h-[56px] leading-relaxed"
+                            @input="e => form.frontTitle = e.target.innerHTML"
+                        ></div>
                     </div>
 
                     <div class="md:col-span-2">
@@ -148,7 +186,7 @@
                     </div>
                 </div>
 
-                <!-- 3. CÁCH KẾT NỐI (FORMATIONS) - REDESIGN TRỌNG TÂM -->
+                <!-- 3. CÁCH KẾT NỐI (FORMATIONS) -->
                 <div>
                     <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-3 gap-2">
                         <div>
@@ -165,65 +203,63 @@
                     <div class="space-y-4">
                         <div v-for="(fItem, fIdx) in form.formations" :key="'f-'+fIdx" class="bg-slate-900/40 rounded-2xl border border-slate-700/60 p-4 relative group">
                             
-                            <!-- Nút xóa công thức -->
                             <button v-if="form.formations.length > 1" @click="removeFormation(fIdx)" class="absolute -top-3 -right-3 w-7 h-7 bg-slate-800 hover:bg-rose-500 text-slate-400 hover:text-white border border-slate-600 rounded-full flex items-center justify-center transition-all shadow-lg z-10">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                             
-                            <!-- Vùng ngang chứa các cột -->
                             <div class="horizontal-scroll flex gap-3 overflow-x-auto pb-4 items-start pt-2 px-1">
-                                
                                 <div v-for="(col, cIdx) in fItem.columns" :key="'c-'+cIdx" class="flex items-start gap-3 shrink-0">
-                                    
-                                    <!-- CỘT (COLUMN) -->
                                     <div class="bg-slate-800 border border-slate-600 rounded-xl w-44 flex flex-col relative group/col shadow-sm transition-colors focus-within:border-indigo-500/50">
-                                        
-                                        <!-- Delete Col Btn -->
                                         <button v-if="fItem.columns.length > 1" @click="removeColumn(fIdx, cIdx)" class="absolute -top-2 -right-2 w-5 h-5 bg-slate-700 hover:bg-rose-500 text-slate-300 hover:text-white rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover/col:opacity-100 transition-opacity z-10 shadow">
                                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </button>
                                         
-                                        <!-- Toolbar Format (Nhỏ gọn) -->
+                                        <!-- Toolbar Format Đồng Bộ WYSIWYG -->
                                         <div class="flex border-b border-slate-700/50 p-1.5 gap-1 bg-slate-800/50 rounded-t-xl justify-center">
-                                            <!-- ICON STRIKETHROUGH CHUẨN (CHỮ S GẠCH NGANG) -->
-                                            <button @click.prevent="formatCol(fIdx, cIdx, '~~')" class="p-1 rounded text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors" title="Gạch bỏ (~~)">
+                                            <button @click.prevent="clearFormatDiv('col-input-' + fIdx + '-' + cIdx)" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition-colors" title="Bỏ màu">
                                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M16 4H9a3 3 0 0 0-2.83 4"/>
-                                                    <path d="M14 12a4 4 0 0 1 0 8H6"/>
-                                                    <line x1="4" y1="12" x2="20" y2="12"/>
+                                                    <path d="M6 18L18 6M6 6l12 12"/>
                                                 </svg>
                                             </button>
                                             <div class="w-px h-4 bg-slate-700 my-auto"></div>
-                                            <button @click.prevent="formatCol(fIdx, cIdx, '**')" class="p-1 rounded text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors" title="Tô Xanh Lục (**)">
+                                            <button @click.prevent="applyHighlightToDiv('col-input-' + fIdx + '-' + cIdx, 'col-del', 'color: #fb7185; text-decoration: line-through; text-decoration-color: #e11d48; text-decoration-thickness: 2px;')" class="p-1 rounded text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors" title="Gạch bỏ">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" y1="12" x2="20" y2="12"/>
+                                                </svg>
+                                            </button>
+                                            <div class="w-px h-4 bg-slate-700 my-auto"></div>
+                                            <button @click.prevent="applyHighlightToDiv('col-input-' + fIdx + '-' + cIdx, 'col-green', 'color: #34d399; font-weight: 900;')" class="p-1 rounded text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors" title="Tô Xanh Lục">
                                                 <span class="w-3 h-3 block rounded-full bg-emerald-500"></span>
                                             </button>
-                                            <button @click.prevent="formatCol(fIdx, cIdx, '__')" class="p-1 rounded text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 transition-colors" title="Tô Vàng (__)">
+                                            <button @click.prevent="applyHighlightToDiv('col-input-' + fIdx + '-' + cIdx, 'col-yellow', 'color: #fcd34d;')" class="p-1 rounded text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 transition-colors" title="Tô Vàng">
                                                 <span class="w-3 h-3 block rounded-full bg-amber-500"></span>
                                             </button>
                                         </div>
 
-                                        <!-- Textarea Input -->
-                                        <textarea :id="'col-input-' + fIdx + '-' + cIdx" v-model="col.content" rows="3" placeholder="Từ 1&#10;Từ 2..." class="w-full bg-transparent p-3 text-sm text-center font-medium text-slate-100 placeholder-slate-600 focus:outline-none resize-none leading-relaxed"></textarea>
+                                        <!-- WYSIWYG Editor cho Formations -->
+                                        <div 
+                                            :id="'col-input-' + fIdx + '-' + cIdx" 
+                                            contenteditable="true" 
+                                            placeholder="Từ 1 (Enter) Từ 2..." 
+                                            class="w-full bg-transparent p-3 text-sm text-center font-medium text-slate-100 outline-none min-h-[72px] leading-relaxed"
+                                            @input="e => col.content = e.target.innerHTML"
+                                        ></div>
                                         
-                                        <!-- Note Input -->
                                         <div class="border-t border-slate-700/50 p-1.5 bg-slate-900/30 rounded-b-xl">
                                             <input v-model="col.note" placeholder="Chú thích..." class="w-full bg-transparent text-[11px] text-center text-slate-400 placeholder-slate-600 focus:outline-none focus:text-slate-300">
                                         </div>
                                     </div>
 
-                                    <!-- Dấu Nối (Connector) -->
                                     <div v-if="cIdx < fItem.columns.length - 1" class="flex flex-col items-center justify-center h-[120px]">
                                         <input v-model="col.connector" class="w-8 h-8 flex items-center justify-center text-center bg-slate-900 border border-slate-600 rounded-full text-indigo-400 font-bold text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all shadow-sm" placeholder="+">
                                     </div>
                                 </div>
 
-                                <!-- Nút Thêm Cột -->
                                 <button @click="addColumn(fIdx)" class="shrink-0 w-12 h-[120px] flex items-center justify-center bg-slate-800/30 hover:bg-indigo-500/10 border-2 border-dashed border-slate-700 hover:border-indigo-500/50 rounded-xl text-slate-500 hover:text-indigo-400 transition-colors group">
                                     <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                 </button>
                             </div>
 
-                            <!-- Note Chung Công Thức -->
                             <div class="mt-3 relative">
                                 <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                                     <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -238,7 +274,6 @@
 
                 <!-- 4. NGOẠI LỆ (EXCEPTIONS) & CÁCH DÙNG -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Ngoại lệ -->
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <label class="text-sm font-semibold text-slate-300">Từ Ngoại Lệ</label>
@@ -257,7 +292,6 @@
                         </div>
                     </div>
 
-                    <!-- Chú ý / Cách dùng -->
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-3">Cách dùng / Chú ý</label>
                         <textarea v-model="form.usage" rows="4" placeholder="VD: Không dùng cho ý chí, nguyện vọng..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white resize-none"></textarea>
@@ -271,7 +305,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <div>
                             <h3 class="text-sm font-semibold text-slate-300">Câu Ví Dụ <span class="text-rose-400">*</span></h3>
-                            <p class="text-[12px] text-slate-400 mt-0.5">Bôi đen chữ tiếng Nhật và chọn màu để làm nổi bật cấu trúc.</p>
+                            <p class="text-[12px] text-slate-400 mt-0.5">Bôi đen chữ tiếng Nhật và chọn màu để làm nổi bật trực quan.</p>
                         </div>
                         <button @click="addExample" class="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-3 py-2 rounded-lg transition-colors">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Thêm Ví Dụ
@@ -279,19 +313,22 @@
                     </div>
 
                     <div class="space-y-4">
-                        <div v-for="(ex, index) in form.examples" :key="index" class="bg-slate-900 border border-slate-700 rounded-xl p-4 relative group focus-within:border-slate-500 transition-colors">
+                        <div v-for="(ex, index) in form.examples" :key="ex.id" class="bg-slate-900 border border-slate-700 rounded-xl p-4 relative group focus-within:border-slate-500 transition-colors">
                             
-                            <!-- Nút xóa ví dụ -->
                             <button @click="removeExample(index)" class="absolute top-3 right-3 p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors opacity-0 group-hover:opacity-100 z-10">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
 
-                            <!-- Toolbar Tags Ví Dụ -->
+                            <!-- Toolbar Tags Ví Dụ (WYSIWYG) -->
                             <div class="flex gap-1.5 mb-3 flex-wrap pr-8">
-                                <button @click="applyHighlight(index, 'highlight-cyan')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-cyan-500/20 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                                <button @click="clearFormatDiv('jp-input-' + ex.id)" class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-slate-700 bg-slate-800 text-slate-400 border border-slate-600">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg> Bỏ màu
+                                </button>
+                                <div class="w-px h-4 bg-slate-700 my-auto mx-1"></div>
+                                <button @click="applyHighlightToDiv('jp-input-' + ex.id, 'highlight-cyan', 'color: #22d3ee; font-weight: bold;')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-cyan-500/20 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
                                     <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Cyan
                                 </button>
-                                <button v-for="(clause, cIdx) in form.clauses" :key="'c-'+cIdx" @click="applyHighlight(index, highlightColors[cIdx % 4].textClass)" :class="highlightColors[cIdx % 4].btnClassNew">
+                                <button v-for="(clause, cIdx) in form.clauses" :key="'c-'+cIdx" @click="applyHighlightToDiv('jp-input-' + ex.id, highlightColors[cIdx % 4].textClass, highlightColors[cIdx % 4].inlineColor)" :class="highlightColors[cIdx % 4].btnClassNew">
                                     <span class="w-2 h-2 rounded-full" :class="highlightColors[cIdx % 4].dotClass"></span> {{ clause.label || highlightColors[cIdx % 4].name }}
                                 </button>
                             </div>
@@ -299,7 +336,14 @@
                             <div class="space-y-3">
                                 <div class="relative">
                                     <span class="absolute top-2.5 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">JP</span>
-                                    <textarea :id="'jp-input-' + index" v-model="ex.jp" placeholder="Nhập tiếng Nhật..." rows="2" class="form-input w-full bg-slate-800 border border-slate-700 rounded-lg pt-2 pb-2 pl-9 pr-3 text-sm text-white resize-none"></textarea>
+                                    <!-- WYSIWYG Editor cho Example JP -->
+                                    <div 
+                                        :id="'jp-input-' + ex.id" 
+                                        contenteditable="true" 
+                                        placeholder="Nhập tiếng Nhật và bôi đen chọn màu..." 
+                                        class="form-input w-full bg-slate-800 border border-slate-700 rounded-lg pt-2 pb-2 pl-9 pr-3 text-sm text-white outline-none min-h-[38px] leading-relaxed"
+                                        @input="e => ex.jp = e.target.innerHTML"
+                                    ></div>
                                 </div>
                                 <div class="relative">
                                     <span class="absolute top-2.5 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">VN</span>
@@ -314,7 +358,7 @@
         </div>
     </div>
 
-    <!-- RIGHT COLUMN: OUTPUT JSON -->
+    <!-- RIGHT COLUMN: OUTPUT JSON (ĐÃ CHIA 2 PHẦN) -->
     <div class="lg:col-span-5 xl:col-span-4">
         <div class="sticky top-24 bg-slate-800 rounded-2xl shadow-xl border border-slate-700/60 overflow-hidden flex flex-col" style="max-height: calc(100vh - 120px);">
             
@@ -323,7 +367,7 @@
                     <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                     </svg>
-                    Kết Quả
+                    Kết Quả 
                 </h2>
                 <button @click="generateData" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
@@ -331,26 +375,49 @@
                 </button>
             </div>
 
-            <div class="p-6 flex-1 flex flex-col bg-slate-900/50">
-                <div v-if="!outputString" class="flex-1 flex flex-col items-center justify-center text-slate-500 opacity-60">
+            <div class="p-6 flex-1 flex flex-col bg-slate-900/50 space-y-4 overflow-y-auto custom-scrollbar">
+                
+                <div v-if="!outputBack" class="flex-1 flex flex-col items-center justify-center text-slate-500 opacity-60">
                     <svg class="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <p class="text-sm font-medium">Nhập liệu và bấm "Tạo dữ liệu"</p>
+                    <p class="text-sm font-medium text-center">Soạn thảo nội dung bên trái <br>và bấm "Tạo dữ liệu"</p>
                 </div>
 
-                <div v-else class="relative flex-1 flex flex-col min-h-0">
-                    <!-- KHÔI PHỤC LẠI TEXT EMOJI GỐC CHO NÚT COPY -->
-                    <button @click="copyToClipboard" class="absolute top-3 right-3 z-10 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-600 hover:border-emerald-500/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 shadow-md shadow-black/20">
-                        {{ copyText }}
+                <template v-else>
+                    <!-- Box 1: Mặt Trước -->
+                    <div class="flex flex-col space-y-1.5 shrink-0">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Mặt Trước (HTML)</span>
+                            <button @click="copyToClipboard(outputFront, 'front')" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors px-2 py-1 rounded hover:bg-indigo-500/10">
+                                Copy Khối Này
+                            </button>
+                        </div>
+                        <textarea readonly v-model="outputFront" class="w-full bg-[#0d1117] border border-slate-700 rounded-xl p-3 text-[13px] font-mono text-emerald-300 focus:outline-none resize-none shadow-inner code-textarea h-[80px]"></textarea>
+                    </div>
+
+                    <!-- Box 2: Mặt Sau -->
+                    <div class="flex flex-col space-y-1.5 flex-1 min-h-[150px]">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Mặt Sau (JSON Data)</span>
+                            <button @click="copyToClipboard(outputBack, 'back')" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors px-2 py-1 rounded hover:bg-indigo-500/10">
+                                Copy Khối Này
+                            </button>
+                        </div>
+                        <textarea readonly v-model="outputBack" class="w-full flex-1 bg-[#0d1117] border border-slate-700 rounded-xl p-3 text-[13px] font-mono text-emerald-300 focus:outline-none resize-none custom-scrollbar shadow-inner code-textarea"></textarea>
+                    </div>
+
+                    <!-- Nút Copy Tất Cả Chuẩn Anki -->
+                    <button @click="copyCombinedAnki" class="mt-4 shrink-0 w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 border border-indigo-400/50">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        {{ copyTextCombined }}
                     </button>
-                    <!-- KHÔI PHỤC LẠI THUỘC TÍNH RENDER (Không format xuống dòng để Anki nhận 1 dòng) -->
-                    <textarea readonly v-model="outputString" class="w-full flex-1 bg-[#0d1117] border border-slate-700 rounded-xl p-5 pt-12 text-[13px] font-mono text-emerald-300 focus:outline-none resize-none custom-scrollbar shadow-inner code-textarea"></textarea>
-                </div>
+                </template>
+
             </div>
             
             <div class="px-6 py-3 bg-slate-800 border-t border-slate-700/60 text-[11px] text-slate-500 text-center">
-                Dữ liệu xuất ra trên 1 dòng duy nhất chuẩn TSV để dễ dàng Copy dán vào Anki.
+                Bấm nút COPY CHUẨN ANKI để lấy dữ liệu 1 dòng dán ngay vào App.
             </div>
         </div>
     </div>
@@ -359,30 +426,46 @@
 <script>
     const { createApp, ref, reactive, nextTick } = Vue;
 
+    // Hàm tạo ID ngẫu nhiên để không bị xung đột khi thêm/xóa ví dụ
+    const generateId = () => Math.random().toString(36).substr(2, 9);
+
+    // Tiện ích để chuyển ký tự đặc biệt của HTML về dạng thuần nếu cần (VD &lt; -> < )
+    const decodeHtml = (html) => {
+        const txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
+    }
+
     createApp({
         setup() {
-            const outputString = ref('');
-            const copyText = ref('📋 Copy'); // Khôi phục string gốc
-            const importString = ref('');
+            const outputFront = ref('');
+            const outputBack = ref('');
+            const copyTextCombined = ref('COPY CHUẨN ANKI (MẶT TRƯỚC + TAB + MẶT SAU)');
+            
+            // Đã tách biến importString thành 2 biến riêng biệt
+            const importFront = ref('');
+            const importBack = ref('');
 
-            // KHÔI PHỤC LẠI CLASS GỐC: textClass và tagClass phải dùng chuẩn class cũ của bạn để Anki có thể render chính xác CSS
+            // BỔ SUNG: inlineColor chứa mã màu CSS thuần để gắn chết vào HTML, hiển thị bất chấp Anki không có Tailwind
             const highlightColors = [
-                { name: 'Vế 1', textClass: 'text-amber-400', tagClass: 'bg-amber-500/20 text-amber-300', dotClass: 'bg-amber-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-amber-500/20 bg-amber-500/10 text-amber-300 border border-amber-500/20' },
-                { name: 'Vế 2', textClass: 'text-fuchsia-400', tagClass: 'bg-fuchsia-500/20 text-fuchsia-300', dotClass: 'bg-fuchsia-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-fuchsia-500/20 bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20' },
-                { name: 'Vế 3', textClass: 'text-emerald-400', tagClass: 'bg-emerald-500/20 text-emerald-300', dotClass: 'bg-emerald-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-emerald-500/20 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' },
-                { name: 'Vế 4', textClass: 'text-blue-400', tagClass: 'bg-blue-500/20 text-blue-300', dotClass: 'bg-blue-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-blue-500/20 bg-blue-500/10 text-blue-300 border border-blue-500/20' }
+                { name: 'Vế 1', textClass: 'text-amber-400', inlineColor: 'color: #fbbf24;', tagClass: 'tag-amber', dotClass: 'bg-amber-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-amber-500/20 bg-amber-500/10 text-amber-300 border border-amber-500/20' },
+                { name: 'Vế 2', textClass: 'text-fuchsia-400', inlineColor: 'color: #e879f9;', tagClass: 'tag-fuchsia', dotClass: 'bg-fuchsia-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-fuchsia-500/20 bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20' },
+                { name: 'Vế 3', textClass: 'text-emerald-400', inlineColor: 'color: #34d399;', tagClass: 'tag-emerald', dotClass: 'bg-emerald-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-emerald-500/20 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' },
+                { name: 'Vế 4', textClass: 'text-blue-400', inlineColor: 'color: #60a5fa;', tagClass: 'tag-blue', dotClass: 'bg-blue-400', btnClassNew: 'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors hover:bg-blue-500/20 bg-blue-500/10 text-blue-300 border border-blue-500/20' }
             ];
 
             const form = reactive({
                 frontTitle: '', meaning: '', clauses: [], 
-                formations: [ 
-                    { 
-                        columns: [ { content: '', note: '', connector: '+' } ], 
-                        note: '' 
-                    } 
-                ], 
-                exceptions: [], usage: '', examples: [ { jp: '', vn: '' } ]
+                formations: [ { columns: [ { content: '', note: '', connector: '+' } ], note: '' } ], 
+                exceptions: [], usage: '', 
+                examples: [ { id: generateId(), jp: '', vn: '' } ]
             });
+
+            // Tiện ích để set trực tiếp nội dung vào contenteditable Div
+            const setDivContent = (id, html) => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html || '';
+            };
 
             const addClause = () => form.clauses.push({ label: `Vế ${form.clauses.length + 1}`, content: '' });
             const removeClause = (i) => form.clauses.splice(i, 1);
@@ -395,46 +478,143 @@
 
             const addException = () => form.exceptions.push({ from: '', to: '' });
             const removeException = (i) => form.exceptions.splice(i, 1);
-            const addExample = () => form.examples.push({ jp: '', vn: '' });
+            const addExample = () => form.examples.push({ id: generateId(), jp: '', vn: '' });
             const removeExample = (i) => form.examples.splice(i, 1);
 
-            const applyHighlight = (index, colorClass) => {
-                const ta = document.getElementById('jp-input-' + index);
-                if (!ta || ta.selectionStart === ta.selectionEnd) return;
-                const c = form.examples[index].jp;
-                form.examples[index].jp = `${c.substring(0, ta.selectionStart)}<span class='${colorClass}'>${c.substring(ta.selectionStart, ta.selectionEnd)}</span>${c.substring(ta.selectionEnd)}`;
-                nextTick(() => ta.focus());
-            };
-
-            const applyHighlightToTitle = (colorClass) => {
-                const ta = document.getElementById('title-input');
-                if (!ta || ta.selectionStart === ta.selectionEnd) return;
-                const c = form.frontTitle;
-                form.frontTitle = `${c.substring(0, ta.selectionStart)}<span class='${colorClass}'>${c.substring(ta.selectionStart, ta.selectionEnd)}</span>${c.substring(ta.selectionEnd)}`;
-                nextTick(() => ta.focus());
-            };
-
-            const formatCol = (fIdx, cIdx, syntax) => {
-                const ta = document.getElementById(`col-input-${fIdx}-${cIdx}`);
-                if (!ta || ta.selectionStart === ta.selectionEnd) {
-                    alert("⚠️ Hãy bôi đen chữ trong cột trước khi bấm nút!"); return;
+            // LOGIC MỚI: Hỗ trợ gắn thêm Inline Style để màu sắc sống tốt trên Anki
+            const applyHighlightToDiv = (divId, colorClass, inlineStyle = null) => {
+                const el = document.getElementById(divId);
+                if (!el) return;
+                
+                el.focus();
+                
+                const sel = window.getSelection();
+                if (!sel.rangeCount) return;
+                const range = sel.getRangeAt(0);
+                
+                if (!el.contains(range.commonAncestorContainer)) {
+                    alert("⚠️ Vui lòng bôi đen chữ bên trong ô trước khi bấm nút chọn màu!");
+                    return;
                 }
-                const c = form.formations[fIdx].columns[cIdx].content;
-                form.formations[fIdx].columns[cIdx].content = `${c.substring(0, ta.selectionStart)}${syntax}${c.substring(ta.selectionStart, ta.selectionEnd)}${syntax}${c.substring(ta.selectionEnd)}`;
-                nextTick(() => ta.focus());
+                if (range.toString().trim() === '') return;
+
+                const span = document.createElement('span');
+                span.className = colorClass;
+                if (inlineStyle) { span.style.cssText = inlineStyle; }
+                
+                span.appendChild(range.extractContents());
+                range.insertNode(span);
+                
+                // Dọn rác (nếu có span rỗng do lỗi click) sử dụng Regex bao dung hơn
+                el.innerHTML = el.innerHTML.replace(/<span[^>]*><\/span>/gi, '');
+
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                sel.removeAllRanges();
+                const newRange = document.createRange();
+                newRange.setStartAfter(span);
+                sel.addRange(newRange);
             };
 
-            // KHÔI PHỤC LẠI HOÀN TOÀN LOGIC JSON LOAD GỐC
+            // LOGIC MỚI: Bỏ màu WYSIWYG
+            const clearFormatDiv = (divId) => {
+                const el = document.getElementById(divId);
+                if (!el) return;
+                el.focus();
+                
+                const sel = window.getSelection();
+                if (!sel.rangeCount) return;
+                const range = sel.getRangeAt(0);
+                
+                if (!el.contains(range.commonAncestorContainer)) return;
+
+                const frag = range.extractContents();
+                const text = frag.textContent;
+                range.insertNode(document.createTextNode(text));
+                
+                el.innerHTML = el.innerHTML.replace(/<span[^>]*><\/span>/gi, '');
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+            };
+
+            // LOGIC THÔNG DỊCH: Chuyển đổi Khối Cột (HTML) thành Mảng dòng chuẩn Markdown cho JSON
+            const htmlToMarkdownCol = (html) => {
+                if (!html) return [];
+                let p = html.replace(/<br\s*\/?>/gi, '\n');
+                p = p.replace(/<div[^>]*>/gi, '\n');
+                p = p.replace(/<\/div>/gi, '');
+                
+                // Trích xuất lại theo từng Class đã format
+                p = p.replace(/<span[^>]*class=['"][^'"]*col-del[^'"]*['"][^>]*>([\s\S]*?)<\/span>/gi, '~~$1~~');
+                p = p.replace(/<span[^>]*class=['"][^'"]*col-green[^'"]*['"][^>]*>([\s\S]*?)<\/span>/gi, '**$1**');
+                p = p.replace(/<span[^>]*class=['"][^'"]*col-yellow[^'"]*['"][^>]*>([\s\S]*?)<\/span>/gi, '__$1__');
+                
+                // Loại bỏ những span rỗng hoặc span do chức năng clearFormat để lại
+                p = p.replace(/<span[^>]*>([\s\S]*?)<\/span>/gi, '$1');
+
+                // Decode HTML entities (như &lt; thành <) để tránh việc Text node bị sai lệch nếu user nhập `<`
+                p = decodeHtml(p);
+
+                // Loại bỏ rác HTML nếu còn sót an toàn
+                p = p.replace(/<[^>]+>/g, '');
+
+                // Cắt theo từng dòng
+                let lines = p.split('\n').map(s => s.trim()).filter(Boolean);
+                
+                // Thuật toán bù đắp Markdown (Xử lý trường hợp người dùng bôi đen kéo dài qua nhiều dòng)
+                let inDel = false, inGreen = false, inYellow = false;
+                return lines.map(line => {
+                    let prefix = '';
+                    if (inDel) prefix += '~~';
+                    if (inGreen) prefix += '**';
+                    if (inYellow) prefix += '__';
+                    
+                    let newLine = prefix + line;
+                    
+                    let delCount = (newLine.match(/~~/g) || []).length;
+                    let greenCount = (newLine.match(/\*\*/g) || []).length;
+                    let yellowCount = (newLine.match(/__/g) || []).length;
+                    
+                    inDel = delCount % 2 !== 0;
+                    inGreen = greenCount % 2 !== 0;
+                    inYellow = yellowCount % 2 !== 0;
+                    
+                    if (inYellow) newLine += '__';
+                    if (inGreen) newLine += '**';
+                    if (inDel) newLine += '~~';
+                    
+                    return newLine;
+                });
+            };
+
             const loadDataToForm = () => {
-                let raw = importString.value.trim();
-                if (!raw) return;
+                let rawBack = importBack.value.trim();
+                let rawFront = importFront.value.trim();
+                
+                if (!rawBack && !rawFront) return;
+
+                if (!rawBack && rawFront) {
+                    rawBack = rawFront;
+                    rawFront = '';
+                }
+
                 try {
-                    form.frontTitle = '';
-                    if (raw.includes('\t')) {
-                        const parts = raw.split('\t');
-                        form.frontTitle = parts[0]; raw = parts.slice(1).join('\t');
+                    let parsedFrontTitle = rawFront;
+                    const firstBraceIdx = rawBack.indexOf('{');
+                    const lastBraceIdx = rawBack.lastIndexOf('}');
+                    
+                    let jsonStr = rawBack;
+                    
+                    if (firstBraceIdx !== -1 && lastBraceIdx !== -1) {
+                        if (firstBraceIdx > 0 && !parsedFrontTitle) {
+                            parsedFrontTitle = rawBack.substring(0, firstBraceIdx).trim();
+                        }
+                        jsonStr = rawBack.substring(firstBraceIdx, lastBraceIdx + 1);
                     }
-                    const parsed = JSON.parse(raw);
+
+                    form.frontTitle = parsedFrontTitle;
+                    setDivContent('title-input', parsedFrontTitle);
+
+                    const parsed = JSON.parse(jsonStr);
                     form.meaning = parsed.meaning || '';
                     
                     form.clauses = [];
@@ -448,7 +628,15 @@
                         form.formations = parsed.formation.map(f => {
                             if (f.columns) {
                                 return {
-                                    columns: f.columns.map(c => ({ content: c.items.join('\n'), note: c.note || '', connector: c.connector || '+' })),
+                                    columns: f.columns.map(c => {
+                                        // Phục dựng Markdown JSON về lại WYSIWYG HTML cho công cụ hiển thị
+                                        let htmlContent = c.items.join('<br>');
+                                        htmlContent = htmlContent.replace(/~~([\s\S]*?)~~/g, "<span class='col-del' style='color: #fb7185; text-decoration: line-through; text-decoration-color: #e11d48; text-decoration-thickness: 2px;'>$1</span>");
+                                        htmlContent = htmlContent.replace(/\*\*([\s\S]*?)\*\*/g, "<span class='col-green' style='color: #34d399; font-weight: 900;'>$1</span>");
+                                        htmlContent = htmlContent.replace(/__([\s\S]*?)__/g, "<span class='col-yellow' style='color: #fcd34d;'>$1</span>");
+
+                                        return { content: htmlContent, note: c.note || '', connector: c.connector || '+' }
+                                    }),
                                     note: f.note || ''
                                 };
                             } else if (f.groups) {
@@ -468,11 +656,36 @@
 
                     form.exceptions = parsed.exceptions ? JSON.parse(JSON.stringify(parsed.exceptions)) : [];
                     form.usage = parsed.usage ? parsed.usage.join('\n') : '';
-                    form.examples = parsed.examples ? JSON.parse(JSON.stringify(parsed.examples)) : [{ jp: '', vn: '' }];
-                } catch (e) { alert("LỖI JSON: \n" + e.message); }
+                    
+                    if (parsed.examples) {
+                        form.examples = parsed.examples.map(ex => {
+                            let jp = ex.jp || '';
+                            jp = jp.replace(/class=['"]text-amber-400['"](?!\s*style)/g, "class='text-amber-400' style='color: #fbbf24;'");
+                            jp = jp.replace(/class=['"]text-fuchsia-400['"](?!\s*style)/g, "class='text-fuchsia-400' style='color: #e879f9;'");
+                            jp = jp.replace(/class=['"]text-emerald-400['"](?!\s*style)/g, "class='text-emerald-400' style='color: #34d399;'");
+                            jp = jp.replace(/class=['"]text-blue-400['"](?!\s*style)/g, "class='text-blue-400' style='color: #60a5fa;'");
+                            jp = jp.replace(/class=['"]highlight-cyan['"](?!\s*style)/g, "class='highlight-cyan' style='color: #22d3ee; font-weight: bold;'");
+                            
+                            return { id: generateId(), jp: jp, vn: ex.vn };
+                        });
+                    } else {
+                        form.examples = [{ id: generateId(), jp: '', vn: '' }];
+                    }
+                    
+                    // Nạp nội dung vào các thẻ Div contenteditable
+                    nextTick(() => {
+                        form.examples.forEach(ex => setDivContent('jp-input-' + ex.id, ex.jp));
+                        form.formations.forEach((fItem, fIdx) => {
+                            fItem.columns.forEach((col, cIdx) => {
+                                setDivContent(`col-input-${fIdx}-${cIdx}`, col.content);
+                            });
+                        });
+                    });
+                } catch (e) { 
+                    alert("LỖI JSON: \n" + e.message + "\n\n(Vui lòng đảm bảo bạn copy trọn vẹn đoạn mã từ Anki)"); 
+                }
             };
 
-            // KHÔI PHỤC LẠI HOÀN TOÀN LOGIC JSON GENERATE GỐC TRÊN 1 DÒNG DUY NHẤT ĐỂ COPY
             const generateData = () => {
                 if (!form.frontTitle || !form.meaning) {
                     alert("Vui lòng nhập ít nhất: Tên cấu trúc và Ý nghĩa.");
@@ -484,8 +697,11 @@
 
                 const validFormations = form.formations.map(f => {
                     const columns = f.columns.map(c => {
+                        // Tự động phân tích HTML (WYSIWYG) trở về lại chuẩn Markdown (~~, **, __) cho JSON
+                        let itemsArray = htmlToMarkdownCol(c.content || '');
+                        
                         return {
-                            items: c.content.split('\n').map(s => s.trim()).filter(Boolean),
+                            items: itemsArray,
                             note: c.note.trim(),
                             connector: c.connector || '+'
                         };
@@ -502,24 +718,32 @@
                 const validUsages = form.usage.split('\n').map(s => s.trim()).filter(Boolean);
                 if (validUsages.length > 0) data.usage = validUsages;
 
-                const validEx = form.examples.filter(ex => ex.jp && ex.vn);
+                const validEx = form.examples.filter(ex => ex.jp && ex.vn).map(({id, ...rest}) => rest);
                 if (validEx.length > 0) data.examples = validEx;
 
-                // TRẢ LẠI GỐC: KHÔNG THÊM (null, 2) VÀO ĐÂY VÌ ANKI IMPORT YÊU CẦU DATA Ở TRÊN 1 DÒNG DUY NHẤT
-                const jsonStr = JSON.stringify(data);
-                outputString.value = form.frontTitle ? `${form.frontTitle}\t${jsonStr}` : jsonStr;
-                copyText.value = '📋 Copy'; // Trả lại text
+                outputFront.value = form.frontTitle;
+                outputBack.value = JSON.stringify(data);
+                copyTextCombined.value = 'COPY CHUẨN ANKI (MẶT TRƯỚC + TAB + MẶT SAU)';
             };
 
-            const copyToClipboard = () => {
-                if(!outputString.value) return;
-                navigator.clipboard.writeText(outputString.value).then(() => {
-                    copyText.value = '✅ Đã Copy!'; // Trả lại text
-                    setTimeout(() => copyText.value = '📋 Copy', 2000);
+            const copyToClipboard = (text, type = 'all') => {
+                if(!text) return;
+                navigator.clipboard.writeText(text).then(() => {
+                    if (type === 'all') {
+                        copyTextCombined.value = '✅ ĐÃ COPY THÀNH CÔNG!';
+                        setTimeout(() => copyTextCombined.value = 'COPY CHUẨN ANKI (MẶT TRƯỚC + TAB + MẶT SAU)', 2500);
+                    } else {
+                        alert(`Đã copy ${type === 'front' ? 'Mặt Trước' : 'Mặt Sau (JSON)'}!`);
+                    }
                 });
             };
 
-            return { highlightColors, form, outputString, copyText, importString, addClause, removeClause, addFormation, removeFormation, addColumn, removeColumn, addException, removeException, addExample, removeExample, loadDataToForm, generateData, copyToClipboard, applyHighlight, applyHighlightToTitle, formatCol };
+            const copyCombinedAnki = () => {
+                const combined = outputFront.value ? `${outputFront.value}\t${outputBack.value}` : outputBack.value;
+                copyToClipboard(combined, 'all');
+            }
+
+            return { highlightColors, form, outputFront, outputBack, copyTextCombined, importFront, importBack, addClause, removeClause, addFormation, removeFormation, addColumn, removeColumn, addException, removeException, addExample, removeExample, loadDataToForm, generateData, copyToClipboard, copyCombinedAnki, applyHighlightToDiv, clearFormatDiv };
         }
     }).mount('#app');
 </script>
