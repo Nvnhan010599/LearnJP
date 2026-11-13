@@ -51,6 +51,10 @@
         .file-item { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 4px; display: flex; align-items: center; gap: 8px; }
         .file-item a { text-decoration: none; color: white; background-color: #2563eb; padding: 4px 10px; border-radius: 4px; font-size: 12px; }
 
+        .btn-download-all { background-color: #7c3aed; color: white; padding: 8px 16px; }
+        .btn-download-all:hover { background-color: #6d28d9; }
+        .btn-download-all:disabled { opacity: 0.6; cursor: wait; }
+
         .guide { background: #dbeafe; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.9em; color: #1e40af; }
     </style>
 </head>
@@ -91,10 +95,12 @@
             </table>
     </div>
 
+    <div id="downloadAllArea" style="margin-top: 15px;"></div>
     <div id="downloadArea" class="file-list"></div>
 </div>
 
 <script>
+    let exportedFiles = []; // Danh sách file đã tạo: { url, fileName }
     let globalData = [];
 
     function analyzeData() {
@@ -204,6 +210,7 @@
     function processAndExport() {
         const downloadArea = document.getElementById('downloadArea');
         downloadArea.innerHTML = '';
+        clearExportedFiles();
 
         const rowsToDelete = new Set();
         document.querySelectorAll('.chk-row-delete:checked').forEach(el => rowsToDelete.add(parseInt(el.dataset.row)));
@@ -265,12 +272,49 @@
             createDownloadButton(csvContent, fileName, downloadArea);
         }
 
+        // Có từ 2 file trở lên thì hiện nút Download All
+        if (exportedFiles.length > 1) {
+            document.getElementById('downloadAllArea').innerHTML =
+                `<button class="btn-download-all" id="btnDownloadAll" onclick="downloadAll()">⬇️ Download All (${exportedFiles.length} files)</button>`;
+        }
+
         document.getElementById('status').innerText = `✅ Successfully exported ${cleanedData.length} rows!`;
+    }
+
+    // Tải lần lượt từng file, cách nhau một chút để trình duyệt không chặn
+    async function downloadAll() {
+        const btn = document.getElementById('btnDownloadAll');
+        const label = btn.innerText;
+        btn.disabled = true;
+
+        for (let k = 0; k < exportedFiles.length; k++) {
+            const { url, fileName } = exportedFiles[k];
+            btn.innerText = `⏳ Downloading ${k + 1}/${exportedFiles.length}...`;
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            await new Promise(r => setTimeout(r, 400));
+        }
+
+        btn.disabled = false;
+        btn.innerText = label;
+    }
+
+    function clearExportedFiles() {
+        exportedFiles.forEach(f => URL.revokeObjectURL(f.url));
+        exportedFiles = [];
+        document.getElementById('downloadAllArea').innerHTML = '';
     }
 
     function createDownloadButton(content, fileName, container) {
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
+        exportedFiles.push({ url, fileName });
         const div = document.createElement('div');
         div.className = 'file-item';
         div.innerHTML = `<span>📄 ${fileName}</span> <a href="${url}" download="${fileName}">Download</a>`;
@@ -289,6 +333,7 @@
         // Reset settings
         document.getElementById('baseFileName').value = 'Export';
         document.getElementById('baseNumber').value = '1';
+        clearExportedFiles();
         document.getElementById('splitCount').value = '';
 
         globalData = [];
