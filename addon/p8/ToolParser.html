@@ -85,6 +85,17 @@
                 <input type="number" id="splitCount" placeholder="Tất cả" min="1" style="width: 100px;">
                 <span style="font-weight: normal; color: #64748b; font-size: 0.9em;">(Để trống nếu muốn gom vào 1 file)</span>
             </label>
+
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #cbd5e1;">
+                <label><input type="checkbox" id="ankiMode" onchange="toggleAnkiOptions()"> <b>🃏 Tự tạo deck con cho Anki</b></label>
+                <div id="ankiOptions" style="display: none; margin-top: 8px;">
+                    <label>Deck cha: <input type="text" id="ankiParentDeck" placeholder="VD: Unit05 hoặc English::Unit05" style="width: 220px;"></label>
+                    <label>Mỗi deck con (thẻ): <input type="number" id="ankiDeckSize" value="10" min="1" style="width: 80px;"></label>
+                    <div style="font-weight: normal; color: #64748b; font-size: 0.9em; margin-top: 6px;">
+                        Thêm 1 cột deck vào cuối mỗi hàng (VD: <code>Unit05::381_390</code>). Import vào Anki là deck con tự được tạo. Số đếm bắt đầu từ ô "Số bắt đầu".
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -246,11 +257,35 @@
 
         // Nếu không nhập hoặc nhập số <= 0 thì xuất toàn bộ vào 1 file
         const batchSize = (isNaN(splitInputValue) || splitInputValue <= 0) ? cleanedData.length : splitInputValue;
-        const bom = "﻿";
+
+        // ===== Chế độ Anki: thêm cột deck vào cuối mỗi hàng =====
+        const ankiMode = document.getElementById('ankiMode').checked;
+        let ankiHeader = "";
+        if (ankiMode) {
+            const parentDeck = document.getElementById('ankiParentDeck').value.trim().replace(/::+$/, '');
+            const deckSizeInput = parseInt(document.getElementById('ankiDeckSize').value);
+            const deckSize = (isNaN(deckSizeInput) || deckSizeInput <= 0) ? 10 : deckSizeInput;
+
+            // Mọi hàng phải cùng số cột thì cột deck mới nằm đúng vị trí
+            const maxLen = Math.max(...cleanedData.map(r => r.length));
+
+            cleanedData.forEach((row, j) => {
+                while (row.length < maxLen) row.push("");
+                const start = baseNumber + Math.floor(j / deckSize) * deckSize;
+                const end = start + deckSize - 1; // luôn đặt trọn khoảng (VD 401_410) để lần sau thêm thẻ vẫn vào đúng deck
+                const subDeck = `${start}_${end}`;
+                row.push(parentDeck ? `${parentDeck}::${subDeck}` : subDeck);
+            });
+
+            ankiHeader = `#separator:comma\n#deck column:${maxLen + 1}\n`;
+        }
+
+        // Anki tự đọc UTF-8 và cần dòng "#..." ở đầu file, nên chế độ Anki không thêm BOM
+        const bom = ankiMode ? "" : "﻿";
 
         for (let i = 0; i < cleanedData.length; i += batchSize) {
             const batch = cleanedData.slice(i, i + batchSize);
-            let csvContent = bom;
+            let csvContent = bom + ankiHeader;
 
             batch.forEach(row => {
                 const escapedRow = row.map(cell => `"${cell.replace(/"/g, '""')}"`);
@@ -305,6 +340,11 @@
         btn.innerText = label;
     }
 
+    function toggleAnkiOptions() {
+        const on = document.getElementById('ankiMode').checked;
+        document.getElementById('ankiOptions').style.display = on ? 'block' : 'none';
+    }
+
     function clearExportedFiles() {
         exportedFiles.forEach(f => URL.revokeObjectURL(f.url));
         exportedFiles = [];
@@ -335,6 +375,10 @@
         document.getElementById('baseNumber').value = '1';
         clearExportedFiles();
         document.getElementById('splitCount').value = '';
+        document.getElementById('ankiMode').checked = false;
+        document.getElementById('ankiParentDeck').value = '';
+        document.getElementById('ankiDeckSize').value = '10';
+        toggleAnkiOptions();
 
         globalData = [];
     }
