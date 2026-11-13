@@ -7,15 +7,15 @@
     <style>
         :root { --primary: #2563eb; --danger: #dc2626; --bg: #f8fafc; --surface: #ffffff; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); padding: 20px; color: #334155; }
-        
+
         /* Layout */
         .container { max-width: 1200px; margin: 0 auto; background: var(--surface); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         h2 { margin-top: 0; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-        
+
         /* Input Area */
         .input-section { margin-bottom: 20px; }
         textarea { width: 100%; height: 150px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: monospace; box-sizing: border-box; resize: vertical; }
-        
+
         /* Export Options */
         .export-options { display: none; margin-top: 15px; padding: 15px; background: #f1f5f9; border-radius: 6px; border: 1px solid #e2e8f0; }
         .export-options label { margin-right: 15px; font-weight: 500; }
@@ -25,26 +25,26 @@
         button { border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .btn-analyze { background-color: var(--primary); color: white; }
         .btn-analyze:hover { background-color: #1d4ed8; }
-        .btn-export { background-color: #059669; color: white; margin-left: 10px; display: none; } 
+        .btn-export { background-color: #059669; color: white; margin-left: 10px; display: none; }
         .btn-reset { background-color: #e2e8f0; color: #475569; margin-left: 10px; }
 
         /* Preview Table Styles */
         .preview-section { margin-top: 20px; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; max-height: 600px; display: none; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        
+
         th, td { padding: 10px; border: 1px solid #e2e8f0; text-align: left; white-space: nowrap; max-width: 300px; overflow: hidden; text-overflow: ellipsis; }
         th { background-color: #f1f5f9; position: sticky; top: 0; z-index: 10; font-weight: bold; }
-        
+
         /* Control Checkboxes in Table */
         .col-control { text-align: center; background-color: #e2e8f0; color: var(--danger); cursor: pointer; user-select: none; }
         .row-control { text-align: center; background-color: #f1f5f9; width: 40px; }
-        
+
         input[type="checkbox"] { transform: scale(1.3); cursor: pointer; accent-color: var(--danger); }
 
         /* Deleted State Styling */
         .deleted-col { background-color: #fef2f2 !important; color: #991b1b; text-decoration: line-through; opacity: 0.6; }
         .deleted-row { background-color: #fef2f2 !important; color: #991b1b; text-decoration: line-through; opacity: 0.6; }
-        
+
         /* Status & Download */
         #status { margin: 15px 0; font-weight: 600; }
         .file-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
@@ -58,7 +58,7 @@
 
 <div class="container">
     <h2>🛠️ Visual CSV Cleaner & Splitter</h2>
-    
+
     <div class="guide">
         💡 <b>Usage:</b> Paste your Markdown table -> Click <b>Analyze</b> -> Check the boxes on headers/rows to <b>DELETE</b> them -> Configure export -> Click <b>Process & Export</b>.
     </div>
@@ -70,11 +70,14 @@
             <button class="btn-reset" onclick="resetTool()">Reset</button>
             <button class="btn-export" id="btnExport" onclick="processAndExport()">🚀 2. Process & Export</button>
         </div>
-        
+
         <div class="export-options" id="exportOptions">
             <div style="margin-bottom: 8px;"><strong>⚙️ Export Settings:</strong></div>
             <label>Tên file: <input type="text" id="baseFileName" value="Export"></label>
-            <label>Tách file mỗi (hàng): 
+            <label>Số bắt đầu (base):
+                <input type="number" id="baseNumber" value="1" style="width: 100px;">
+            </label>
+            <label>Tách file mỗi (hàng):
                 <input type="number" id="splitCount" placeholder="Tất cả" min="1" style="width: 100px;">
                 <span style="font-weight: normal; color: #64748b; font-size: 0.9em;">(Để trống nếu muốn gom vào 1 file)</span>
             </label>
@@ -92,7 +95,7 @@
 </div>
 
 <script>
-    let globalData = []; 
+    let globalData = [];
 
     function analyzeData() {
         const text = document.getElementById('inputText').value;
@@ -115,7 +118,7 @@
         }
 
         renderTable();
-        
+
         // Hiện các nút và setting
         document.getElementById('btnExport').style.display = 'inline-block';
         document.getElementById('exportOptions').style.display = 'block';
@@ -125,16 +128,16 @@
 
     function renderTable() {
         const table = document.getElementById('dataTable');
-        table.innerHTML = ''; 
+        table.innerHTML = '';
 
         if (globalData.length === 0) return;
 
         const maxCols = Math.max(...globalData.map(row => row.length));
 
         const thead = document.createElement('thead');
-        
+
         const trControl = document.createElement('tr');
-        const thCorner = document.createElement('th'); 
+        const thCorner = document.createElement('th');
         thCorner.innerText = "Row \\ Col";
         thCorner.style.backgroundColor = "#e2e8f0";
         trControl.appendChild(thCorner);
@@ -154,7 +157,7 @@
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        
+
         globalData.forEach((row, rowIndex) => {
             const tr = document.createElement('tr');
             tr.id = `row-${rowIndex}`;
@@ -166,8 +169,8 @@
 
             for (let c = 0; c < maxCols; c++) {
                 const td = document.createElement('td');
-                td.innerText = row[c] || ""; 
-                td.className = `cell-col-${c}`; 
+                td.innerText = row[c] || "";
+                td.className = `cell-col-${c}`;
                 tr.appendChild(td);
             }
             tbody.appendChild(tr);
@@ -188,7 +191,7 @@
     function toggleCol(colIndex) {
         const cells = document.querySelectorAll(`.cell-col-${colIndex}`);
         const chk = document.querySelector(`.chk-col-delete[data-col="${colIndex}"]`);
-        
+
         cells.forEach(cell => {
             if (chk.checked) {
                 cell.classList.add('deleted-col');
@@ -201,7 +204,7 @@
     function processAndExport() {
         const downloadArea = document.getElementById('downloadArea');
         downloadArea.innerHTML = '';
-        
+
         const rowsToDelete = new Set();
         document.querySelectorAll('.chk-row-delete:checked').forEach(el => rowsToDelete.add(parseInt(el.dataset.row)));
 
@@ -229,10 +232,14 @@
         // Lấy cấu hình từ người dùng
         const baseFileName = document.getElementById('baseFileName').value.trim() || "Export";
         const splitInputValue = parseInt(document.getElementById('splitCount').value);
-        
+
+        // Số bắt đầu đánh tên file (mặc định 1)
+        const baseNumberInput = parseInt(document.getElementById('baseNumber').value);
+        const baseNumber = isNaN(baseNumberInput) ? 1 : baseNumberInput;
+
         // Nếu không nhập hoặc nhập số <= 0 thì xuất toàn bộ vào 1 file
         const batchSize = (isNaN(splitInputValue) || splitInputValue <= 0) ? cleanedData.length : splitInputValue;
-        const bom = "\uFEFF"; 
+        const bom = "﻿";
 
         for (let i = 0; i < cleanedData.length; i += batchSize) {
             const batch = cleanedData.slice(i, i + batchSize);
@@ -243,15 +250,15 @@
                 csvContent += escapedRow.join(",") + "\n";
             });
 
-            // Logic đặt tên file mới dựa vào index thực tế
+            // Logic đặt tên file: đánh số cộng dồn từ base number
             let fileName = "";
             if (batchSize >= cleanedData.length) {
                 // Xuất 1 file duy nhất
                 fileName = `${baseFileName}.csv`;
             } else {
                 // Tách nhiều file
-                let startRow = i + 1;
-                let endRow = i + batch.length;
+                let startRow = baseNumber + i;
+                let endRow = baseNumber + i + batch.length - 1;
                 fileName = `${baseFileName}_${startRow}-${endRow}.csv`;
             }
 
@@ -278,11 +285,12 @@
         document.getElementById('exportOptions').style.display = 'none'; // Ẩn settings
         document.getElementById('status').innerText = '';
         document.getElementById('downloadArea').innerHTML = '';
-        
+
         // Reset settings
         document.getElementById('baseFileName').value = 'Export';
+        document.getElementById('baseNumber').value = '1';
         document.getElementById('splitCount').value = '';
-        
+
         globalData = [];
     }
 </script>
